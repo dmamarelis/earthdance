@@ -1,0 +1,623 @@
+{
+  "demo": true,
+  "site": {
+    "name": {
+      "el": "Θεσσαλικός Κάμπος",
+      "en": "Thessaly Plain"
+    },
+    "country": {
+      "el": "Ελλάδα",
+      "en": "Greece"
+    },
+    "bounds": [
+      21.85,
+      39.15,
+      23.05,
+      39.85
+    ],
+    "center": [
+      22.42,
+      39.5
+    ],
+    "zoom": 9.4
+  },
+  "reference": {
+    "name": "EGMS",
+    "label": {
+      "el": "EGMS (Ευρωπαϊκή Υπηρεσία Κίνησης Εδάφους)",
+      "en": "EGMS (European Ground Motion Service)"
+    }
+  },
+  "layers": [
+    {
+      "id": "hh",
+      "band": "L",
+      "sensor": "NISAR",
+      "product": "L2 GCOV",
+      "unit": "dB",
+      "name": {
+        "el": "Οπισθοσκέδαση HH",
+        "en": "Backscatter HH"
+      },
+      "short": {
+        "el": "Υφή εδάφους & νερό",
+        "en": "Surface texture & water"
+      },
+      "description": {
+        "el": "Πόση ενέργεια ραντάρ επιστρέφει στον δορυφόρο. Σκούρο = λείο (νερό). Φωτεινό = τραχύ (πόλεις, βουνά).",
+        "en": "How much radar energy returns to the satellite. Dark = smooth (water). Bright = rough (cities, mountains)."
+      },
+      "legend": {
+        "stops": [
+          [
+            -26,
+            "#05070d"
+          ],
+          [
+            -18,
+            "#2a3550"
+          ],
+          [
+            -11,
+            "#8a97ad"
+          ],
+          [
+            -4,
+            "#eef2f7"
+          ]
+        ],
+        "low": {
+          "el": "λείο / νερό",
+          "en": "smooth / water"
+        },
+        "high": {
+          "el": "τραχύ",
+          "en": "rough"
+        }
+      },
+      "bounds": [
+        21.85,
+        39.15,
+        23.05,
+        39.85
+      ],
+      "frames": [
+        {
+          "date": "2025-11-20",
+          "image": "data/layers/hh_2025-11-20.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20251120",
+          "url": ""
+        },
+        {
+          "date": "2025-12-26",
+          "image": "data/layers/hh_2025-12-26.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20251226",
+          "url": ""
+        },
+        {
+          "date": "2026-01-31",
+          "image": "data/layers/hh_2026-01-31.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260131",
+          "url": ""
+        },
+        {
+          "date": "2026-03-08",
+          "image": "data/layers/hh_2026-03-08.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260308",
+          "url": ""
+        },
+        {
+          "date": "2026-04-13",
+          "image": "data/layers/hh_2026-04-13.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260413",
+          "url": ""
+        },
+        {
+          "date": "2026-05-19",
+          "image": "data/layers/hh_2026-05-19.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260519",
+          "url": ""
+        },
+        {
+          "date": "2026-06-24",
+          "image": "data/layers/hh_2026-06-24.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260624",
+          "url": ""
+        },
+        {
+          "date": "2026-07-30",
+          "image": "data/layers/hh_2026-07-30.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260730",
+          "url": ""
+        },
+        {
+          "date": "2026-09-04",
+          "image": "data/layers/hh_2026-09-04.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260904",
+          "url": ""
+        },
+        {
+          "date": "2026-10-10",
+          "image": "data/layers/hh_2026-10-10.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20261010",
+          "url": ""
+        }
+      ]
+    },
+    {
+      "id": "hv",
+      "band": "L",
+      "sensor": "NISAR",
+      "product": "L2 GCOV",
+      "unit": "dB",
+      "name": {
+        "el": "Οπισθοσκέδαση HV",
+        "en": "Backscatter HV"
+      },
+      "short": {
+        "el": "Βλάστηση & καλλιέργειες",
+        "en": "Vegetation & crops"
+      },
+      "description": {
+        "el": "Η διασταυρούμενη πόλωση «ανάβει» όπου υπάρχει όγκος βλάστησης: δάση και ώριμες καλλιέργειες.",
+        "en": "Cross-polarisation lights up where there is vegetation volume: forests and mature crops."
+      },
+      "legend": {
+        "stops": [
+          [
+            -32,
+            "#04070a"
+          ],
+          [
+            -25,
+            "#0f3d3a"
+          ],
+          [
+            -19,
+            "#2f9e6e"
+          ],
+          [
+            -12,
+            "#e9f26b"
+          ]
+        ],
+        "low": {
+          "el": "γυμνό / νερό",
+          "en": "bare / water"
+        },
+        "high": {
+          "el": "πυκνή βλάστηση",
+          "en": "dense vegetation"
+        }
+      },
+      "bounds": [
+        21.85,
+        39.15,
+        23.05,
+        39.85
+      ],
+      "frames": [
+        {
+          "date": "2025-11-20",
+          "image": "data/layers/hv_2025-11-20.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20251120",
+          "url": ""
+        },
+        {
+          "date": "2025-12-26",
+          "image": "data/layers/hv_2025-12-26.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20251226",
+          "url": ""
+        },
+        {
+          "date": "2026-01-31",
+          "image": "data/layers/hv_2026-01-31.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260131",
+          "url": ""
+        },
+        {
+          "date": "2026-03-08",
+          "image": "data/layers/hv_2026-03-08.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260308",
+          "url": ""
+        },
+        {
+          "date": "2026-04-13",
+          "image": "data/layers/hv_2026-04-13.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260413",
+          "url": ""
+        },
+        {
+          "date": "2026-05-19",
+          "image": "data/layers/hv_2026-05-19.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260519",
+          "url": ""
+        },
+        {
+          "date": "2026-06-24",
+          "image": "data/layers/hv_2026-06-24.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260624",
+          "url": ""
+        },
+        {
+          "date": "2026-07-30",
+          "image": "data/layers/hv_2026-07-30.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260730",
+          "url": ""
+        },
+        {
+          "date": "2026-09-04",
+          "image": "data/layers/hv_2026-09-04.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260904",
+          "url": ""
+        },
+        {
+          "date": "2026-10-10",
+          "image": "data/layers/hv_2026-10-10.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20261010",
+          "url": ""
+        }
+      ]
+    },
+    {
+      "id": "change",
+      "band": "L",
+      "sensor": "NISAR",
+      "product": "L2 GCOV (Δ)",
+      "unit": "dB",
+      "name": {
+        "el": "Αλλαγή από την αρχή",
+        "en": "Change since start"
+      },
+      "short": {
+        "el": "Τι άλλαξε, πού",
+        "en": "What changed, where"
+      },
+      "description": {
+        "el": "Διαφορά HH από την πρώτη ημερομηνία. Μπλε = πιο σκούρο (συνήθως νερό/πλημμύρα). Πορτοκαλί = πιο φωτεινό (ανάπτυξη, υγρασία).",
+        "en": "HH difference from the first date. Blue = darker (usually water/flooding). Orange = brighter (growth, moisture)."
+      },
+      "legend": {
+        "stops": [
+          [
+            -8,
+            "#2f6df6"
+          ],
+          [
+            -3,
+            "#7fb2ff"
+          ],
+          [
+            0,
+            "#e8e6df"
+          ],
+          [
+            3,
+            "#ffb454"
+          ],
+          [
+            8,
+            "#f2622e"
+          ]
+        ],
+        "low": {
+          "el": "πιο σκούρο",
+          "en": "darker"
+        },
+        "high": {
+          "el": "πιο φωτεινό",
+          "en": "brighter"
+        }
+      },
+      "bounds": [
+        21.85,
+        39.15,
+        23.05,
+        39.85
+      ],
+      "frames": [
+        {
+          "date": "2025-11-20",
+          "image": "data/layers/change_2025-11-20.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20251120",
+          "url": ""
+        },
+        {
+          "date": "2025-12-26",
+          "image": "data/layers/change_2025-12-26.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20251226",
+          "url": ""
+        },
+        {
+          "date": "2026-01-31",
+          "image": "data/layers/change_2026-01-31.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260131",
+          "url": ""
+        },
+        {
+          "date": "2026-03-08",
+          "image": "data/layers/change_2026-03-08.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260308",
+          "url": ""
+        },
+        {
+          "date": "2026-04-13",
+          "image": "data/layers/change_2026-04-13.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260413",
+          "url": ""
+        },
+        {
+          "date": "2026-05-19",
+          "image": "data/layers/change_2026-05-19.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260519",
+          "url": ""
+        },
+        {
+          "date": "2026-06-24",
+          "image": "data/layers/change_2026-06-24.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260624",
+          "url": ""
+        },
+        {
+          "date": "2026-07-30",
+          "image": "data/layers/change_2026-07-30.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260730",
+          "url": ""
+        },
+        {
+          "date": "2026-09-04",
+          "image": "data/layers/change_2026-09-04.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20260904",
+          "url": ""
+        },
+        {
+          "date": "2026-10-10",
+          "image": "data/layers/change_2026-10-10.webp",
+          "source": "DEMO_NISAR_L2_GCOV_20261010",
+          "url": ""
+        }
+      ]
+    },
+    {
+      "id": "disp",
+      "band": "L",
+      "sensor": "NISAR",
+      "product": "L2 GUNW",
+      "unit": "mm",
+      "name": {
+        "el": "Μετατόπιση εδάφους",
+        "en": "Ground displacement"
+      },
+      "short": {
+        "el": "Πού βυθίζεται η γη",
+        "en": "Where the land sinks"
+      },
+      "description": {
+        "el": "Σωρευτική κίνηση του εδάφους στη γραμμή όρασης του δορυφόρου. Κόκκινο = το έδαφος απομακρύνεται (βυθίζεται).",
+        "en": "Cumulative ground motion along the satellite line of sight. Red = ground moving away (sinking)."
+      },
+      "legend": {
+        "stops": [
+          [
+            -90,
+            "#7a1663"
+          ],
+          [
+            -60,
+            "#e5383b"
+          ],
+          [
+            -30,
+            "#f9a03f"
+          ],
+          [
+            -8,
+            "#f6e7a9"
+          ],
+          [
+            0,
+            "#e9eef2"
+          ],
+          [
+            15,
+            "#3d8bfd"
+          ]
+        ],
+        "low": {
+          "el": "βύθιση",
+          "en": "sinking"
+        },
+        "high": {
+          "el": "ανύψωση",
+          "en": "uplift"
+        }
+      },
+      "bounds": [
+        21.85,
+        39.15,
+        23.05,
+        39.85
+      ],
+      "frames": [
+        {
+          "date": "2025-11-20",
+          "image": "data/layers/disp_2025-11-20.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20251120",
+          "url": ""
+        },
+        {
+          "date": "2025-12-26",
+          "image": "data/layers/disp_2025-12-26.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20251226",
+          "url": ""
+        },
+        {
+          "date": "2026-01-31",
+          "image": "data/layers/disp_2026-01-31.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20260131",
+          "url": ""
+        },
+        {
+          "date": "2026-03-08",
+          "image": "data/layers/disp_2026-03-08.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20260308",
+          "url": ""
+        },
+        {
+          "date": "2026-04-13",
+          "image": "data/layers/disp_2026-04-13.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20260413",
+          "url": ""
+        },
+        {
+          "date": "2026-05-19",
+          "image": "data/layers/disp_2026-05-19.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20260519",
+          "url": ""
+        },
+        {
+          "date": "2026-06-24",
+          "image": "data/layers/disp_2026-06-24.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20260624",
+          "url": ""
+        },
+        {
+          "date": "2026-07-30",
+          "image": "data/layers/disp_2026-07-30.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20260730",
+          "url": ""
+        },
+        {
+          "date": "2026-09-04",
+          "image": "data/layers/disp_2026-09-04.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20260904",
+          "url": ""
+        },
+        {
+          "date": "2026-10-10",
+          "image": "data/layers/disp_2026-10-10.webp",
+          "source": "DEMO_NISAR_L2_GUNW_20261010",
+          "url": ""
+        }
+      ]
+    },
+    {
+      "id": "s1vv",
+      "band": "C",
+      "sensor": "Sentinel-1",
+      "product": "RTC",
+      "unit": "dB",
+      "name": {
+        "el": "Sentinel-1 VV (C-band)",
+        "en": "Sentinel-1 VV (C-band)"
+      },
+      "short": {
+        "el": "Το ίδιο τοπίο, μικρότερο μήκος κύματος",
+        "en": "Same landscape, shorter wavelength"
+      },
+      "description": {
+        "el": "Για σύγκριση: το C-band (5,6 cm) σκεδάζεται στην κορυφή της βλάστησης, ενώ το L-band του NISAR (24 cm) τη διαπερνά.",
+        "en": "For comparison: C-band (5.6 cm) scatters at the top of vegetation, while NISAR's L-band (24 cm) penetrates it."
+      },
+      "legend": {
+        "stops": [
+          [
+            -24,
+            "#05070d"
+          ],
+          [
+            -16,
+            "#3a3350"
+          ],
+          [
+            -10,
+            "#a898ad"
+          ],
+          [
+            -3,
+            "#f7eef2"
+          ]
+        ],
+        "low": {
+          "el": "λείο / νερό",
+          "en": "smooth / water"
+        },
+        "high": {
+          "el": "τραχύ",
+          "en": "rough"
+        }
+      },
+      "bounds": [
+        21.85,
+        39.15,
+        23.05,
+        39.85
+      ],
+      "frames": [
+        {
+          "date": "2025-11-20",
+          "image": "data/layers/s1vv_2025-11-20.webp",
+          "source": "DEMO_S1_RTC_20251120",
+          "url": ""
+        },
+        {
+          "date": "2025-12-26",
+          "image": "data/layers/s1vv_2025-12-26.webp",
+          "source": "DEMO_S1_RTC_20251226",
+          "url": ""
+        },
+        {
+          "date": "2026-01-31",
+          "image": "data/layers/s1vv_2026-01-31.webp",
+          "source": "DEMO_S1_RTC_20260131",
+          "url": ""
+        },
+        {
+          "date": "2026-03-08",
+          "image": "data/layers/s1vv_2026-03-08.webp",
+          "source": "DEMO_S1_RTC_20260308",
+          "url": ""
+        },
+        {
+          "date": "2026-04-13",
+          "image": "data/layers/s1vv_2026-04-13.webp",
+          "source": "DEMO_S1_RTC_20260413",
+          "url": ""
+        },
+        {
+          "date": "2026-05-19",
+          "image": "data/layers/s1vv_2026-05-19.webp",
+          "source": "DEMO_S1_RTC_20260519",
+          "url": ""
+        },
+        {
+          "date": "2026-06-24",
+          "image": "data/layers/s1vv_2026-06-24.webp",
+          "source": "DEMO_S1_RTC_20260624",
+          "url": ""
+        },
+        {
+          "date": "2026-07-30",
+          "image": "data/layers/s1vv_2026-07-30.webp",
+          "source": "DEMO_S1_RTC_20260730",
+          "url": ""
+        },
+        {
+          "date": "2026-09-04",
+          "image": "data/layers/s1vv_2026-09-04.webp",
+          "source": "DEMO_S1_RTC_20260904",
+          "url": ""
+        },
+        {
+          "date": "2026-10-10",
+          "image": "data/layers/s1vv_2026-10-10.webp",
+          "source": "DEMO_S1_RTC_20261010",
+          "url": ""
+        }
+      ]
+    }
+  ],
+  "points": "data/points.geojson",
+  "validation": "data/validation.json",
+  "content": "data/content.json"
+}

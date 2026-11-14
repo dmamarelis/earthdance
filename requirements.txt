@@ -1,0 +1,4 @@
+numpy
+pillow
+# only for GeoTIFF input in tools/add_layer.py:
+# rasterio
