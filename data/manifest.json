@@ -75,6 +75,47 @@
           "en": "rough"
         }
       },
+      "classes": [
+        [
+          -19,
+          {
+            "el": "Ήρεμο νερό: λεία επιφάνεια, το σήμα ανακλάται μακριά σαν από καθρέφτη",
+            "en": "Calm water: a smooth surface reflects the signal away like a mirror"
+          }
+        ],
+        [
+          -14,
+          {
+            "el": "Λείο ή γυμνό έδαφος: λίγη τραχύτητα, λίγο σήμα επιστρέφει",
+            "en": "Smooth or bare soil: little roughness, little signal returns"
+          }
+        ],
+        [
+          -9,
+          {
+            "el": "Χωράφι ή υγρό έδαφος: τραχύτητα και νερό (υψηλή διηλεκτρική σταθερά) δυναμώνουν την επιστροφή",
+            "en": "Field or wet soil: roughness and water (high dielectric constant) strengthen the return"
+          }
+        ],
+        [
+          -3,
+          {
+            "el": "Καλαμιώνας ή βλάστηση μέσα σε νερό: διπλή ανάκλαση νερό → μίσχος → δορυφόρος",
+            "en": "Reeds or vegetation standing in water: double bounce water → stem → satellite"
+          }
+        ],
+        [
+          99,
+          {
+            "el": "Κτίρια ή κατασκευές: γωνίες που στέλνουν το σήμα πίσω (διπλή ανάκλαση)",
+            "en": "Buildings or structures: corners send the signal straight back (double bounce)"
+          }
+        ]
+      ],
+      "grid": [
+        160,
+        95
+      ],
       "bounds": [
         22.85,
         40.5,
@@ -85,60 +126,70 @@
         {
           "date": "2025-11-20",
           "image": "data/layers/hh_2025-11-20.webp",
+          "values": "data/values/hh_2025-11-20.bin",
           "source": "DEMO_NISAR_L2_GCOV_20251120",
           "url": ""
         },
         {
           "date": "2025-12-26",
           "image": "data/layers/hh_2025-12-26.webp",
+          "values": "data/values/hh_2025-12-26.bin",
           "source": "DEMO_NISAR_L2_GCOV_20251226",
           "url": ""
         },
         {
           "date": "2026-01-31",
           "image": "data/layers/hh_2026-01-31.webp",
+          "values": "data/values/hh_2026-01-31.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260131",
           "url": ""
         },
         {
           "date": "2026-03-08",
           "image": "data/layers/hh_2026-03-08.webp",
+          "values": "data/values/hh_2026-03-08.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260308",
           "url": ""
         },
         {
           "date": "2026-04-13",
           "image": "data/layers/hh_2026-04-13.webp",
+          "values": "data/values/hh_2026-04-13.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260413",
           "url": ""
         },
         {
           "date": "2026-05-19",
           "image": "data/layers/hh_2026-05-19.webp",
+          "values": "data/values/hh_2026-05-19.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260519",
           "url": ""
         },
         {
           "date": "2026-06-24",
           "image": "data/layers/hh_2026-06-24.webp",
+          "values": "data/values/hh_2026-06-24.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260624",
           "url": ""
         },
         {
           "date": "2026-07-30",
           "image": "data/layers/hh_2026-07-30.webp",
+          "values": "data/values/hh_2026-07-30.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260730",
           "url": ""
         },
         {
           "date": "2026-09-04",
           "image": "data/layers/hh_2026-09-04.webp",
+          "values": "data/values/hh_2026-09-04.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260904",
           "url": ""
         },
         {
           "date": "2026-10-10",
           "image": "data/layers/hh_2026-10-10.webp",
+          "values": "data/values/hh_2026-10-10.bin",
           "source": "DEMO_NISAR_L2_GCOV_20261010",
           "url": ""
         }
@@ -190,6 +241,40 @@
           "en": "dense vegetation"
         }
       },
+      "classes": [
+        [
+          -27,
+          {
+            "el": "Νερό: σχεδόν καμία αποπόλωση",
+            "en": "Water: almost no depolarisation"
+          }
+        ],
+        [
+          -21,
+          {
+            "el": "Γυμνό ή οργωμένο έδαφος: λίγος όγκος βλάστησης",
+            "en": "Bare or ploughed soil: little vegetation volume"
+          }
+        ],
+        [
+          -16,
+          {
+            "el": "Καλλιέργεια σε ανάπτυξη: ο όγκος των φυτών αποπολώνει το σήμα",
+            "en": "Growing crop: plant volume depolarises the signal"
+          }
+        ],
+        [
+          99,
+          {
+            "el": "Πυκνή βλάστηση, καλαμιώνας ή δάσος: πολλαπλές σκεδάσεις μέσα στον όγκο",
+            "en": "Dense vegetation, reeds or forest: multiple scattering inside the volume"
+          }
+        ]
+      ],
+      "grid": [
+        160,
+        95
+      ],
       "bounds": [
         22.85,
         40.5,
@@ -200,60 +285,70 @@
         {
           "date": "2025-11-20",
           "image": "data/layers/hv_2025-11-20.webp",
+          "values": "data/values/hv_2025-11-20.bin",
           "source": "DEMO_NISAR_L2_GCOV_20251120",
           "url": ""
         },
         {
           "date": "2025-12-26",
           "image": "data/layers/hv_2025-12-26.webp",
+          "values": "data/values/hv_2025-12-26.bin",
           "source": "DEMO_NISAR_L2_GCOV_20251226",
           "url": ""
         },
         {
           "date": "2026-01-31",
           "image": "data/layers/hv_2026-01-31.webp",
+          "values": "data/values/hv_2026-01-31.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260131",
           "url": ""
         },
         {
           "date": "2026-03-08",
           "image": "data/layers/hv_2026-03-08.webp",
+          "values": "data/values/hv_2026-03-08.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260308",
           "url": ""
         },
         {
           "date": "2026-04-13",
           "image": "data/layers/hv_2026-04-13.webp",
+          "values": "data/values/hv_2026-04-13.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260413",
           "url": ""
         },
         {
           "date": "2026-05-19",
           "image": "data/layers/hv_2026-05-19.webp",
+          "values": "data/values/hv_2026-05-19.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260519",
           "url": ""
         },
         {
           "date": "2026-06-24",
           "image": "data/layers/hv_2026-06-24.webp",
+          "values": "data/values/hv_2026-06-24.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260624",
           "url": ""
         },
         {
           "date": "2026-07-30",
           "image": "data/layers/hv_2026-07-30.webp",
+          "values": "data/values/hv_2026-07-30.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260730",
           "url": ""
         },
         {
           "date": "2026-09-04",
           "image": "data/layers/hv_2026-09-04.webp",
+          "values": "data/values/hv_2026-09-04.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260904",
           "url": ""
         },
         {
           "date": "2026-10-10",
           "image": "data/layers/hv_2026-10-10.webp",
+          "values": "data/values/hv_2026-10-10.bin",
           "source": "DEMO_NISAR_L2_GCOV_20261010",
           "url": ""
         }
@@ -309,6 +404,33 @@
           "en": "brighter"
         }
       },
+      "classes": [
+        [
+          -3,
+          {
+            "el": "Πιο σκούρο από την αρχή: συνήθως νερό που ήρθε ή βλάστηση που χάθηκε",
+            "en": "Darker than at the start: usually new water or lost vegetation"
+          }
+        ],
+        [
+          3,
+          {
+            "el": "Μικρή ή καμία αλλαγή",
+            "en": "Little or no change"
+          }
+        ],
+        [
+          99,
+          {
+            "el": "Πιο φωτεινό: ανάπτυξη, όργωμα (τραχύτητα) ή υγρασία",
+            "en": "Brighter: growth, ploughing (roughness) or moisture"
+          }
+        ]
+      ],
+      "grid": [
+        160,
+        95
+      ],
       "bounds": [
         22.85,
         40.5,
@@ -319,60 +441,70 @@
         {
           "date": "2025-11-20",
           "image": "data/layers/change_2025-11-20.webp",
+          "values": "data/values/change_2025-11-20.bin",
           "source": "DEMO_NISAR_L2_GCOV_20251120",
           "url": ""
         },
         {
           "date": "2025-12-26",
           "image": "data/layers/change_2025-12-26.webp",
+          "values": "data/values/change_2025-12-26.bin",
           "source": "DEMO_NISAR_L2_GCOV_20251226",
           "url": ""
         },
         {
           "date": "2026-01-31",
           "image": "data/layers/change_2026-01-31.webp",
+          "values": "data/values/change_2026-01-31.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260131",
           "url": ""
         },
         {
           "date": "2026-03-08",
           "image": "data/layers/change_2026-03-08.webp",
+          "values": "data/values/change_2026-03-08.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260308",
           "url": ""
         },
         {
           "date": "2026-04-13",
           "image": "data/layers/change_2026-04-13.webp",
+          "values": "data/values/change_2026-04-13.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260413",
           "url": ""
         },
         {
           "date": "2026-05-19",
           "image": "data/layers/change_2026-05-19.webp",
+          "values": "data/values/change_2026-05-19.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260519",
           "url": ""
         },
         {
           "date": "2026-06-24",
           "image": "data/layers/change_2026-06-24.webp",
+          "values": "data/values/change_2026-06-24.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260624",
           "url": ""
         },
         {
           "date": "2026-07-30",
           "image": "data/layers/change_2026-07-30.webp",
+          "values": "data/values/change_2026-07-30.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260730",
           "url": ""
         },
         {
           "date": "2026-09-04",
           "image": "data/layers/change_2026-09-04.webp",
+          "values": "data/values/change_2026-09-04.bin",
           "source": "DEMO_NISAR_L2_GCOV_20260904",
           "url": ""
         },
         {
           "date": "2026-10-10",
           "image": "data/layers/change_2026-10-10.webp",
+          "values": "data/values/change_2026-10-10.bin",
           "source": "DEMO_NISAR_L2_GCOV_20261010",
           "url": ""
         }
@@ -432,6 +564,40 @@
           "en": "uplift"
         }
       },
+      "classes": [
+        [
+          -40,
+          {
+            "el": "Έντονη βύθιση: συμπίεση υδροφορέα από άντληση",
+            "en": "Strong sinking: aquifer compaction from pumping"
+          }
+        ],
+        [
+          -10,
+          {
+            "el": "Βύθιση",
+            "en": "Sinking"
+          }
+        ],
+        [
+          10,
+          {
+            "el": "Σταθερό, μέσα στον θόρυβο της μέτρησης",
+            "en": "Stable, within measurement noise"
+          }
+        ],
+        [
+          99,
+          {
+            "el": "Ανύψωση",
+            "en": "Uplift"
+          }
+        ]
+      ],
+      "grid": [
+        160,
+        95
+      ],
       "bounds": [
         22.85,
         40.5,
@@ -442,60 +608,70 @@
         {
           "date": "2025-11-20",
           "image": "data/layers/disp_2025-11-20.webp",
+          "values": "data/values/disp_2025-11-20.bin",
           "source": "DEMO_NISAR_L2_GUNW_20251120",
           "url": ""
         },
         {
           "date": "2025-12-26",
           "image": "data/layers/disp_2025-12-26.webp",
+          "values": "data/values/disp_2025-12-26.bin",
           "source": "DEMO_NISAR_L2_GUNW_20251226",
           "url": ""
         },
         {
           "date": "2026-01-31",
           "image": "data/layers/disp_2026-01-31.webp",
+          "values": "data/values/disp_2026-01-31.bin",
           "source": "DEMO_NISAR_L2_GUNW_20260131",
           "url": ""
         },
         {
           "date": "2026-03-08",
           "image": "data/layers/disp_2026-03-08.webp",
+          "values": "data/values/disp_2026-03-08.bin",
           "source": "DEMO_NISAR_L2_GUNW_20260308",
           "url": ""
         },
         {
           "date": "2026-04-13",
           "image": "data/layers/disp_2026-04-13.webp",
+          "values": "data/values/disp_2026-04-13.bin",
           "source": "DEMO_NISAR_L2_GUNW_20260413",
           "url": ""
         },
         {
           "date": "2026-05-19",
           "image": "data/layers/disp_2026-05-19.webp",
+          "values": "data/values/disp_2026-05-19.bin",
           "source": "DEMO_NISAR_L2_GUNW_20260519",
           "url": ""
         },
         {
           "date": "2026-06-24",
           "image": "data/layers/disp_2026-06-24.webp",
+          "values": "data/values/disp_2026-06-24.bin",
           "source": "DEMO_NISAR_L2_GUNW_20260624",
           "url": ""
         },
         {
           "date": "2026-07-30",
           "image": "data/layers/disp_2026-07-30.webp",
+          "values": "data/values/disp_2026-07-30.bin",
           "source": "DEMO_NISAR_L2_GUNW_20260730",
           "url": ""
         },
         {
           "date": "2026-09-04",
           "image": "data/layers/disp_2026-09-04.webp",
+          "values": "data/values/disp_2026-09-04.bin",
           "source": "DEMO_NISAR_L2_GUNW_20260904",
           "url": ""
         },
         {
           "date": "2026-10-10",
           "image": "data/layers/disp_2026-10-10.webp",
+          "values": "data/values/disp_2026-10-10.bin",
           "source": "DEMO_NISAR_L2_GUNW_20261010",
           "url": ""
         }
@@ -547,6 +723,33 @@
           "en": "rough"
         }
       },
+      "classes": [
+        [
+          -17,
+          {
+            "el": "Νερό (C-band)",
+            "en": "Water (C-band)"
+          }
+        ],
+        [
+          -10,
+          {
+            "el": "Έδαφος ή χαμηλή βλάστηση: το C-band σκεδάζεται στην κορυφή των φυτών",
+            "en": "Soil or low vegetation: C-band scatters at the top of the plants"
+          }
+        ],
+        [
+          99,
+          {
+            "el": "Τραχιά επιφάνεια ή κτίρια",
+            "en": "Rough surface or buildings"
+          }
+        ]
+      ],
+      "grid": [
+        160,
+        95
+      ],
       "bounds": [
         22.85,
         40.5,
@@ -557,66 +760,294 @@
         {
           "date": "2025-11-20",
           "image": "data/layers/s1vv_2025-11-20.webp",
+          "values": "data/values/s1vv_2025-11-20.bin",
           "source": "DEMO_S1_RTC_20251120",
           "url": ""
         },
         {
           "date": "2025-12-26",
           "image": "data/layers/s1vv_2025-12-26.webp",
+          "values": "data/values/s1vv_2025-12-26.bin",
           "source": "DEMO_S1_RTC_20251226",
           "url": ""
         },
         {
           "date": "2026-01-31",
           "image": "data/layers/s1vv_2026-01-31.webp",
+          "values": "data/values/s1vv_2026-01-31.bin",
           "source": "DEMO_S1_RTC_20260131",
           "url": ""
         },
         {
           "date": "2026-03-08",
           "image": "data/layers/s1vv_2026-03-08.webp",
+          "values": "data/values/s1vv_2026-03-08.bin",
           "source": "DEMO_S1_RTC_20260308",
           "url": ""
         },
         {
           "date": "2026-04-13",
           "image": "data/layers/s1vv_2026-04-13.webp",
+          "values": "data/values/s1vv_2026-04-13.bin",
           "source": "DEMO_S1_RTC_20260413",
           "url": ""
         },
         {
           "date": "2026-05-19",
           "image": "data/layers/s1vv_2026-05-19.webp",
+          "values": "data/values/s1vv_2026-05-19.bin",
           "source": "DEMO_S1_RTC_20260519",
           "url": ""
         },
         {
           "date": "2026-06-24",
           "image": "data/layers/s1vv_2026-06-24.webp",
+          "values": "data/values/s1vv_2026-06-24.bin",
           "source": "DEMO_S1_RTC_20260624",
           "url": ""
         },
         {
           "date": "2026-07-30",
           "image": "data/layers/s1vv_2026-07-30.webp",
+          "values": "data/values/s1vv_2026-07-30.bin",
           "source": "DEMO_S1_RTC_20260730",
           "url": ""
         },
         {
           "date": "2026-09-04",
           "image": "data/layers/s1vv_2026-09-04.webp",
+          "values": "data/values/s1vv_2026-09-04.bin",
           "source": "DEMO_S1_RTC_20260904",
           "url": ""
         },
         {
           "date": "2026-10-10",
           "image": "data/layers/s1vv_2026-10-10.webp",
+          "values": "data/values/s1vv_2026-10-10.bin",
           "source": "DEMO_S1_RTC_20261010",
+          "url": ""
+        }
+      ]
+    },
+    {
+      "id": "sm",
+      "band": "L",
+      "sensor": "NISAR",
+      "product": "L3 Soil Moisture",
+      "unit": "%",
+      "name": {
+        "el": "Υγρασία εδάφους",
+        "en": "Soil moisture"
+      },
+      "short": {
+        "el": "Πόσο νερό κρατά το χώμα",
+        "en": "How much water the soil holds"
+      },
+      "description": {
+        "el": "Το νερό έχει πολύ μεγαλύτερη διηλεκτρική σταθερά από το ξερό χώμα, άρα το υγρό έδαφος επιστρέφει περισσότερο σήμα. Από αυτή τη διαφορά εκτιμάται η υγρασία (όγκος νερού / όγκος εδάφους).",
+        "en": "Water has a far higher dielectric constant than dry soil, so wet ground returns more signal. Moisture (water volume / soil volume) is estimated from that difference."
+      },
+      "legend": {
+        "stops": [
+          [
+            4,
+            "#7a4b1e"
+          ],
+          [
+            14,
+            "#c9a46a"
+          ],
+          [
+            24,
+            "#ece6cf"
+          ],
+          [
+            34,
+            "#5fb3d9"
+          ],
+          [
+            45,
+            "#1d4e89"
+          ]
+        ],
+        "low": {
+          "el": "ξερό",
+          "en": "dry"
+        },
+        "high": {
+          "el": "κορεσμένο",
+          "en": "saturated"
+        }
+      },
+      "classes": [
+        [
+          12,
+          {
+            "el": "Ξερό έδαφος: χαμηλή διηλεκτρική σταθερά",
+            "en": "Dry soil: low dielectric constant"
+          }
+        ],
+        [
+          25,
+          {
+            "el": "Μέτρια υγρασία",
+            "en": "Moderate moisture"
+          }
+        ],
+        [
+          99,
+          {
+            "el": "Υγρό έδαφος ή αρδευόμενο χωράφι",
+            "en": "Wet soil or irrigated field"
+          }
+        ]
+      ],
+      "grid": [
+        160,
+        95
+      ],
+      "bounds": [
+        22.85,
+        40.5,
+        23.65,
+        40.86
+      ],
+      "frames": [
+        {
+          "date": "2025-11-20",
+          "image": "data/layers/sm_2025-11-20.webp",
+          "values": "data/values/sm_2025-11-20.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20251120",
+          "url": ""
+        },
+        {
+          "date": "2025-12-26",
+          "image": "data/layers/sm_2025-12-26.webp",
+          "values": "data/values/sm_2025-12-26.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20251226",
+          "url": ""
+        },
+        {
+          "date": "2026-01-31",
+          "image": "data/layers/sm_2026-01-31.webp",
+          "values": "data/values/sm_2026-01-31.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20260131",
+          "url": ""
+        },
+        {
+          "date": "2026-03-08",
+          "image": "data/layers/sm_2026-03-08.webp",
+          "values": "data/values/sm_2026-03-08.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20260308",
+          "url": ""
+        },
+        {
+          "date": "2026-04-13",
+          "image": "data/layers/sm_2026-04-13.webp",
+          "values": "data/values/sm_2026-04-13.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20260413",
+          "url": ""
+        },
+        {
+          "date": "2026-05-19",
+          "image": "data/layers/sm_2026-05-19.webp",
+          "values": "data/values/sm_2026-05-19.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20260519",
+          "url": ""
+        },
+        {
+          "date": "2026-06-24",
+          "image": "data/layers/sm_2026-06-24.webp",
+          "values": "data/values/sm_2026-06-24.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20260624",
+          "url": ""
+        },
+        {
+          "date": "2026-07-30",
+          "image": "data/layers/sm_2026-07-30.webp",
+          "values": "data/values/sm_2026-07-30.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20260730",
+          "url": ""
+        },
+        {
+          "date": "2026-09-04",
+          "image": "data/layers/sm_2026-09-04.webp",
+          "values": "data/values/sm_2026-09-04.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20260904",
+          "url": ""
+        },
+        {
+          "date": "2026-10-10",
+          "image": "data/layers/sm_2026-10-10.webp",
+          "values": "data/values/sm_2026-10-10.bin",
+          "source": "DEMO_NISAR_L3_Soil_Moisture_20261010",
           "url": ""
         }
       ]
     }
   ],
+  "optical": {
+    "name": {
+      "el": "Οπτικός δορυφόρος (π.χ. Sentinel-2)",
+      "en": "Optical satellite (e.g. Sentinel-2)"
+    },
+    "note": {
+      "el": "Η νεφοκάλυψη κάθε ημερομηνίας είναι η πραγματική (Open-Meteo)· το σχήμα των σύννεφων είναι σχηματικό.",
+      "en": "Each date's cloud cover is the real one (Open-Meteo); the shape of the clouds is schematic."
+    },
+    "clouds": [
+      {
+        "date": "2025-11-20",
+        "image": "data/clouds/2025-11-20.webp",
+        "cover": 86
+      },
+      {
+        "date": "2025-12-26",
+        "image": "data/clouds/2025-12-26.webp",
+        "cover": 67
+      },
+      {
+        "date": "2026-01-31",
+        "image": "data/clouds/2026-01-31.webp",
+        "cover": 68
+      },
+      {
+        "date": "2026-03-08",
+        "image": "data/clouds/2026-03-08.webp",
+        "cover": 80
+      },
+      {
+        "date": "2026-04-13",
+        "image": "data/clouds/2026-04-13.webp",
+        "cover": 92
+      },
+      {
+        "date": "2026-05-19",
+        "image": "data/clouds/2026-05-19.webp",
+        "cover": 90
+      },
+      {
+        "date": "2026-06-24",
+        "image": "data/clouds/2026-06-24.webp",
+        "cover": 80
+      },
+      {
+        "date": "2026-07-30",
+        "image": "data/clouds/2026-07-30.webp",
+        "cover": 16
+      },
+      {
+        "date": "2026-09-04",
+        "image": "data/clouds/2026-09-04.webp",
+        "cover": 44
+      },
+      {
+        "date": "2026-10-10",
+        "image": "data/clouds/2026-10-10.webp",
+        "cover": 42
+      }
+    ]
+  },
   "points": "data/points.geojson",
   "regions": "data/regions.json",
   "weather": {

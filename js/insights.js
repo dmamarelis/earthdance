@@ -241,7 +241,7 @@ function weatherNow(wx, th, today) {
   return {
     rain7, rain30, balance90, forecast, dry, tmax: wx.tmax[i], rainToday: wx.rain[i] ?? 0, level,
     finding: {
-      key: 'weather', level,
+      key: 'weather', level, sub: heavy ? 'heavy' : hot ? 'heat' : dry >= th.dry_spell_days ? 'dry' : null,
       title: heavy ? { el: 'Έρχεται ισχυρή βροχή', en: 'Heavy rain is coming' }
         : hot ? { el: 'Έρχεται καύσωνας', en: 'A heatwave is coming' }
           : dry >= th.dry_spell_days ? { el: `${dry} ημέρες χωρίς βροχή`, en: `${dry} days without rain` }
@@ -310,6 +310,102 @@ function weatherEffects(s, wx, th) {
   };
 }
 
+// Compared with the other areas on the same date, not with this area's own year: moisture is seasonal.
+function soil(s, th, ref) {
+  const v = s.soil_moist_pct;
+  if (!v) return null;
+  const now = v.at(-1);
+  const avg = ref ?? mean(v);
+  const drop = ((avg - now) / avg) * 100;
+  const level = ref != null && drop >= th.soil_dry_drop_pct ? 'watch' : 'ok';
+  return {
+    now, avg, drop,
+    finding: {
+      key: 'soil', level,
+      title: level === 'watch' ? { el: 'Το έδαφος ξεραίνεται', en: 'The soil is drying out' } : { el: 'Υγρασία εδάφους κανονική', en: 'Soil moisture normal' },
+      text: both((l) => (l === 'el'
+        ? `Υγρασία εδάφους ${now.toFixed(0)}% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι ${avg.toFixed(0)}% (${drop > 0 ? `${drop.toFixed(0)}% πιο ξερό εδώ` : 'εδώ πιο υγρό'}).`
+        : `Soil moisture ${now.toFixed(0)}% at the last pass; the average of all areas that day is ${avg.toFixed(0)}% (${drop > 0 ? `${drop.toFixed(0)}% drier here` : 'wetter here'}).`)),
+      basis: { el: 'NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα', en: 'NISAR L-band · water raises the soil dielectric constant and therefore the signal' },
+    },
+  };
+}
+
+function wetland(s, th) {
+  const r = s.reed_km2;
+  if (!r || Math.max(...r) < 0.05) return null;
+  const loss = ((r[0] - r.at(-1)) / r[0]) * 100;
+  const ha = s.cleared_ha ? s.cleared_ha.at(-1) - s.cleared_ha[0] : 0;
+  const level = ha >= th.cleared_alert_ha ? 'alert' : ha >= th.cleared_watch_ha || loss >= th.reed_loss_pct ? 'watch' : 'ok';
+  const first = s.cleared_ha ? s.dates[s.cleared_ha.findIndex((x) => x > 0)] : null;
+  return {
+    loss, ha, level,
+    finding: {
+      key: 'wetland', level,
+      title: level === 'ok' ? { el: 'Καλαμιώνες σταθεροί', en: 'Reed beds stable' } : { el: 'Ο υγρότοπος γίνεται χωράφι', en: 'Wetland is turning into fields' },
+      text: both((l) => {
+        if (level === 'ok') return l === 'el' ? `Καλαμιώνες ${r.at(-1).toFixed(1)} km², χωρίς αξιόλογη αλλαγή.` : `Reed beds ${r.at(-1).toFixed(1)} km², no notable change.`;
+        return l === 'el'
+          ? `${ha.toFixed(0)} ha καλαμιώνα άλλαξαν σε γυμνό, οργωμένο έδαφος${first ? ` από ${fd(first, l)}` : ''} (−${loss.toFixed(0)}% έκτασης). Το HV έπεσε (χάθηκε ο όγκος της βλάστησης) και το HH άλλαξε από διπλή ανάκλαση σε τραχιά επιφάνεια: η υπογραφή του οργώματος.`
+          : `${ha.toFixed(0)} ha of reeds turned into bare, ploughed ground${first ? ` since ${fd(first, l)}` : ''} (−${loss.toFixed(0)}% of the area). HV dropped (the vegetation volume is gone) and HH went from double bounce to a rough surface: the signature of ploughing.`;
+      }),
+      basis: { el: 'NISAR HV (όγκος βλάστησης) + HH (τραχύτητα, διπλή ανάκλαση)', en: 'NISAR HV (vegetation volume) + HH (roughness, double bounce)' },
+    },
+  };
+}
+
+/** What the region could do about each finding. Suggestions for the competent authority, not decisions. */
+const ACTIONS = {
+  reservoir: { el: 'Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ· σταδιακός περιορισμός των αρδευτικών απολήψεων από τη λίμνη πριν από το όριο, όχι μετά.', en: 'Notify the Water Directorate and irrigation boards; reduce irrigation withdrawals from the lake gradually before the limit, not after.' },
+  wetland: { el: 'Αυτοψία από τον Φορέα Διαχείρισης (ΟΦΥΠΕΚΑ) στα σημεία που άλλαξαν· έλεγχος χρήσεων γης στη ζώνη προστασίας.', en: 'Field inspection by the protected-area authority at the changed spots; check land use inside the protection zone.' },
+  ground: { el: 'Έλεγχος αδειών και μετρητών στις γεωτρήσεις της ζώνης, περιορισμός αντλήσεων· σταθμός GNSS για επιβεβαίωση.', en: 'Check borehole permits and meters in the zone, limit pumping; a GNSS station to confirm.' },
+  soil: { el: 'Άρδευση με βάση τη μετρημένη υγρασία αντί για σταθερό ωράριο: λιγότερο νερό από λίμνη και γεωτρήσεις.', en: 'Irrigate by measured moisture instead of a fixed schedule: less water from the lake and the boreholes.' },
+  egms: { el: 'Να μη ληφθεί απόφαση μόνο με αυτό: επιβεβαίωση με επόμενες λήψεις ή επιτόπια μέτρηση.', en: 'Do not decide on this alone: confirm with the next passes or a field measurement.' },
+  flood: { el: 'Ενημέρωση Πολιτικής Προστασίας· έλεγχος αναχωμάτων και αγροτικών δρόμων στη ζώνη που πλημμύρισε.', en: 'Notify Civil Protection; check embankments and farm roads in the flooded zone.' },
+  'weather.heavy': { el: 'Προειδοποίηση Πολιτικής Προστασίας, καθαρισμός τάφρων και φρεατίων πριν από τη βροχή.', en: 'Civil Protection warning; clear ditches and drains before the rain.' },
+  'weather.heat': { el: 'Ενημέρωση αγροτών και ΤΟΕΒ για αυξημένη ζήτηση νερού· αυστηρότερη τήρηση ωραρίων.', en: 'Warn farmers and irrigation boards about higher water demand; enforce schedules.' },
+  'weather.dry': { el: 'Ενημέρωση αγροτών και ΤΟΕΒ για αυξημένη ζήτηση νερού· αυστηρότερη τήρηση ωραρίων.', en: 'Warn farmers and irrigation boards about higher water demand; enforce schedules.' },
+};
+
+/**
+ * "What if" for the lake: rain and irrigation changed by a percentage next season.
+ * A deliberately simple water balance built only from the measured series:
+ *   winter gain (last low → high) scales with rain; summer loss (high → latest low) is 70 % irrigation, 30 % evaporation.
+ *   lake area follows storage through a power law fitted to the radar areas; ground sinking scales with pumping.
+ */
+export function scenario(region, a, { rain = 0, irrigation = 0 } = {}) {
+  const res = region.reservoir;
+  if (!res?.volume?.length) return null;
+  const v = res.volume;
+  const hi = v.indexOf(Math.max(...v));
+  const lowBefore = Math.min(...v.slice(0, hi + 1));
+  const gain = v[hi] - lowBefore;
+  const loss = v[hi] - v.at(-1);
+  const r = rain / 100;
+  const i = irrigation / 100;
+  const peak = v.at(-1) + gain * (1 + r);
+  const low = Math.max(0, peak - loss * (0.7 * (1 + i) + 0.3));
+  const base = Math.max(0, v.at(-1) + gain - loss);
+
+  let areaOf = () => null;
+  if (res.area_km2?.length === v.length) {
+    const xs = v.map(Math.log);
+    const ys = res.area_km2.map((x) => Math.log(Math.max(x, 0.01)));
+    const b = corr(xs, ys) * Math.sqrt(sum(ys.map((y) => (y - mean(ys)) ** 2)) / sum(xs.map((x) => (x - mean(xs)) ** 2)));
+    const c = Math.exp(mean(ys) - b * mean(xs));
+    areaOf = (vol) => c * Math.max(vol, 0.01) ** b;
+  }
+  const below = Math.max(0, res.limit - low);
+  const daysBelow = below > 0 ? Math.round((150 * below) / Math.max(loss * (0.7 * (1 + i) + 0.3), 1)) : 0;
+  return {
+    peak, low, base, limit: res.limit, unit: res.unit,
+    area: areaOf(low), areaNow: res.area_km2?.at(-1) ?? null, areaBase: areaOf(base),
+    scale: res.area_km2 ? Math.sqrt(areaOf(low) / areaOf(v.at(-1))) : 1,
+    daysBelow,
+    sink: a.ground.rate * (1 + i),
+  };
+}
+
 // ───────────────────────────────────────────────────────── one area
 /**
  * @param region  one entry of regions.json
@@ -317,7 +413,7 @@ function weatherEffects(s, wx, th) {
  * @param th      thresholds from regions.json
  * @param opts    { today:'YYYY-MM-DD', refName }
  */
-export function assess(region, wx, th, { today, refName = 'EGMS' }) {
+export function assess(region, wx, th, { today, refName = 'EGMS', soilRef = null }) {
   const s = region.series;
   const g = ground(s, th);
   const out = {
@@ -328,13 +424,18 @@ export function assess(region, wx, th, { today, refName = 'EGMS' }) {
     flood: surfaceWater(s, wx),
     reservoir: reservoir(region.reservoir, th, wx, today),
     aquifer: aquifer(s),
+    soil: soil(s, th, soilRef),
+    wetland: wetland(s, th),
     weather: wx ? weatherNow(wx, th, today) : null,
     effects: wx ? weatherEffects(s, wx, th) : null,
   };
   // order = the order the findings are shown in
-  out.findings = ['reservoir', 'ground', 'aquifer', 'reference', 'flood', 'weather', 'effects', 'sensors']
+  out.findings = ['reservoir', 'wetland', 'ground', 'soil', 'aquifer', 'reference', 'flood', 'weather', 'effects', 'sensors']
     .map((k) => out[k]?.finding).filter(Boolean)
     .sort((a, b) => RANK[b.level] - RANK[a.level]);
+  for (const f of out.findings) {
+    if (f.level !== 'ok') f.action = ACTIONS[f.sub ? `${f.key}.${f.sub}` : f.key] ?? null;
+  }
   out.status = out.findings[0]?.level ?? 'ok';
   out.headline = out.findings[0];
   return out;

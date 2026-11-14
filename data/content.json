@@ -1,4 +1,141 @@
 {
+  "story": [
+    {
+      "kicker": {
+        "el": "Πρόλογος",
+        "en": "Prologue"
+      },
+      "title": {
+        "el": "Μια λίμνη που κανείς δεν βλέπει",
+        "en": "A lake nobody can see"
+      },
+      "body": {
+        "el": "Η Κορώνεια, ανάμεσα στη Θεσσαλονίκη και τον Λαγκαδά, είναι υγρότοπος προστατευόμενος από το Natura 2000 και τη Σύμβαση Ramsar και, ταυτόχρονα, πηγή νερού για τα χωράφια γύρω της. Τις περισσότερες μέρες του χειμώνα και της άνοιξης, ένας συνηθισμένος δορυφόρος δεν τη βλέπει καν: τη σκεπάζουν σύννεφα.",
+        "en": "Koronia, between Thessaloniki and Langadas, is a wetland protected under Natura 2000 and the Ramsar Convention, and at the same time a water source for the fields around it. On most winter and spring days an ordinary satellite cannot even see it: clouds cover it."
+      },
+      "sensor": "optical",
+      "layer": "hh",
+      "frame": 4,
+      "center": [
+        23.2,
+        40.68
+      ],
+      "zoom": 10.6
+    },
+    {
+      "kicker": {
+        "el": "Το ραντάρ",
+        "en": "The radar"
+      },
+      "title": {
+        "el": "Μέσα από τα σύννεφα",
+        "en": "Through the clouds"
+      },
+      "body": {
+        "el": "Το NISAR εκπέμπει μικροκύματα μήκους 24 cm (L-band) που περνούν από σύννεφα και καπνό, μέρα και νύχτα. Στην πόλωση HH το ήρεμο νερό λειτουργεί σαν καθρέφτης: το σήμα ανακλάται μακριά από τον δορυφόρο και η λίμνη φαίνεται σκοτεινή. Πέρασε το ποντίκι πάνω της για να δεις τις τιμές.",
+        "en": "NISAR sends 24 cm microwaves (L-band) that pass through cloud and smoke, day and night. In HH polarisation calm water acts like a mirror: the signal bounces away from the satellite and the lake looks dark. Hover over it to see the values."
+      },
+      "sensor": "radar",
+      "layer": "hh",
+      "frame": 4,
+      "center": [
+        23.15,
+        40.683
+      ],
+      "zoom": 11.3
+    },
+    {
+      "kicker": {
+        "el": "Νερό",
+        "en": "Water"
+      },
+      "title": {
+        "el": "Η λίμνη αναπνέει — και λιγοστεύει",
+        "en": "The lake breathes — and shrinks"
+      },
+      "body": {
+        "el": "Από τον Απρίλιο στον Οκτώβριο η σκοτεινή επιφάνεια μαζεύει: η άρδευση και η εξάτμιση παίρνουν περισσότερο νερό από όσο φέρνει ο χειμώνας. Σύρε το timeline για να το δεις λήψη με λήψη.",
+        "en": "From April to October the dark surface contracts: irrigation and evaporation take more water than winter brings. Drag the timeline to watch it pass by pass."
+      },
+      "sensor": "radar",
+      "layer": "hh",
+      "frame": 9,
+      "center": [
+        23.15,
+        40.683
+      ],
+      "zoom": 11.3
+    },
+    {
+      "kicker": {
+        "el": "Υγρότοπος",
+        "en": "Wetland"
+      },
+      "title": {
+        "el": "Οι καλαμιώνες γίνονται χωράφια",
+        "en": "Reed beds become fields"
+      },
+      "body": {
+        "el": "Στην πόλωση HV ο όγκος της βλάστησης «ανάβει»: οι καλαμιώνες γύρω από τη λίμνη φαίνονται φωτεινοί. Στη βόρεια όχθη όμως κομμάτια τους σβήνουν από λήψη σε λήψη, ενώ το HH δείχνει τραχιά, οργωμένη επιφάνεια. Ο υγρότοπος γίνεται χωράφι.",
+        "en": "In HV polarisation vegetation volume lights up: the reed beds around the lake look bright. On the north shore, though, patches go dark pass after pass while HH shows a rough, ploughed surface. The wetland is becoming farmland."
+      },
+      "sensor": "radar",
+      "layer": "hv",
+      "frame": 9,
+      "center": [
+        23.15,
+        40.69
+      ],
+      "zoom": 11.7
+    },
+    {
+      "kicker": {
+        "el": "Έδαφος",
+        "en": "Ground"
+      },
+      "title": {
+        "el": "Η γη βυθίζεται",
+        "en": "The land is sinking"
+      },
+      "body": {
+        "el": "Συγκρίνοντας τη φάση του σήματος από λήψη σε λήψη (InSAR), το NISAR μετρά κινήσεις του εδάφους λίγων χιλιοστών. Στη νότια όχθη το έδαφος βυθίζεται πιο γρήγορα το καλοκαίρι, όταν δουλεύουν οι γεωτρήσεις: ο υδροφορέας αδειάζει και συμπιέζεται. Η ευρωπαϊκή υπηρεσία EGMS μετρά, ανεξάρτητα, το ίδιο.",
+        "en": "By comparing the signal phase pass to pass (InSAR), NISAR measures ground motion of a few millimetres. On the south shore the ground sinks faster in summer, when the boreholes run: the aquifer empties and compacts. The European EGMS service independently measures the same."
+      },
+      "sensor": "radar",
+      "layer": "disp",
+      "frame": 9,
+      "point": "agvasileios",
+      "center": [
+        23.14,
+        40.66
+      ],
+      "zoom": 11.6,
+      "pitch": 50,
+      "bearing": -15
+    },
+    {
+      "kicker": {
+        "el": "Επίλογος",
+        "en": "Epilogue"
+      },
+      "title": {
+        "el": "Από τα σήματα στις αποφάσεις",
+        "en": "From signals to decisions"
+      },
+      "body": {
+        "el": "Νερό, καλαμιώνες, υγρασία, έδαφος: η προβολή «Κατάσταση» τα κάνει καθημερινή εικόνα για την Περιφέρεια, με ειδοποιήσεις πριν από τα όρια, προτεινόμενες ενέργειες και σενάρια για την επόμενη χρονιά.",
+        "en": "Water, reeds, moisture, ground: the Status view turns them into a daily picture for the Region, with alerts before limits are crossed, suggested actions and scenarios for next year."
+      },
+      "sensor": "radar",
+      "layer": "sm",
+      "frame": 9,
+      "center": [
+        23.2,
+        40.68
+      ],
+      "zoom": 10.6
+    }
+  ],
   "explanations": {
     "subsidence": {
       "title": {
@@ -90,6 +227,14 @@
     {
       "el": "Η χρονοσειρά είναι ακόμη σύντομη· οι ετήσιοι ρυθμοί θα γίνουν πιο αξιόπιστοι με τον χρόνο.",
       "en": "The time series is still short; annual rates will become more reliable over time."
+    },
+    {
+      "el": "Η «Οπτική» προβολή δείχνει την πραγματική νεφοκάλυψη κάθε ημερομηνίας, αλλά τα σύννεφα είναι σχηματικά, όχι εικόνα Sentinel-2.",
+      "en": "The Optical view shows each date's real cloud cover, but the clouds are schematic, not a Sentinel-2 image."
+    },
+    {
+      "el": "Το σενάριο «Τι θα γινόταν αν» είναι απλό ισοζύγιο νερού, όχι υδρολογικό μοντέλο.",
+      "en": "The What-if scenario is a simple water balance, not a hydrological model."
     }
   ],
   "about": {

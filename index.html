@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>EarthDance · Ο Χορός της Γης</title>
   <meta name="description" content="Interactive NISAR radar explorer: water, crops and sinking ground.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -48,6 +51,7 @@
 
     <nav class="modes" role="tablist">
       <button class="mode is-active" data-mode="explore" data-i18n="mode.explore"></button>
+      <button class="mode" data-mode="story" data-i18n="mode.story"></button>
       <button class="mode" data-mode="status"><span data-i18n="mode.status"></span><b class="mode-badge" id="alertCount" hidden></b></button>
     </nav>
 
@@ -68,7 +72,10 @@
 
   <!-- ───────── Left: layers (explore) / daily briefing (status) ───────── -->
   <aside id="left" class="panel">
-    <div class="status-only" id="brief"></div>
+    <div class="status-only">
+      <div id="brief"></div>
+      <section id="scenario"></section>
+    </div>
 
     <div class="explore-only">
       <div class="panel-head">
@@ -78,6 +85,18 @@
       <div id="layerList" class="layer-list"></div>
 
       <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="story-only">
+      <div class="story-progress" id="storyDots"></div>
+      <div class="story-kicker" id="storyKicker"></div>
+      <h1 class="story-title" id="storyTitle"></h1>
+      <p class="story-body" id="storyBody"></p>
+      <div class="legend legend-compact" id="storyLegend"></div>
+      <div class="story-nav">
+        <button class="btn ghost" id="storyPrev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="btn primary" id="storyNext"><span id="storyNextLabel"></span><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
     </div>
   </aside>
 
@@ -116,6 +135,16 @@
     </details>
     </div>
   </aside>
+
+  <!-- ───────── Optical vs radar ───────── -->
+  <div class="sensor" id="sensor">
+    <div class="sensor-switch" role="group">
+      <button data-sensor="optical"><svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.1 9.1 4.5 4.5 0 0 0 7 18z"/></svg><span data-i18n="sensor.optical"></span></button>
+      <button data-sensor="radar"><svg viewBox="0 0 24 24"><circle cx="12" cy="17" r="2"/><path d="M8 13a6 6 0 0 1 8 0M5 10a10 10 0 0 1 14 0"/></svg><span data-i18n="sensor.radar"></span></button>
+    </div>
+    <div class="sensor-note" id="sensorNote"></div>
+  </div>
+  <div id="probe" hidden></div>
 
   <div class="hint" id="hint"><span class="pulse"></span><span data-i18n="hint.click"></span></div>
 
@@ -182,6 +211,9 @@
   </div>
 
 </div>
+
+<!-- printable regional brief (filled by js/status.js, shown only when printing) -->
+<div id="report"></div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>

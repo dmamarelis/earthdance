@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -76,8 +77,19 @@ def main() -> None:
     rel = f"data/layers/{args.layer}_{args.date}.webp"
     save_image(ROOT / rel, colorize(values, layer["legend"], np.full(values.shape, args.opacity)))
 
+    # small grid of the real values, for the map hover (value × 10 as int16, -32768 = no data)
+    vrel = f"data/values/{args.layer}_{args.date}.bin"
+    g = max(1, int(np.ceil(max(values.shape) / 160)))
+    h, w = values.shape[0] // g, values.shape[1] // g
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        blocks = np.nanmean(values[:h * g, :w * g].reshape(h, g, w, g), axis=(1, 3))
+    (ROOT / vrel).parent.mkdir(parents=True, exist_ok=True)
+    (ROOT / vrel).write_bytes(np.where(np.isfinite(blocks), np.clip(np.round(blocks * 10), -32767, 32767), -32768).astype("<i2").tobytes())
+    layer["grid"] = [w, h]
+
     frames = [f for f in layer["frames"] if not f.get("source", "").startswith("DEMO_") and f["date"] != args.date]
-    frames.append({"date": args.date, "image": rel, "source": args.source, "url": args.url})
+    frames.append({"date": args.date, "image": rel, "values": vrel, "grid": [w, h], "source": args.source, "url": args.url})
     layer["frames"] = sorted(frames, key=lambda f: f["date"])
     layer["bounds"] = bounds
     manifest["demo"] = any(f.get("source", "").startswith("DEMO_") for l in manifest["layers"] for f in l["frames"])

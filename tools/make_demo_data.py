@@ -12,6 +12,8 @@ from __future__ import annotations
 import datetime as dt
 import json
 import math
+import urllib.request
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -21,6 +23,9 @@ from colormap import colorize, save_image
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 LAYERS_DIR = DATA / "layers"
+VALUES_DIR = DATA / "values"
+CLOUDS_DIR = DATA / "clouds"
+GRID = 4  # value grid for hover = image downsampled by this factor
 
 W, H = 640, 380
 BOUNDS = [22.85, 40.50, 23.65, 40.86]  # west, south, east, north
@@ -43,6 +48,13 @@ LAYER_DEFS = [
         },
         "legend": {"stops": [[-26, "#05070d"], [-18, "#2a3550"], [-11, "#8a97ad"], [-4, "#eef2f7"]],
                    "low": {"el": "λείο / νερό", "en": "smooth / water"}, "high": {"el": "τραχύ", "en": "rough"}},
+        "classes": [
+            [-19, {"el": "Ήρεμο νερό: λεία επιφάνεια, το σήμα ανακλάται μακριά σαν από καθρέφτη", "en": "Calm water: a smooth surface reflects the signal away like a mirror"}],
+            [-14, {"el": "Λείο ή γυμνό έδαφος: λίγη τραχύτητα, λίγο σήμα επιστρέφει", "en": "Smooth or bare soil: little roughness, little signal returns"}],
+            [-9, {"el": "Χωράφι ή υγρό έδαφος: τραχύτητα και νερό (υψηλή διηλεκτρική σταθερά) δυναμώνουν την επιστροφή", "en": "Field or wet soil: roughness and water (high dielectric constant) strengthen the return"}],
+            [-3, {"el": "Καλαμιώνας ή βλάστηση μέσα σε νερό: διπλή ανάκλαση νερό → μίσχος → δορυφόρος", "en": "Reeds or vegetation standing in water: double bounce water → stem → satellite"}],
+            [99, {"el": "Κτίρια ή κατασκευές: γωνίες που στέλνουν το σήμα πίσω (διπλή ανάκλαση)", "en": "Buildings or structures: corners send the signal straight back (double bounce)"}],
+        ],
     },
     {
         "id": "hv", "band": "L", "sensor": "NISAR", "product": "L2 GCOV", "unit": "dB",
@@ -54,6 +66,12 @@ LAYER_DEFS = [
         },
         "legend": {"stops": [[-32, "#04070a"], [-25, "#0f3d3a"], [-19, "#2f9e6e"], [-12, "#e9f26b"]],
                    "low": {"el": "γυμνό / νερό", "en": "bare / water"}, "high": {"el": "πυκνή βλάστηση", "en": "dense vegetation"}},
+        "classes": [
+            [-27, {"el": "Νερό: σχεδόν καμία αποπόλωση", "en": "Water: almost no depolarisation"}],
+            [-21, {"el": "Γυμνό ή οργωμένο έδαφος: λίγος όγκος βλάστησης", "en": "Bare or ploughed soil: little vegetation volume"}],
+            [-16, {"el": "Καλλιέργεια σε ανάπτυξη: ο όγκος των φυτών αποπολώνει το σήμα", "en": "Growing crop: plant volume depolarises the signal"}],
+            [99, {"el": "Πυκνή βλάστηση, καλαμιώνας ή δάσος: πολλαπλές σκεδάσεις μέσα στον όγκο", "en": "Dense vegetation, reeds or forest: multiple scattering inside the volume"}],
+        ],
     },
     {
         "id": "change", "band": "L", "sensor": "NISAR", "product": "L2 GCOV (Δ)", "unit": "dB",
@@ -65,6 +83,11 @@ LAYER_DEFS = [
         },
         "legend": {"stops": [[-8, "#2f6df6"], [-3, "#7fb2ff"], [0, "#e8e6df"], [3, "#ffb454"], [8, "#f2622e"]],
                    "low": {"el": "πιο σκούρο", "en": "darker"}, "high": {"el": "πιο φωτεινό", "en": "brighter"}},
+        "classes": [
+            [-3, {"el": "Πιο σκούρο από την αρχή: συνήθως νερό που ήρθε ή βλάστηση που χάθηκε", "en": "Darker than at the start: usually new water or lost vegetation"}],
+            [3, {"el": "Μικρή ή καμία αλλαγή", "en": "Little or no change"}],
+            [99, {"el": "Πιο φωτεινό: ανάπτυξη, όργωμα (τραχύτητα) ή υγρασία", "en": "Brighter: growth, ploughing (roughness) or moisture"}],
+        ],
     },
     {
         "id": "disp", "band": "L", "sensor": "NISAR", "product": "L2 GUNW", "unit": "mm",
@@ -76,6 +99,12 @@ LAYER_DEFS = [
         },
         "legend": {"stops": [[-90, "#7a1663"], [-60, "#e5383b"], [-30, "#f9a03f"], [-8, "#f6e7a9"], [0, "#e9eef2"], [15, "#3d8bfd"]],
                    "low": {"el": "βύθιση", "en": "sinking"}, "high": {"el": "ανύψωση", "en": "uplift"}},
+        "classes": [
+            [-40, {"el": "Έντονη βύθιση: συμπίεση υδροφορέα από άντληση", "en": "Strong sinking: aquifer compaction from pumping"}],
+            [-10, {"el": "Βύθιση", "en": "Sinking"}],
+            [10, {"el": "Σταθερό, μέσα στον θόρυβο της μέτρησης", "en": "Stable, within measurement noise"}],
+            [99, {"el": "Ανύψωση", "en": "Uplift"}],
+        ],
     },
     {
         "id": "s1vv", "band": "C", "sensor": "Sentinel-1", "product": "RTC", "unit": "dB",
@@ -87,6 +116,27 @@ LAYER_DEFS = [
         },
         "legend": {"stops": [[-24, "#05070d"], [-16, "#3a3350"], [-10, "#a898ad"], [-3, "#f7eef2"]],
                    "low": {"el": "λείο / νερό", "en": "smooth / water"}, "high": {"el": "τραχύ", "en": "rough"}},
+        "classes": [
+            [-17, {"el": "Νερό (C-band)", "en": "Water (C-band)"}],
+            [-10, {"el": "Έδαφος ή χαμηλή βλάστηση: το C-band σκεδάζεται στην κορυφή των φυτών", "en": "Soil or low vegetation: C-band scatters at the top of the plants"}],
+            [99, {"el": "Τραχιά επιφάνεια ή κτίρια", "en": "Rough surface or buildings"}],
+        ],
+    },
+    {
+        "id": "sm", "band": "L", "sensor": "NISAR", "product": "L3 Soil Moisture", "unit": "%",
+        "name": {"el": "Υγρασία εδάφους", "en": "Soil moisture"},
+        "short": {"el": "Πόσο νερό κρατά το χώμα", "en": "How much water the soil holds"},
+        "description": {
+            "el": "Το νερό έχει πολύ μεγαλύτερη διηλεκτρική σταθερά από το ξερό χώμα, άρα το υγρό έδαφος επιστρέφει περισσότερο σήμα. Από αυτή τη διαφορά εκτιμάται η υγρασία (όγκος νερού / όγκος εδάφους).",
+            "en": "Water has a far higher dielectric constant than dry soil, so wet ground returns more signal. Moisture (water volume / soil volume) is estimated from that difference.",
+        },
+        "legend": {"stops": [[4, "#7a4b1e"], [14, "#c9a46a"], [24, "#ece6cf"], [34, "#5fb3d9"], [45, "#1d4e89"]],
+                   "low": {"el": "ξερό", "en": "dry"}, "high": {"el": "κορεσμένο", "en": "saturated"}},
+        "classes": [
+            [12, {"el": "Ξερό έδαφος: χαμηλή διηλεκτρική σταθερά", "en": "Dry soil: low dielectric constant"}],
+            [25, {"el": "Μέτρια υγρασία", "en": "Moderate moisture"}],
+            [99, {"el": "Υγρό έδαφος ή αρδευόμενο χωράφι", "en": "Wet soil or irrigated field"}],
+        ],
     },
 ]
 LEGEND = {d["id"]: d["legend"] for d in LAYER_DEFS}
@@ -180,6 +230,18 @@ LOW = fbm(7)
 EDGE = fbm(9, 2.6)
 COH_HOLES = fbm(11, 2.2)
 
+# Koronia: lake centre and semi-axes at "normal" level; a reed belt around it
+LAKE_C, LAKE_RX, LAKE_RY = (23.15, 40.683), 0.062, 0.021
+R_LAKE = np.sqrt(((LON - LAKE_C[0]) / LAKE_RX) ** 2 + ((LAT - LAKE_C[1]) / LAKE_RY) ** 2)
+REED = (R_LAKE + 0.08 * EDGE > 1.12) & (R_LAKE + 0.08 * EDGE < 1.40) & (fbm(13, 2.4) > -0.6)
+# part of the north-shore belt is cleared for fields, a little more every month (an illegal-encroachment scenario)
+ENC_ZONE = REED & (LAT > LAKE_C[1] + 0.012) & (LON > 23.10) & (LON < 23.21) & (fbm(17, 2.2) > -0.2)
+ENC_T = 0.35 + 1.20 * np.clip((fbm(19, 2.0) + 2.0) / 4.0, 0, 1)  # years after the first date when each pixel is cleared
+
+
+def cleared(d: dt.date) -> np.ndarray:
+    return ENC_ZONE & ((d - DATES[0]).days / 365.25 >= ENC_T)
+
 
 def growth(d: dt.date) -> np.ndarray:
     dd = np.abs(doy(d) - PEAK)
@@ -192,15 +254,20 @@ def wetness(d: dt.date) -> float:
     return 0.5 * (1 + math.cos(2 * math.pi * (doy(d) - 45) / 365))
 
 
+def lake_fill(d: dt.date) -> float:
+    """0..1: the lake fills with winter inflow until April and is drawn down by irrigation until October."""
+    return 0.5 * (1 + math.cos(2 * math.pi * (doy(d) - 105) / 365))
+
+
 def water_mask(d: dt.date, k: int) -> np.ndarray:
-    s = (1.0 + 0.30 * wetness(d)) * (1 - 0.10 * (d - DATES[0]).days / 365.25)  # seasonal, and slowly drying
-    lake = np.sqrt(((LON - 23.15) / (0.062 * s)) ** 2 + ((LAT - 40.683) / (0.021 * s)) ** 2) + 0.10 * EDGE < 1.0
+    s = (0.80 + 0.45 * lake_fill(d)) * (1 - 0.10 * (d - DATES[0]).days / 365.25)  # seasonal, and slowly drying
+    lake = R_LAKE / s + 0.10 * EDGE < 1.0
     lake |= np.sqrt(((LON - 23.47) / 0.115) ** 2 + ((LAT - 40.68) / 0.027) ** 2) + 0.06 * EDGE < 1.0  # Volvi: stable
     flood_strength = {2: 1.0, 3: 0.45}.get(k, 0.0)  # a winter flood that then recedes
     if flood_strength:
         zone = gauss(23.05, 40.70, 0.06, 0.022)
         lake |= (LOW * 0.55 + 2.6 * zone * flood_strength) > 1.55
-    return lake & (PLAIN > 0.4)
+    return lake & (PLAIN > 0.4) & ~REED  # flooded reeds stay bright: they are not open water
 
 
 def pumping(d: dt.date) -> float:
@@ -221,26 +288,41 @@ def fields(d: dt.date, k: int, speckle: bool = True) -> dict[str, np.ndarray]:
     rng = np.random.default_rng(100 + k)
     g, wet, water = growth(d), wetness(d), water_mask(d, k)
     summer = PEAK > 200
+    clr = cleared(d)
+    reeds = REED & ~clr
+    reed_g = 0.5 * (1 + math.cos(2 * math.pi * (doy(d) - 200) / 365))  # reeds peak in July
 
     hh_plain = -14.5 + 2.4 * (R2 - 0.5) + g * np.where(summer, 3.2, 2.0) + 1.6 * wet
     hh = PLAIN * hh_plain + (1 - PLAIN) * (-8.5 + 2.6 * RELIEF)
     hh = hh + 9.0 * URBAN
+    hh = np.where(reeds, -7.5 + 1.5 * reed_g + 1.5 * wet, hh)   # double bounce: water → stem → satellite
+    hh = np.where(clr, -11.0 + 1.0 * (R2 - 0.5), hh)               # freshly ploughed: rough, bare
     hh = np.where(water, -24.5, hh)
 
     hv_plain = -24.5 + 7.5 * g + 1.6 * (R2 - 0.5)
     hv = PLAIN * hv_plain + (1 - PLAIN) * (-17.5 + 4.5 * FOREST + 1.0 * RELIEF)
     hv = hv + 6.0 * URBAN
+    hv = np.where(reeds, -14.0 + 2.5 * reed_g, hv)                 # volume scattering in the reed canopy
+    hv = np.where(clr, -22.5 + 1.0 * (R2 - 0.5), hv)
     hv = np.where(water, -31.0, hv)
 
     vv_plain = -12.0 + 1.8 * (R2 - 0.5) + 1.1 * g + 2.6 * wet
     vv = PLAIN * vv_plain + (1 - PLAIN) * (-9.0 + 2.2 * RELIEF)
     vv = vv + 8.0 * URBAN
+    vv = np.where(reeds, -10.0 + 1.0 * reed_g, vv)
+    vv = np.where(clr, -11.5, vv)
     vv = np.where(water, -21.5, vv)
+
+    irrigated = summer & (doy(d) > 150) & (doy(d) < 260)
+    sm = 9 + 24 * wet + 4 * LOW + 10 * irrigated * g + 14 * REED + 3 * (R2 - 0.5)
+    sm = np.clip(np.where(PLAIN > 0.4, sm, 8 + 14 * wet + 3 * RELIEF), 3, 48)
+    sm = np.where(water, np.nan, sm)
 
     bowl = sum(amp * gauss(lo, la, sl, sa) for lo, la, sl, sa, amp in BOWLS)
     disp = -bowl * pumping(d) * PLAIN + (1.6 * fbm(200 + k, 2.2) if k else 0.0)
 
-    out = {"hh_clean": hh, "hv_clean": hv, "vv_clean": vv, "disp": disp, "water": water}
+    out = {"hh_clean": hh, "hv_clean": hv, "vv_clean": vv, "disp": disp, "water": water,
+           "sm": sm, "reeds": reeds, "cleared": clr}
     if speckle:
         out["hh"] = hh + rng.normal(0, 1.1, hh.shape)
         out["hv"] = hv + rng.normal(0, 1.1, hv.shape)
@@ -248,10 +330,62 @@ def fields(d: dt.date, k: int, speckle: bool = True) -> dict[str, np.ndarray]:
     return out
 
 
+def cloud_cover() -> dict[str, float]:
+    """Real daily cloud cover (%) at the lake for each date, from Open-Meteo. Falls back to a seasonal guess offline."""
+    try:
+        url = ("https://archive-api.open-meteo.com/v1/archive?latitude={:.3f}&longitude={:.3f}&start_date={}&end_date={}"
+               "&daily=cloud_cover_mean&timezone=auto").format(LAKE_C[1], LAKE_C[0], DATES[0], DATES[-1])
+        with urllib.request.urlopen(url, timeout=60) as r:
+            d = json.load(r)["daily"]
+        return {t: float(c) for t, c in zip(d["time"], d["cloud_cover_mean"]) if c is not None}
+    except Exception as err:  # noqa: BLE001
+        print("cloud cover offline, using a seasonal guess:", err)
+        return {x.isoformat(): 40 + 40 * wetness(x) for x in DATES}
+
+
+def cloud_image(k: int, cover: float) -> np.ndarray:
+    """RGBA clouds covering roughly `cover` % of the frame."""
+    n = fbm(300 + k, 3.8)
+    thr = np.quantile(n, 1 - cover / 100) if cover > 0 else n.max() + 1
+    a = smoothstep((n - thr) / 0.3) * 0.97
+    a *= smoothstep(np.minimum.reduce([PX, W - 1 - PX, PY, H - 1 - PY]) / 40.0)  # soft frame edge
+    shade = 228 + 24 * smoothstep((n - thr) / 2.2)
+    rgba = np.zeros((H, W, 4), np.uint8)
+    rgba[..., 0] = rgba[..., 1] = np.clip(shade, 0, 255).astype(np.uint8)
+    rgba[..., 2] = np.clip(shade + 4, 0, 255).astype(np.uint8)
+    rgba[..., 3] = (a * 255).astype(np.uint8)
+    return rgba
+
+
+def save_values(path: Path, vals: np.ndarray) -> list[int]:
+    """Block-averaged values as little-endian int16 (value × 10, -32768 = no data). Used by the map hover."""
+    h, w = vals.shape[0] // GRID, vals.shape[1] // GRID
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)  # all-NaN blocks are expected (no data)
+        blocks = np.nanmean(vals[:h * GRID, :w * GRID].reshape(h, GRID, w, GRID), axis=(1, 3))
+    out = np.where(np.isfinite(blocks), np.clip(np.round(blocks * 10), -32767, 32767), -32768).astype("<i2")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(out.tobytes())
+    return [w, h]
+
+
 def sample(arr: np.ndarray, plon: float, plat: float) -> float:
     x = int(round((plon - BOUNDS[0]) / (BOUNDS[2] - BOUNDS[0]) * (W - 1)))
     y = int(round((BOUNDS[3] - plat) / (BOUNDS[3] - BOUNDS[1]) * (H - 1)))
     return float(np.mean(arr[max(y - 1, 0):y + 2, max(x - 1, 0):x + 2]))
+
+
+def lake_outline(water: np.ndarray) -> list[list[float]]:
+    """Lake edge as a polygon (72 vertices): for each direction, the farthest water pixel from the centre."""
+    lake = water & (R_LAKE < 1.6)
+    ang = np.arctan2((LAT - LAKE_C[1]) / LAKE_RY, (LON - LAKE_C[0]) / LAKE_RX)
+    ring = []
+    for i in range(72):
+        a = -math.pi + i * 2 * math.pi / 72
+        sel = lake & (np.abs(np.angle(np.exp(1j * (ang - a)))) < math.pi / 72)
+        r = float(R_LAKE[sel].max()) if sel.any() else 0.0
+        ring.append([round(LAKE_C[0] + r * LAKE_RX * math.cos(a), 5), round(LAKE_C[1] + r * LAKE_RY * math.sin(a), 5)])
+    return ring + [ring[0]]
 
 
 def write_regions(stack: list[dict], rng) -> None:
@@ -277,18 +411,23 @@ def write_regions(stack: list[dict], rng) -> None:
                 "vv_db": mean("vv_clean", 0.2),
                 "water_km2": [round(float((s["water"] & inside).sum()) * PX_KM2, 1) for s in stack],
                 "vol_loss_hm3": [round(float(-np.minimum(s["disp"], 0)[m].sum()) * PX_KM2 * 1e-3, 2) for s, m in zip(stack, land)],
+                "soil_moist_pct": [round(float(np.nanmean(s["sm"][m])), 1) for s, m in zip(stack, land)],
+                "reed_km2": [round(float((s["reeds"] & inside).sum()) * PX_KM2, 2) for s in stack],
+                "cleared_ha": [round(float((s["cleared"] & inside).sum()) * PX_KM2 * 100, 1) for s in stack],
             },
         }
         if rid == "south":
             cap, vol = 120.0, []
             for d in DATES:  # a reservoir that fills until April and is drawn down by irrigation until October
-                fill = 0.5 * (1 + math.cos(2 * math.pi * (doy(d) - 105) / 365))
+                fill = lake_fill(d)
                 trend = 1 - 0.10 * (d - DATES[0]).days / 365.25
                 vol.append(round(cap * (0.30 + 0.50 * fill) * trend + float(rng.normal(0, 0.8)), 1))
             region["reservoir"] = {
                 "name": {"el": "Λίμνη Κορώνεια", "en": "Lake Koronia"},
                 "unit": "hm³", "capacity": cap, "limit": 30.0,
                 "dates": iso, "volume": vol,
+                "area_km2": [round(float((s["water"] & (R_LAKE < 1.6)).sum()) * PX_KM2, 2) for s in stack],
+                "outline": lake_outline(stack[-1]["water"]),
                 "method": {"el": "Έκταση νερού από το ραντάρ × καμπύλη στάθμης–όγκου της λίμνης.",
                            "en": "Radar water extent × the lake's level–volume curve."},
                 "rule": {"el": "[Συμπληρώστε: ελάχιστο επιτρεπόμενο απόθεμα και κύρωση, από το Σχέδιο Διαχείρισης Λεκανών Απορροής Κεντρικής Μακεδονίας (EL10) / Οδηγία 2000/60/ΕΚ]",
@@ -299,6 +438,7 @@ def write_regions(stack: list[dict], rng) -> None:
         "thresholds": {
             "sink_watch_mm_yr": -15, "sink_alert_mm_yr": -40, "egms_tolerance_mm_yr": 8,
             "reservoir_warn_days": 45, "heavy_rain_mm_day": 40, "heat_c": 38, "dry_spell_days": 30,
+            "soil_dry_drop_pct": 15, "reed_loss_pct": 10, "cleared_watch_ha": 5, "cleared_alert_ha": 25,
         },
         "regions": regions,
     }, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -307,7 +447,10 @@ def write_regions(stack: list[dict], rng) -> None:
 # ---------------------------------------------------------------- main
 def main() -> None:
     LAYERS_DIR.mkdir(parents=True, exist_ok=True)
+    CLOUDS_DIR.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(42)
+    covers = cloud_cover()
+    clouds = []
     fp_nisar, fp_s1 = footprint(0.045), footprint(-0.03)
     frames: dict[str, list] = {d["id"]: [] for d in LAYER_DEFS}
     stack: list[dict] = []
@@ -323,6 +466,7 @@ def main() -> None:
             "hh": (f["hh"], fp_nisar * 0.96),
             "hv": (f["hv"], fp_nisar * 0.96),
             "s1vv": (f["vv"], fp_s1 * 0.96),
+            "sm": (f["sm"], fp_nisar * 0.92),
         }
         diff = f["hh_clean"] - f0["hh_clean"] + rng.normal(0, 0.35, (H, W))
         rasters["change"] = (diff, fp_nisar * np.clip(np.abs(diff) / 3.5, 0, 1) ** 0.8 * 0.95)
@@ -335,14 +479,21 @@ def main() -> None:
             vals, alpha = rasters[lid]
             rel = f"data/layers/{lid}_{iso}.webp"
             save_image(ROOT / rel, colorize(vals, LEGEND[lid], alpha))
+            vrel = f"data/values/{lid}_{iso}.bin"
+            d_["grid"] = save_values(ROOT / vrel, np.where(alpha > 0.05, vals, np.nan) if lid != "change" else np.where(fp_nisar > 0.05, vals, np.nan))
             prefix = "S1" if lid == "s1vv" else "NISAR"
             frames[lid].append({
                 "date": iso,
                 "image": rel,
+                "values": vrel,
                 "source": f"DEMO_{prefix}_{d_['product'].split(' (')[0].replace(' ', '_')}_{tag}",
                 "url": "",
             })
-        print("frame", iso)
+        cover = round(covers.get(iso, 60.0))
+        crel = f"data/clouds/{iso}.webp"
+        save_image(ROOT / crel, cloud_image(k, cover))
+        clouds.append({"date": iso, "image": crel, "cover": cover})
+        print("frame", iso, "clouds", cover, "%")
 
     manifest = {
         "demo": True,
@@ -355,6 +506,12 @@ def main() -> None:
         },
         "reference": {"name": "EGMS", "label": {"el": "EGMS (Ευρωπαϊκή Υπηρεσία Κίνησης Εδάφους)", "en": "EGMS (European Ground Motion Service)"}},
         "layers": [{**{k_: v_ for k_, v_ in d_.items()}, "bounds": BOUNDS, "frames": frames[d_["id"]]} for d_ in LAYER_DEFS],
+        "optical": {
+            "name": {"el": "Οπτικός δορυφόρος (π.χ. Sentinel-2)", "en": "Optical satellite (e.g. Sentinel-2)"},
+            "note": {"el": "Η νεφοκάλυψη κάθε ημερομηνίας είναι η πραγματική (Open-Meteo)· το σχήμα των σύννεφων είναι σχηματικό.",
+                     "en": "Each date's cloud cover is the real one (Open-Meteo); the shape of the clouds is schematic."},
+            "clouds": clouds,
+        },
         "points": "data/points.geojson",
         "regions": "data/regions.json",
         "weather": {"provider": "open-meteo", "snapshot": "data/weather.json"},

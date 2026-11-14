@@ -13,11 +13,11 @@ const app = $('#app');
 const state = {
   lang: 'el', mode: 'explore',
   layerId: null, frame: 0,
-  opacity: 0,                    // radar overlay hidden by default: raise this (0..1) to show the layers on the map
+  sensor: 'optical',             // 'optical' = what a normal satellite sees (clouds) · 'radar' = the NISAR layer on the map
   compare: false, compareFrame: 0, swipeX: null,
   pointId: null, tab: 'ground',
   regionId: null, rtab: 'wx',
-  tilt: false,
+  storyIdx: 0, tilt: false,
 };
 
 let M, C, validation;            // manifest, content, validation data
@@ -26,6 +26,8 @@ let mapA, mapB = null;
 const markers = {};
 let chart, valChart;
 let status;                      // the Status view (js/status.js)
+const RADAR_OPACITY = 0.9;
+const valueCache = new Map();    // hover values per frame (Int16Array)
 
 // ───────────────────────────────────────────────────────── helpers
 const t = (k) => STR[k]?.[state.lang] ?? k;
@@ -53,6 +55,9 @@ function pad() {
   if (isMobile()) return { top: 66, bottom: 140, left: 10, right: 10 };
   return { top: 76, bottom: 150, left: state.mode === 'explore' ? 348 : 432, right: state.pointId || state.regionId ? 408 : 16 };
 }
+
+const overlayOpacity = () => (state.sensor === 'radar' ? RADAR_OPACITY : 0);
+const frameDate = () => frames()[state.frame].date;
 
 // ───────────────────────────────────────────────────────── map
 function baseStyle() {
@@ -100,7 +105,71 @@ function applyOverlay(map, ly, frame) {
     map.addLayer({ id: 'ov', type: 'raster', source: 'ov', paint: { 'raster-fade-duration': 0 } }, 'labels');
     map.__ovKind = kind;
   }
-  map.setPaintProperty('ov', 'raster-opacity', state.opacity);
+  map.setPaintProperty('ov', 'raster-opacity', overlayOpacity());
+}
+
+/** Optical view: the clouds a normal satellite would have seen on that date. */
+function applyClouds(map, date) {
+  const list = M.optical?.clouds;
+  if (!map?.__ready || !list?.length) return;
+  const c = list[nearestIndex(list.map((x) => x.date), date)];
+  const coordinates = cornersOf(M.site.bounds);
+  const src = map.getSource('clouds');
+  if (src) src.updateImage({ url: c.image, coordinates });
+  else {
+    map.addSource('clouds', { type: 'image', url: c.image, coordinates });
+    // below the place names and the Status areas, above the radar layer
+    map.addLayer({ id: 'clouds', type: 'raster', source: 'clouds', paint: { 'raster-fade-duration': 0 } }, 'labels');
+  }
+  map.setPaintProperty('clouds', 'raster-opacity', state.sensor === 'optical' ? 1 : 0);
+  if (map === mapA) renderSensorNote(c);
+}
+
+function renderSensorNote(c = M.optical?.clouds?.[nearestIndex(M.optical.clouds.map((x) => x.date), frameDate())]) {
+  $$('[data-sensor]').forEach((b) => b.classList.toggle('is-on', b.dataset.sensor === state.sensor));
+  $('#sensorNote').innerHTML = state.sensor === 'optical'
+    ? (c ? `${t('sensor.cover').replace('{n}', c.cover)} · ${fmtDate(c.date, { day: 'numeric', month: 'short' })}` : '')
+    : `NISAR L-band · ${L(layer().name)} · ${t('sensor.through')}`;
+}
+
+function setSensor(s) {
+  state.sensor = s;
+  for (const m of [mapA, mapB]) {
+    if (m?.__ready && m.getLayer('ov')) m.setPaintProperty('ov', 'raster-opacity', overlayOpacity());
+    if (m?.__ready && m.getLayer('clouds')) m.setPaintProperty('clouds', 'raster-opacity', s === 'optical' ? 1 : 0);
+  }
+  app.dataset.sensor = s;
+  $('#probe').hidden = true;
+  renderSensorNote();
+}
+
+// ───────────────────────────────────────────────────────── hover: value under the cursor
+async function frameValues(f) {
+  if (!f.values) return null;
+  if (!valueCache.has(f.values)) {
+    valueCache.set(f.values, fetch(f.values).then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => (b ? new Int16Array(b) : null)).catch(() => null));
+  }
+  return valueCache.get(f.values);
+}
+
+async function probe(e) {
+  const box = $('#probe');
+  const ly = layer();
+  const f = frames()[state.frame];
+  const grid = f.grid || ly.grid;
+  if (state.sensor !== 'radar' || !grid || isMobile()) { box.hidden = true; return; }
+  const vals = await frameValues(f);
+  const [w, s, east, n] = ly.bounds || M.site.bounds;
+  const [gw, gh] = grid;
+  const x = Math.floor(((e.lngLat.lng - w) / (east - w)) * gw);
+  const y = Math.floor(((n - e.lngLat.lat) / (n - s)) * gh);
+  const raw = vals && x >= 0 && y >= 0 && x < gw && y < gh ? vals[y * gw + x] : -32768;
+  if (raw === -32768 || f !== frames()[state.frame]) { box.hidden = true; return; }
+  const v = raw / 10;
+  const cls = (ly.classes || []).find(([max]) => v <= max);
+  box.innerHTML = `<b>${fmtNum(v, 1)} <small>${ly.unit}</small></b><span>${ly.id === 'sm' ? t('probe.sm') : ly.band + '-band · ' + L(ly.short)}</span>${cls ? `<p>${L(cls[1])}</p>` : ''}`;
+  box.style.transform = `translate(${e.point.x + 16}px, ${e.point.y + 16}px)`;
+  box.hidden = false;
 }
 
 function syncB() {
@@ -169,7 +238,8 @@ function renderLayers() {
       <span><span class="l-name">${L(ly.name)}</span><br><span class="l-short">${L(ly.short)}</span></span>
       <span class="band ${ly.band}">${ly.band}</span>
     </button>`).join('');
-  $('#legend').innerHTML = legendHTML(layer());
+  $('#legend').innerHTML = `<h3 class="sec">${t('legend.seeing')}</h3>${legendHTML(layer())}`;
+  $('#storyLegend').innerHTML = legendHTML(layer());
 }
 
 // ───────────────────────────────────────────────────────── timeline
@@ -205,7 +275,10 @@ function updateTimeline() {
 function setFrame(i) {
   state.frame = Math.max(0, Math.min(frames().length - 1, i));
   applyOverlay(mapA, layer(), frames()[state.frame]);
+  applyClouds(mapA, frameDate());
+  frameValues(frames()[state.frame]);   // prefetch for the hover
   updateTimeline();
+  renderSensorNote();
   if (chart && point()) {
     chart.$cursor = nearestIndex(point().series.dates, frames()[state.frame].date);
     chart.update('none');
@@ -237,11 +310,13 @@ function setCompare(on) {
         mapB.__ready = true;
         syncB();
         applyOverlay(mapB, layer(), frames()[state.compareFrame]);
+        applyClouds(mapB, frames()[state.compareFrame].date);
       });
     } else {
       mapB.resize();
       syncB();
       applyOverlay(mapB, layer(), frames()[state.compareFrame]);
+      applyClouds(mapB, frames()[state.compareFrame].date);
     }
   }
   updateTimeline();
@@ -351,7 +426,7 @@ const cursorPlugin = {
 };
 
 function chartDefaults() {
-  Chart.defaults.font.family = '"Iosevka UI", ui-monospace, monospace';
+  Chart.defaults.font.family = 'Manrope, system-ui, sans-serif';
   Chart.defaults.font.size = 11;
   Chart.defaults.color = '#8b96a8';
   Chart.defaults.plugins.legend.labels.usePointStyle = true;
@@ -450,6 +525,40 @@ function toggleListen() {
   });
 }
 
+// ───────────────────────────────────────────────────────── story mode
+function renderStory() {
+  const n = C.story?.length || 0;
+  if (!n) return;
+  const ch = C.story[state.storyIdx];
+  $('#storyDots').innerHTML = C.story.map((_, i) =>
+    `<button data-story="${i}" class="${i < state.storyIdx ? 'done' : i === state.storyIdx ? 'now' : ''}" aria-label="${i + 1}"></button>`).join('');
+  $('#storyKicker').textContent = L(ch.kicker);
+  $('#storyTitle').textContent = L(ch.title);
+  $('#storyBody').textContent = L(ch.body);
+  $('#storyNextLabel').textContent = t(state.storyIdx === 0 ? 'story.start' : state.storyIdx === n - 1 ? 'story.finish' : 'story.next');
+  $('#storyPrev').disabled = state.storyIdx === 0;
+}
+
+function goStory(i) {
+  if (i >= C.story.length) return setMode('status');
+  state.storyIdx = Math.max(0, i);
+  const ch = C.story[state.storyIdx];
+  if (state.compare) setCompare(false);
+  if (ch.sensor) setSensor(ch.sensor);
+  if (ch.layer && ch.layer !== state.layerId) setLayer(ch.layer);
+  if (ch.frame != null) setFrame(ch.frame);
+  if (ch.point) selectPoint(ch.point, false); else closePoint(false);
+  renderStory();
+  const box = $('.story-only');
+  box.classList.remove('story-anim');
+  void box.offsetWidth;
+  box.classList.add('story-anim');
+  mapA.flyTo({
+    center: ch.center ?? M.site.center, zoom: ch.zoom ?? M.site.zoom, pitch: ch.pitch ?? 0, bearing: ch.bearing ?? 0,
+    padding: pad(), duration: 2600, essential: true,
+  });
+}
+
 // ───────────────────────────────────────────────────────── modes
 function setMode(mode) {
   state.mode = mode;
@@ -457,6 +566,7 @@ function setMode(mode) {
   app.classList.remove('drawer');
   $$('.mode').forEach((b) => b.classList.toggle('is-active', b.dataset.mode === mode));
   status.setVisible(mode === 'status');
+  if (mode === 'story') return goStory(0);
   if (mode === 'status') {
     closePoint(false);
     mapA.easeTo({ center: M.site.center, zoom: M.site.zoom, pitch: 0, bearing: 0, padding: pad(), duration: 900 });
@@ -529,6 +639,8 @@ function renderAll() {
   renderTimeline();
   renderMarkers();
   renderInspector();
+  renderStory();
+  renderSensorNote();
   renderAbout();
   status.render();
   if (!$('#validation').hidden) renderValidation();
@@ -566,6 +678,10 @@ function bindUI() {
   handle.addEventListener('pointerup', () => { swiping = false; });
 
   $$('.mode').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  $$('[data-sensor]').forEach((b) => b.addEventListener('click', () => setSensor(b.dataset.sensor)));
+  $('#storyNext').addEventListener('click', () => goStory(state.storyIdx + 1));
+  $('#storyPrev').addEventListener('click', () => goStory(state.storyIdx - 1));
+  $('#storyDots').addEventListener('click', (e) => { if (e.target.dataset.story) goStory(+e.target.dataset.story); });
 
   $('#right').addEventListener('click', (e) => { if (e.target.closest('[data-close-right]')) closePoint(); });
   status.bind();
@@ -595,10 +711,26 @@ function bindUI() {
   addEventListener('keydown', (e) => {
     if (e.target.matches('input, select, textarea')) return;
     if (e.key === 'Escape') { $$('.sheet').forEach((s) => { s.hidden = true; }); return; }
+    if (e.key === 'r' || e.key === 'R') { setSensor(state.sensor === 'radar' ? 'optical' : 'radar'); return; }
+    if (state.mode === 'story') {
+      if (e.key === 'ArrowRight') goStory(state.storyIdx + 1);
+      if (e.key === 'ArrowLeft') goStory(state.storyIdx - 1);
+      return;
+    }
     if (e.key === 'ArrowRight') setFrame(state.frame + 1);
     if (e.key === 'ArrowLeft') setFrame(state.frame - 1);
   });
   addEventListener('resize', () => { if (state.compare) setSwipe(state.swipeX); });
+}
+
+/** A JPEG of the main map as it is now (for the printed brief). */
+function snapshot() {
+  return new Promise((resolve) => {
+    mapA.once('render', () => {
+      try { resolve(mapA.getCanvas().toDataURL('image/jpeg', 0.86)); } catch { resolve(null); }
+    });
+    mapA.triggerRepaint();
+  });
 }
 
 // ───────────────────────────────────────────────────────── boot
@@ -609,7 +741,7 @@ async function boot() {
       getJSON(M.content), getJSON(M.points), getJSON(M.validation),
       M.regions ? getJSON(M.regions) : { regions: [], thresholds: {} },
     ]);
-    status = createStatus({ $, $$, t, L, fmtDate, state, manifest: M, selectRegion });
+    status = createStatus({ $, $$, t, L, fmtDate, state, manifest: M, selectRegion, snapshot, setSensor });
     status.init(regions);
     C = content;
     validation = val;
@@ -633,6 +765,9 @@ async function boot() {
     addMarkers();
     status.addToMap(mapA);
     setLayer(state.layerId);
+    setSensor(state.sensor);
+    mapA.on('mousemove', probe);
+    mapA.getCanvas().addEventListener('mouseleave', () => { $('#probe').hidden = true; });
     $('#loader').classList.add('done');
   });
 }

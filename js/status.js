@@ -3,7 +3,7 @@
 // The numbers come from data/regions.json + live weather; the sentences come from js/insights.js.
 
 import { loadWeather, isoDay } from './weather.js';
-import { assess } from './insights.js';
+import { assess, scenario } from './insights.js';
 
 const COLORS = { alert: '#ff6b5e', watch: '#f4b94a', ok: '#7bd88f' };
 const RANK = { ok: 0, watch: 1, alert: 2 };
@@ -24,14 +24,17 @@ export function createStatus(ctx) {
   let map = null;
   let chart = null;
   const labels = {};
+  const scn = { rain: 0, irrigation: 0 };   // what-if, in % change for next season
 
   const region = (id) => data.regions.find((r) => r.id === id);
   const sorted = () => [...data.regions].sort((a, b) => RANK[A[b.id].status] - RANK[A[a.id].status]);
 
   function compute() {
     A = {};
+    const sm = data.regions.map((r) => r.series.soil_moist_pct?.at(-1)).filter((v) => v != null);
+    const soilRef = sm.length > 1 ? sm.reduce((a, b) => a + b, 0) / sm.length : null;
     for (const r of data.regions) {
-      A[r.id] = assess(r, wx?.byRegion?.[r.id] ?? null, data.thresholds, { today, refName: manifest.reference?.name });
+      A[r.id] = assess(r, wx?.byRegion?.[r.id] ?? null, data.thresholds, { today, refName: manifest.reference?.name, soilRef });
     }
   }
 
@@ -85,6 +88,10 @@ export function createStatus(ctx) {
       new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat([r.center[0], north]).addTo(m);
       labels[r.id] = el;
     }
+    m.addSource('scenario', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    m.addLayer({ id: 'scn-fill', type: 'fill', source: 'scenario', filter: ['==', ['get', 'k'], 'scn'], paint: { 'fill-color': '#5cc8f0', 'fill-opacity': 0.28 } });
+    m.addLayer({ id: 'scn-line', type: 'line', source: 'scenario', filter: ['==', ['get', 'k'], 'scn'], paint: { 'line-color': '#5cc8f0', 'line-width': 2.5 } });
+    m.addLayer({ id: 'scn-now', type: 'line', source: 'scenario', filter: ['==', ['get', 'k'], 'now'], paint: { 'line-color': '#ffffff', 'line-width': 1.5, 'line-dasharray': [3, 2] } });
     setVisible(state.mode === 'status');
     refreshMap();
   }
@@ -103,7 +110,7 @@ export function createStatus(ctx) {
 
   function setVisible(on) {
     if (!map) return;
-    for (const id of ['regions-fill', 'regions-line']) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
+    for (const id of ['regions-fill', 'regions-line', 'scn-fill', 'scn-line', 'scn-now']) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
   }
 
   // ───────────────────────────────────────────────────────── left: daily briefing
@@ -126,7 +133,10 @@ export function createStatus(ctx) {
     todo.sort((a, b) => RANK[b.f.level] - RANK[a.f.level]);
 
     $('#brief').innerHTML = `
-      <div class="brief-kicker">${t('brief.kicker')} · ${fmtDate(today, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+      <div class="brief-top">
+        <div class="brief-kicker">${t('brief.kicker')} · ${fmtDate(today, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+        <button class="chip-btn report-btn" data-report><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>${t('report.btn')}</span></button>
+      </div>
       <h1 class="brief-title">${title}</h1>
       <div class="brief-counts">
         ${['alert', 'watch', 'ok'].map((s) => `<span class="st st-${s}">${count[s]} ${t(`st.${s}`)}</span>`).join('')}
@@ -238,6 +248,9 @@ export function createStatus(ctx) {
       ${w ? forecastHTML(w) : `<p class="empty">${t(wxState === 'loading' ? 'brief.wx.loading' : 'rnote.nowx')}</p>`}
 
       <div class="tiles">
+        ${a.soil ? `<div class="tile ${a.soil.finding.level !== 'ok' ? 'warn' : ''}"><div class="t-label">${t('rg.tile.soil')}</div><div class="t-val">${a.soil.now.toFixed(0)}<small>%</small></div></div>` : ''}
+        ${a.wetland ? `<div class="tile ${a.wetland.level !== 'ok' ? 'neg' : ''}"><div class="t-label">${t('rg.tile.cleared')}</div><div class="t-val">${a.wetland.ha.toFixed(0)}<small>ha</small></div></div>` : ''}
+        ${a.reservoir ? `<div class="tile ${a.reservoir.level !== 'ok' ? 'neg' : ''}"><div class="t-label">${t('rg.tile.lake')}</div><div class="t-val">${(r.reservoir.area_km2?.at(-1) ?? a.reservoir.now).toFixed(0)}<small>${r.reservoir.area_km2 ? 'km²' : r.reservoir.unit}</small></div></div>` : ''}
         <div class="tile ${a.ground.level !== 'ok' ? 'neg' : ''}"><div class="t-label">${t('rg.tile.rate')}</div><div class="t-val">${signed(a.ground.rate)}<small>${t('unit.mmyr')}</small></div></div>
         <div class="tile ${ref && !ref.agrees ? 'warn' : ''}"><div class="t-label">${tf('rg.tile.egms', { ref: manifest.reference?.name || 'Ref' })}</div><div class="t-val">${ref ? signed(ref.diff, 1) : '–'}<small>${t('unit.mmyr')}</small></div></div>
         <div class="tile"><div class="t-label">${t('rg.tile.rain')}</div><div class="t-val">${a.weather ? a.weather.rain30.toFixed(0) : '–'}<small>mm</small></div></div>
@@ -249,6 +262,7 @@ export function createStatus(ctx) {
           <article class="finding lv-${f.level}">
             <h4>${L(f.title)}</h4>
             <p>${L(f.text)}</p>
+            ${f.action ? `<div class="action"><b>${t('action.title')}</b>${L(f.action)}</div>` : ''}
             <small>${L(f.basis)}</small>
           </article>`).join('')}
       </div>
@@ -368,16 +382,120 @@ export function createStatus(ctx) {
     });
   }
 
+  // ───────────────────────────────────────────────────────── what if
+  const lakeRegion = () => data.regions.find((r) => r.reservoir?.volume?.length);
+
+  function renderScenario() {
+    const r = lakeRegion();
+    const box = $('#scenario');
+    if (!r) { box.innerHTML = ''; return; }
+    box.innerHTML = `
+      <h2 class="sec">${t('scn.title')}</h2>
+      <div class="scn card">
+        <p class="scn-q">${tf('scn.q', { lake: L(r.reservoir.name) })}</p>
+        <label class="scn-row"><span>${t('scn.rain')}</span><output id="scnRainOut"></output>
+          <input type="range" id="scnRain" min="-50" max="30" step="5" value="${scn.rain}"></label>
+        <label class="scn-row"><span>${t('scn.irr')}</span><output id="scnIrrOut"></output>
+          <input type="range" id="scnIrr" min="-50" max="50" step="5" value="${scn.irrigation}"></label>
+        <div class="scn-out" id="scnOut"></div>
+        <button class="scn-reset" id="scnReset">${t('scn.reset')}</button>
+        <p class="scn-note">${t('scn.note')}${manifest.demo ? ` ${t('demo.warn')}` : ''}</p>
+      </div>`;
+    updateScenario();
+  }
+
+  function updateScenario() {
+    const r = lakeRegion();
+    if (!r || !$('#scnOut')) return;
+    const s = scenario(r, A[r.id], scn);
+    const pct = (v) => `${v > 0 ? '+' : ''}${v}%`.replace('-', '−');
+    $('#scnRainOut').textContent = pct(scn.rain);
+    $('#scnIrrOut').textContent = pct(scn.irrigation);
+    const bad = s.low < s.limit;
+    $('#scnOut').innerHTML = `
+      <div class="scn-kpi ${bad ? 'bad' : 'good'}"><span>${t('scn.low')}</span><b>${s.low.toFixed(0)} <small>${s.unit}</small></b><em>${t('rc.limit')} ${s.limit} · ${t('scn.same')} ${s.base.toFixed(0)}</em></div>
+      ${s.area != null ? `<div class="scn-kpi"><span>${t('scn.area')}</span><b>${s.area.toFixed(0)} <small>km²</small></b><em>${t('scn.now')} ${s.areaNow.toFixed(0)}</em></div>` : ''}
+      <div class="scn-kpi ${s.daysBelow ? 'bad' : 'good'}"><span>${t('scn.days')}</span><b>${s.daysBelow}</b><em>${s.daysBelow ? t('scn.fine') : t('scn.nofine')}</em></div>
+      <div class="scn-kpi"><span>${tf('scn.sink', { area: L(r.name) })}</span><b>${signed(s.sink)} <small>${t('unit.mmyr')}</small></b></div>`;
+    // map: today's shoreline (dashed) and the scenario's (filled)
+    const ring = r.reservoir.outline;
+    const src = map?.getSource('scenario');
+    if (src && ring) {
+      const n = ring.length - 1;
+      const cx = ring.slice(0, n).reduce((a, p) => a + p[0], 0) / n;
+      const cy = ring.slice(0, n).reduce((a, p) => a + p[1], 0) / n;
+      const scaled = ring.map(([x, y]) => [cx + (x - cx) * s.scale, cy + (y - cy) * s.scale]);
+      const changed = scn.rain || scn.irrigation;
+      src.setData({ type: 'FeatureCollection', features: changed ? [
+        { type: 'Feature', properties: { k: 'now' }, geometry: { type: 'LineString', coordinates: ring } },
+        { type: 'Feature', properties: { k: 'scn' }, geometry: { type: 'Polygon', coordinates: [scaled] } },
+      ] : [] });
+    }
+    return s;
+  }
+
+  // ───────────────────────────────────────────────────────── printable regional brief
+  async function exportReport() {
+    const btn = $('[data-report]');
+    if (btn) btn.disabled = true;
+    const img = await ctx.snapshot?.();
+    const lastPass = data.regions.map((r) => r.series.dates.at(-1)).sort().at(-1);
+    const ref = manifest.reference?.name || 'Ref';
+    const lake = lakeRegion();
+    const s = lake ? scenario(lake, A[lake.id], scn) : null;
+    const rows = sorted().map((r) => {
+      const a = A[r.id];
+      return `<tr><td><i class="dot st-${a.status}"></i> ${L(r.name)}</td><td>${t(`st.${a.status}`)}</td>
+        <td>${signed(a.ground.rate)}</td><td>${a.reference ? `${signed(a.reference.diff, 1)} ${a.reference.agrees ? '✓' : '✗'}` : '–'}</td>
+        <td>${a.soil ? `${a.soil.now.toFixed(0)}%` : '–'}</td><td>${a.weather ? a.weather.rain30.toFixed(0) : '–'}</td></tr>`;
+    }).join('');
+    const issues = sorted().flatMap((r) => A[r.id].findings.filter((f) => f.level !== 'ok').map((f) => ({ r, f })));
+    $('#report').innerHTML = `
+      <header>
+        <div><small>EarthDance · ${t('report.kicker')}</small><h1>${L(manifest.site.name)} — ${t('report.title')}</h1></div>
+        <div class="r-date">${fmtDate(today, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
+      </header>
+      ${manifest.demo ? `<p class="r-demo">${t('report.demo')}</p>` : ''}
+      <p class="r-fresh">${t('brief.radar')}: ${tf('brief.radarText', { d: fmtDate(lastPass), n: Math.round(dayNum(today) - dayNum(lastPass)) })} · ${t('brief.wx')}: ${wxState === 'snapshot' ? tf('brief.wx.snapshot', { d: fmtDate(wx.saved) }) : t(`brief.wx.${wxState}`)}</p>
+      ${img ? `<img class="r-map" src="${img}" alt="">` : ''}
+      <h2>${t('report.summary')}</h2>
+      <table><thead><tr><th>${t('report.area')}</th><th>${t('report.status')}</th><th>${t('rg.tile.rate')} (${t('unit.mmyr')})</th><th>Δ ${ref}</th><th>${t('rg.tile.soil')}</th><th>${t('rg.tile.rain')} (mm)</th></tr></thead><tbody>${rows}</tbody></table>
+      <h2>${t('report.actions')}</h2>
+      ${issues.length ? issues.map(({ r, f }) => `
+        <div class="r-item lv-${f.level}">
+          <h3>${L(r.name)} · ${L(f.title)}</h3>
+          <p>${L(f.text)}</p>
+          ${f.action ? `<p class="r-act"><b>${t('action.title')}:</b> ${L(f.action)}</p>` : ''}
+          <p class="r-basis">${L(f.basis)}</p>
+        </div>`).join('') : `<p>${t('brief.none')}</p>`}
+      ${s && (scn.rain || scn.irrigation) ? `<h2>${t('scn.title')}</h2><p>${tf('report.scn', { rain: scn.rain, irr: scn.irrigation, low: s.low.toFixed(0), unit: s.unit, limit: s.limit, days: s.daysBelow })}</p>` : ''}
+      <footer>${t('report.foot')}</footer>`;
+    if (btn) btn.disabled = false;
+    setTimeout(() => window.print(), 60);
+  }
+
   function render() {
     renderBrief();
+    renderScenario();
     renderRegion();
     refreshMap();
   }
 
   function bind() {
     $('#brief').addEventListener('click', (e) => {
+      if (e.target.closest('[data-report]')) { exportReport(); return; }
       const b = e.target.closest('[data-region]');
       if (b) ctx.selectRegion(b.dataset.region);
+    });
+    $('#scenario').addEventListener('input', (e) => {
+      if (e.target.id === 'scnRain') scn.rain = +e.target.value;
+      if (e.target.id === 'scnIrr') scn.irrigation = +e.target.value;
+      updateScenario();
+    });
+    $('#scenario').addEventListener('click', (e) => {
+      if (e.target.id !== 'scnReset') return;
+      scn.rain = 0; scn.irrigation = 0;
+      renderScenario();
     });
     $('#regionView').addEventListener('click', (e) => {
       const tab = e.target.closest('[data-rtab]');
@@ -386,7 +504,7 @@ export function createStatus(ctx) {
   }
 
   return {
-    init, bind, render, addToMap, setVisible, region,
+    init, bind, render, addToMap, setVisible, region, exportReport,
     thresholds: () => data.thresholds,
     refName: () => manifest.reference?.name || 'Reference',
   };
