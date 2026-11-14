@@ -63,7 +63,7 @@ function baseStyle() {
     version: 8,
     sources: {
       sat: { type: 'raster', tiles: esri('World_Imagery'), tileSize: 256 / hidpi, maxzoom: 19, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
-      labels: { type: 'raster', tiles: esri('Reference/World_Boundaries_and_Places'), tileSize: 256, maxzoom: 16 },
+      labels: { type: 'raster', tiles: esri('Reference/World_Boundaries_and_Places'), tileSize: 256, maxzoom: 19 },
     },
     layers: [
       { id: 'bg', type: 'background', paint: { 'background-color': '#070a10' } },
@@ -351,8 +351,7 @@ const cursorPlugin = {
 };
 
 function chartDefaults() {
-  Chart.defaults.font.family = '"Iosevka Fixed", "Iosevka Term", Iosevka, monospace';
-  Chart.defaults.font.weight = 500;
+  Chart.defaults.font.family = '"Iosevka UI", ui-monospace, monospace';
   Chart.defaults.font.size = 11;
   Chart.defaults.color = '#8b96a8';
   Chart.defaults.plugins.legend.labels.usePointStyle = true;

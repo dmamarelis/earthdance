@@ -33,6 +33,7 @@ data/regions.json     ★ Περιοχές παρακολούθησης, ταμ�
 data/weather.json     Αποθηκευμένο αντίγραφο καιρού, για λειτουργία χωρίς σύνδεση
 data/validation.json  ★ Ζεύγη NISAR – EGMS για το γράφημα επαλήθευσης
 data/content.json     ★ Εξηγήσεις, συνεντεύξεις, ομάδα
+fonts/                Η γραμματοσειρά του UI (Iosevka Charon Mono Medium, άδεια SIL OFL), τοπικά, χωρίς internet
 tools/add_layer.py    Προσθέτει μία πραγματική λήψη στην εφαρμογή
 tools/fetch_weather.py   Ανανεώνει το data/weather.json
 tools/make_demo_data.py  Ξαναφτιάχνει τα demo δεδομένα
