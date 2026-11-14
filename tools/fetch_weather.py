@@ -2,11 +2,13 @@
 
 The app always tries the live Open-Meteo API first and only falls back to this file.
 
-Run:  python tools/fetch_weather.py
+Run:  python tools/fetch_weather.py            # demo set (data/)
+      python tools/fetch_weather.py --real     # real set (data/real/)
 """
 
 from __future__ import annotations
 
+import argparse
 import datetime as dt
 import json
 import urllib.parse
@@ -31,7 +33,10 @@ def call(base: str, regions: list[dict], **extra) -> list[dict]:
 
 
 def main() -> None:
-    regions = json.loads((ROOT / "data" / "regions.json").read_text(encoding="utf-8"))["regions"]
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--real", action="store_true", help="the real data set in data/real/")
+    folder = ROOT / "data" / ("real" if ap.parse_args().real else "")
+    regions = json.loads((folder / "regions.json").read_text(encoding="utf-8"))["regions"]
     today = dt.date.today()
     first = min(r["series"]["dates"][0] for r in regions)
     start = (dt.date.fromisoformat(first) - dt.timedelta(days=30)).isoformat()
@@ -53,7 +58,7 @@ def main() -> None:
         time = sorted(days)
         by_region[r["id"]] = {"time": time, **{k: [days[d].get(k) for d in time] for k in FIELDS}}
 
-    out = ROOT / "data" / "weather.json"
+    out = folder / "weather.json"
     out.write_text(json.dumps({"saved": today.isoformat(), "source": "Open-Meteo", "byRegion": by_region},
                               separators=(",", ":")), encoding="utf-8")
     print(f"saved {out.relative_to(ROOT)}: {len(by_region)} areas, {start} .. {max(by_region[regions[0]['id']]['time'])}")

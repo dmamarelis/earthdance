@@ -1,0 +1,606 @@
+{
+ "demo": false,
+ "source": "real",
+ "site": {
+  "name": {
+   "el": "Λίμνη Κορώνεια",
+   "en": "Lake Koronia"
+  },
+  "country": {
+   "el": "Ελλάδα",
+   "en": "Greece"
+  },
+  "bounds": [
+   23.03,
+   40.62,
+   23.27,
+   40.74
+  ],
+  "center": [
+   23.15,
+   40.68
+  ],
+  "zoom": 11.1
+ },
+ "reference": {
+  "name": "EGMS",
+  "label": {
+   "el": "EGMS (Ευρωπαϊκή Υπηρεσία Κίνησης Εδάφους)",
+   "en": "EGMS (European Ground Motion Service)"
+  }
+ },
+ "layers": [
+  {
+   "id": "hh",
+   "band": "L",
+   "sensor": "NISAR",
+   "product": "L2 GCOV",
+   "unit": "dB",
+   "name": {
+    "el": "Οπισθοσκέδαση HH",
+    "en": "Backscatter HH"
+   },
+   "short": {
+    "el": "Υφή εδάφους & νερό",
+    "en": "Surface texture & water"
+   },
+   "description": {
+    "el": "Πόση ενέργεια ραντάρ επιστρέφει στον δορυφόρο. Σκούρο = λείο (νερό). Φωτεινό = τραχύ (πόλεις, βουνά).",
+    "en": "How much radar energy returns to the satellite. Dark = smooth (water). Bright = rough (cities, mountains)."
+   },
+   "legend": {
+    "stops": [
+     [
+      -26,
+      "#05070d"
+     ],
+     [
+      -18,
+      "#2a3550"
+     ],
+     [
+      -11,
+      "#8a97ad"
+     ],
+     [
+      -4,
+      "#eef2f7"
+     ]
+    ],
+    "low": {
+     "el": "λείο / νερό",
+     "en": "smooth / water"
+    },
+    "high": {
+     "el": "τραχύ",
+     "en": "rough"
+    }
+   },
+   "classes": [
+    [
+     -19,
+     {
+      "el": "Ήρεμο νερό: λεία επιφάνεια, το σήμα ανακλάται μακριά σαν από καθρέφτη",
+      "en": "Calm water: a smooth surface reflects the signal away like a mirror"
+     }
+    ],
+    [
+     -14,
+     {
+      "el": "Λείο ή γυμνό έδαφος: λίγη τραχύτητα, λίγο σήμα επιστρέφει",
+      "en": "Smooth or bare soil: little roughness, little signal returns"
+     }
+    ],
+    [
+     -9,
+     {
+      "el": "Χωράφι ή υγρό έδαφος: τραχύτητα και νερό (υψηλή διηλεκτρική σταθερά) δυναμώνουν την επιστροφή",
+      "en": "Field or wet soil: roughness and water (high dielectric constant) strengthen the return"
+     }
+    ],
+    [
+     -3,
+     {
+      "el": "Καλαμιώνας ή βλάστηση μέσα σε νερό: διπλή ανάκλαση νερό → μίσχος → δορυφόρος",
+      "en": "Reeds or vegetation standing in water: double bounce water → stem → satellite"
+     }
+    ],
+    [
+     99,
+     {
+      "el": "Κτίρια ή κατασκευές: γωνίες που στέλνουν το σήμα πίσω (διπλή ανάκλαση)",
+      "en": "Buildings or structures: corners send the signal straight back (double bounce)"
+     }
+    ]
+   ],
+   "grid": [
+    300,
+    150
+   ],
+   "bounds": [
+    23.03,
+    40.62,
+    23.27,
+    40.74
+   ],
+   "frames": [
+    {
+     "date": "2026-06-18",
+     "image": "data/real/layers/hh_2026-06-18.webp",
+     "values": "data/real/values/hh_2026-06-18.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-18.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-06-20",
+     "image": "data/real/layers/hh_2026-06-20.webp",
+     "values": "data/real/values/hh_2026-06-20.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-20.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-06-25",
+     "empty": true,
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-25.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-06-30",
+     "image": "data/real/layers/hh_2026-06-30.webp",
+     "values": "data/real/values/hh_2026-06-30.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-30.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-02",
+     "image": "data/real/layers/hh_2026-07-02.webp",
+     "values": "data/real/values/hh_2026-07-02.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-02.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-07",
+     "image": "data/real/layers/hh_2026-07-07.webp",
+     "values": "data/real/values/hh_2026-07-07.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-07.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-14",
+     "image": "data/real/layers/hh_2026-07-14.webp",
+     "values": "data/real/values/hh_2026-07-14.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-14.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-19",
+     "image": "data/real/layers/hh_2026-07-19.webp",
+     "values": "data/real/values/hh_2026-07-19.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-19.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-24",
+     "image": "data/real/layers/hh_2026-07-24.webp",
+     "values": "data/real/values/hh_2026-07-24.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-24.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-26",
+     "image": "data/real/layers/hh_2026-07-26.webp",
+     "values": "data/real/values/hh_2026-07-26.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-26.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-08-12",
+     "image": "data/real/layers/hh_2026-08-12.webp",
+     "values": "data/real/values/hh_2026-08-12.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-12.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-08-17",
+     "image": "data/real/layers/hh_2026-08-17.webp",
+     "values": "data/real/values/hh_2026-08-17.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-17.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-08-24",
+     "image": "data/real/layers/hh_2026-08-24.webp",
+     "values": "data/real/values/hh_2026-08-24.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-24.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-08-31",
+     "image": "data/real/layers/hh_2026-08-31.webp",
+     "values": "data/real/values/hh_2026-08-31.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-31.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-05",
+     "image": "data/real/layers/hh_2026-09-05.webp",
+     "values": "data/real/values/hh_2026-09-05.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-05.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-10",
+     "image": "data/real/layers/hh_2026-09-10.webp",
+     "values": "data/real/values/hh_2026-09-10.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-10.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-12",
+     "image": "data/real/layers/hh_2026-09-12.webp",
+     "values": "data/real/values/hh_2026-09-12.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-12.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-17",
+     "image": "data/real/layers/hh_2026-09-17.webp",
+     "values": "data/real/values/hh_2026-09-17.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-17.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-22",
+     "empty": true,
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-22.tif",
+     "url": ""
+    }
+   ]
+  },
+  {
+   "id": "change",
+   "band": "L",
+   "sensor": "NISAR",
+   "product": "L2 GCOV (Δ)",
+   "unit": "dB",
+   "name": {
+    "el": "Αλλαγή από την αρχή",
+    "en": "Change since start"
+   },
+   "short": {
+    "el": "Τι άλλαξε, πού",
+    "en": "What changed, where"
+   },
+   "description": {
+    "el": "Διαφορά HH από την πρώτη λήψη της ίδιας τροχιάς. Μπλε = πιο σκοτεινό (συνήθως νερό). Πορτοκαλί = πιο φωτεινό (τραχύτητα, υγρασία, βλάστηση).",
+    "en": "HH difference from the first pass of the same orbit. Blue = darker (usually water). Orange = brighter (roughness, moisture, vegetation)."
+   },
+   "legend": {
+    "stops": [
+     [
+      -8,
+      "#2f6df6"
+     ],
+     [
+      -3,
+      "#7fb2ff"
+     ],
+     [
+      0,
+      "#e8e6df"
+     ],
+     [
+      3,
+      "#ffb454"
+     ],
+     [
+      8,
+      "#f2622e"
+     ]
+    ],
+    "low": {
+     "el": "πιο σκούρο",
+     "en": "darker"
+    },
+    "high": {
+     "el": "πιο φωτεινό",
+     "en": "brighter"
+    }
+   },
+   "classes": [
+    [
+     -3,
+     {
+      "el": "Πιο σκούρο από την αρχή: συνήθως νερό που ήρθε ή βλάστηση που χάθηκε",
+      "en": "Darker than at the start: usually new water or lost vegetation"
+     }
+    ],
+    [
+     3,
+     {
+      "el": "Μικρή ή καμία αλλαγή",
+      "en": "Little or no change"
+     }
+    ],
+    [
+     99,
+     {
+      "el": "Πιο φωτεινό: ανάπτυξη, όργωμα (τραχύτητα) ή υγρασία",
+      "en": "Brighter: growth, ploughing (roughness) or moisture"
+     }
+    ]
+   ],
+   "grid": [
+    300,
+    150
+   ],
+   "bounds": [
+    23.03,
+    40.62,
+    23.27,
+    40.74
+   ],
+   "frames": [
+    {
+     "date": "2026-06-18",
+     "image": "data/real/layers/change_2026-06-18.webp",
+     "values": "data/real/values/change_2026-06-18.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-18.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-06-20",
+     "image": "data/real/layers/change_2026-06-20.webp",
+     "values": "data/real/values/change_2026-06-20.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-20.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-06-25",
+     "empty": true,
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-25.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-06-30",
+     "image": "data/real/layers/change_2026-06-30.webp",
+     "values": "data/real/values/change_2026-06-30.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-30.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-02",
+     "image": "data/real/layers/change_2026-07-02.webp",
+     "values": "data/real/values/change_2026-07-02.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-02.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-07",
+     "image": "data/real/layers/change_2026-07-07.webp",
+     "values": "data/real/values/change_2026-07-07.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-07.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-14",
+     "image": "data/real/layers/change_2026-07-14.webp",
+     "values": "data/real/values/change_2026-07-14.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-14.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-19",
+     "image": "data/real/layers/change_2026-07-19.webp",
+     "values": "data/real/values/change_2026-07-19.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-19.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-24",
+     "image": "data/real/layers/change_2026-07-24.webp",
+     "values": "data/real/values/change_2026-07-24.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-24.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-07-26",
+     "image": "data/real/layers/change_2026-07-26.webp",
+     "values": "data/real/values/change_2026-07-26.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-26.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-08-12",
+     "image": "data/real/layers/change_2026-08-12.webp",
+     "values": "data/real/values/change_2026-08-12.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-12.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-08-17",
+     "image": "data/real/layers/change_2026-08-17.webp",
+     "values": "data/real/values/change_2026-08-17.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-17.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-08-24",
+     "image": "data/real/layers/change_2026-08-24.webp",
+     "values": "data/real/values/change_2026-08-24.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-24.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-08-31",
+     "image": "data/real/layers/change_2026-08-31.webp",
+     "values": "data/real/values/change_2026-08-31.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-31.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-05",
+     "image": "data/real/layers/change_2026-09-05.webp",
+     "values": "data/real/values/change_2026-09-05.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-05.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-10",
+     "image": "data/real/layers/change_2026-09-10.webp",
+     "values": "data/real/values/change_2026-09-10.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-10.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-12",
+     "image": "data/real/layers/change_2026-09-12.webp",
+     "values": "data/real/values/change_2026-09-12.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-12.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-17",
+     "image": "data/real/layers/change_2026-09-17.webp",
+     "values": "data/real/values/change_2026-09-17.bin",
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-17.tif",
+     "url": ""
+    },
+    {
+     "date": "2026-09-22",
+     "empty": true,
+     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-22.tif",
+     "url": ""
+    }
+   ]
+  }
+ ],
+ "optical": {
+  "kind": "image",
+  "bounds": [
+   23.03,
+   40.62,
+   23.27,
+   40.74
+  ],
+  "clouds": [
+   {
+    "date": "2026-02-16",
+    "image": "data/real/optical/2026-02-16.webp",
+    "source": "HLS S30 · koroneia_optical_2026-02-16"
+   },
+   {
+    "date": "2026-03-03",
+    "image": "data/real/optical/2026-03-03.webp",
+    "source": "HLS S30 · koroneia_optical_2026-03-03"
+   },
+   {
+    "date": "2026-03-13",
+    "image": "data/real/optical/2026-03-13.webp",
+    "source": "HLS S30 · koroneia_optical_2026-03-13"
+   },
+   {
+    "date": "2026-04-07",
+    "image": "data/real/optical/2026-04-07.webp",
+    "source": "HLS S30 · koroneia_optical_2026-04-07"
+   },
+   {
+    "date": "2026-04-27",
+    "image": "data/real/optical/2026-04-27.webp",
+    "source": "HLS S30 · koroneia_optical_2026-04-27"
+   },
+   {
+    "date": "2026-05-04",
+    "image": "data/real/optical/2026-05-04.webp",
+    "source": "HLS S30 · koroneia_optical_2026-05-04"
+   },
+   {
+    "date": "2026-06-06",
+    "image": "data/real/optical/2026-06-06.webp",
+    "source": "HLS S30 · koroneia_optical_2026-06-06"
+   },
+   {
+    "date": "2026-06-11",
+    "image": "data/real/optical/2026-06-11.webp",
+    "source": "HLS S30 · koroneia_optical_2026-06-11"
+   },
+   {
+    "date": "2026-07-01",
+    "image": "data/real/optical/2026-07-01.webp",
+    "source": "HLS S30 · koroneia_optical_2026-07-01"
+   },
+   {
+    "date": "2026-07-03",
+    "image": "data/real/optical/2026-07-03.webp",
+    "source": "HLS S30 · koroneia_optical_2026-07-03"
+   },
+   {
+    "date": "2026-08-02",
+    "image": "data/real/optical/2026-08-02.webp",
+    "source": "HLS S30 · koroneia_optical_2026-08-02"
+   },
+   {
+    "date": "2026-08-05",
+    "image": "data/real/optical/2026-08-05.webp",
+    "source": "HLS S30 · koroneia_optical_2026-08-05"
+   },
+   {
+    "date": "2026-09-01",
+    "image": "data/real/optical/2026-09-01.webp",
+    "source": "HLS S30 · koroneia_optical_2026-09-01"
+   },
+   {
+    "date": "2026-09-04",
+    "image": "data/real/optical/2026-09-04.webp",
+    "source": "HLS S30 · koroneia_optical_2026-09-04"
+   },
+   {
+    "date": "2026-10-01",
+    "image": "data/real/optical/2026-10-01.webp",
+    "source": "HLS S30 · koroneia_optical_2026-10-01"
+   },
+   {
+    "date": "2026-10-04",
+    "image": "data/real/optical/2026-10-04.webp",
+    "source": "HLS S30 · koroneia_optical_2026-10-04"
+   }
+  ]
+ },
+ "points": "data/real/points.geojson",
+ "regions": "data/real/regions.json",
+ "weather": {
+  "provider": "open-meteo",
+  "snapshot": "data/real/weather.json"
+ },
+ "content": "data/content.json",
+ "missing": [
+  {
+   "id": "hv",
+   "name": {
+    "el": "Οπισθοσκέδαση HV",
+    "en": "Backscatter HV"
+   }
+  },
+  {
+   "id": "disp",
+   "name": {
+    "el": "Μετατόπιση εδάφους",
+    "en": "Ground displacement"
+   }
+  },
+  {
+   "id": "s1vv",
+   "name": {
+    "el": "Sentinel-1 VV (C-band)",
+    "en": "Sentinel-1 VV (C-band)"
+   }
+  },
+  {
+   "id": "sm",
+   "name": {
+    "el": "Υγρασία εδάφους",
+    "en": "Soil moisture"
+   }
+  }
+ ]
+}

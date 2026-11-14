@@ -38,6 +38,8 @@ export function wxSum(wx, key, from, to) {
 
 // ───────────────────────────────────────────────────────── individual rules
 function ground(s, th) {
+  // no displacement series (e.g. the real set has no GUNW yet): no ground conclusion at all, not a fake "stable"
+  if (!s.disp_mm) return { rate: null, total: null, level: 'ok', ratio: null, finding: null };
   const rate = slopePerYear(s.dates, s.disp_mm);
   const total = s.disp_mm.at(-1) - s.disp_mm[0];
   const level = rate <= th.sink_alert_mm_yr ? 'alert' : rate <= th.sink_watch_mm_yr ? 'watch' : 'ok';
@@ -265,7 +267,8 @@ function weatherEffects(s, wx, th) {
     rain: wxSum(wx, 'rain', i ? addDays(s.dates[i - 1], 1) : addDays(d, -30), d),   // since the previous pass
     rain10: wxSum(wx, 'rain', addDays(d, -9), d),
   }));
-  const r = s.hh_db ? corr(passes.map((p) => p.rain10), s.hh_db) : 0;
+  const ok = s.hh_db ? s.hh_db.map((v, i) => i).filter((i) => s.hh_db[i] != null) : [];   // passes with a radar value
+  const r = ok.length > 2 ? corr(ok.map((i) => passes[i].rain10), ok.map((i) => s.hh_db[i])) : 0;
   const deficit = -(wxSum(wx, 'rain', `${s.dates.at(-1).slice(0, 4)}-05-01`, `${s.dates.at(-1).slice(0, 4)}-09-30`)
     - wxSum(wx, 'et0', `${s.dates.at(-1).slice(0, 4)}-05-01`, `${s.dates.at(-1).slice(0, 4)}-09-30`));
 
@@ -284,9 +287,9 @@ function weatherEffects(s, wx, th) {
     const k = s.dates.findIndex((d) => d >= (e.end || e.date));
     if (k > 0) {
       e.pass = s.dates[k];
-      e.dHH = s.hh_db ? s.hh_db[k] - s.hh_db[k - 1] : null;
+      e.dHH = s.hh_db?.[k] != null && s.hh_db[k - 1] != null ? s.hh_db[k] - s.hh_db[k - 1] : null;
       e.dWater = s.water_km2 ? s.water_km2[k] - s.water_km2[k - 1] : null;
-      e.dDisp = s.disp_mm[k] - s.disp_mm[k - 1];
+      e.dDisp = s.disp_mm ? s.disp_mm[k] - s.disp_mm[k - 1] : null;
     }
   }
   events.sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -299,8 +302,8 @@ function weatherEffects(s, wx, th) {
       title: clear ? { el: 'Η βροχή φαίνεται στο ραντάρ', en: 'Rain shows up in the radar' } : { el: 'Βροχή και ραντάρ: καμία καθαρή σχέση', en: 'Rain and radar: no clear link' },
       text: both((l) => {
         let out = l === 'el'
-          ? `Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = ${r.toFixed(2)} σε ${passes.length} λήψεις.`
-          : `10-day rain before each pass against HH backscatter: r = ${r.toFixed(2)} over ${passes.length} passes.`;
+          ? `Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = ${r.toFixed(2)} σε ${ok.length} λήψεις.`
+          : `10-day rain before each pass against HH backscatter: r = ${r.toFixed(2)} over ${ok.length} passes.`;
         if (clear && r > 0) out += l === 'el' ? ' Το βρεγμένο έδαφος επιστρέφει περισσότερο σήμα.' : ' Wet soil returns more signal.';
         if (deficit > 50) out += l === 'el' ? ` Μάιος–Σεπτέμβριος: έλλειμμα ${deficit.toFixed(0)} mm, που καλύφθηκε με άρδευση.` : ` May–September: a ${deficit.toFixed(0)} mm deficit, made up by irrigation.`;
         return out;
@@ -379,7 +382,9 @@ export function scenario(region, a, { rain = 0, irrigation = 0 } = {}) {
   const v = res.volume;
   const hi = v.indexOf(Math.max(...v));
   const lowBefore = Math.min(...v.slice(0, hi + 1));
-  const gain = v[hi] - lowBefore;
+  // winter refill: the observed rise to the peak; if the record starts at the peak (no refill seen yet),
+  // assume next winter refills the lake to that peak again
+  const gain = v[hi] > lowBefore ? v[hi] - lowBefore : v[hi] - v.at(-1);
   const loss = v[hi] - v.at(-1);
   const r = rain / 100;
   const i = irrigation / 100;
@@ -402,7 +407,7 @@ export function scenario(region, a, { rain = 0, irrigation = 0 } = {}) {
     area: areaOf(low), areaNow: res.area_km2?.at(-1) ?? null, areaBase: areaOf(base),
     scale: res.area_km2 ? Math.sqrt(areaOf(low) / areaOf(v.at(-1))) : 1,
     daysBelow,
-    sink: a.ground.rate * (1 + i),
+    sink: a.ground.rate == null ? null : a.ground.rate * (1 + i),
   };
 }
 

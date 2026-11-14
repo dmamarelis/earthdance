@@ -15,6 +15,7 @@ export function createStatus(ctx) {
   const today = isoDay(new Date());
   const tf = (k, v) => t(k).replace(/\{(\w+)\}/g, (_, n) => v[n]);
   const short = (iso) => fmtDate(iso, { day: 'numeric', month: 'short' });
+  const rate = (a) => (a.ground.rate == null ? '–' : signed(a.ground.rate));
   const signed = (v, d = 0) => { const s = v.toFixed(d); return +s === 0 ? s.replace('-', '') : `${v > 0 ? '+' : ''}${s}`.replace('-', '−'); };
 
   let data = { regions: [], thresholds: {} };
@@ -166,7 +167,7 @@ export function createStatus(ctx) {
             <i class="dot st-${a.status}"></i>
             <span class="a-name">${L(r.name)}</span>
             <span class="a-metrics">
-              <span title="${t('rg.tile.rate')}">${signed(a.ground.rate)} ${t('unit.mmyr')}</span>
+              ${a.ground.rate != null ? `<span title="${t('rg.tile.rate')}">${signed(a.ground.rate)} ${t('unit.mmyr')}</span>` : ''}
               ${ref ? `<span class="${ref.agrees ? 'yes' : 'no'}" title="${L(ref.finding.title)}">${manifest.reference?.name || 'Ref'} ${ref.agrees ? '✓' : '✗'}</span>` : ''}
               ${a.weather ? `<span title="${t('rg.rain7')}">${a.weather.rain7.toFixed(0)} mm</span>` : ''}
             </span>
@@ -202,7 +203,7 @@ export function createStatus(ctx) {
       if (e.pass) {
         if (e.dHH != null) after.push(`HH ${signed(e.dHH, 1)} dB`);
         if (e.dWater) after.push(`${t('ev.water')} ${signed(e.dWater)} km²`);
-        if (Math.abs(e.dDisp) >= 1) after.push(`${t('ev.ground')} ${signed(e.dDisp)} mm`);
+        if (e.dDisp != null && Math.abs(e.dDisp) >= 1) after.push(`${t('ev.ground')} ${signed(e.dDisp)} mm`);
       }
       return `<li class="ev ev-${e.type}">
         <time>${fmtDate(e.date)}</time><b>${what}</b>
@@ -251,8 +252,8 @@ export function createStatus(ctx) {
         ${a.soil ? `<div class="tile ${a.soil.finding.level !== 'ok' ? 'warn' : ''}"><div class="t-label">${t('rg.tile.soil')}</div><div class="t-val">${a.soil.now.toFixed(0)}<small>%</small></div></div>` : ''}
         ${a.wetland ? `<div class="tile ${a.wetland.level !== 'ok' ? 'neg' : ''}"><div class="t-label">${t('rg.tile.cleared')}</div><div class="t-val">${a.wetland.ha.toFixed(0)}<small>ha</small></div></div>` : ''}
         ${a.reservoir ? `<div class="tile ${a.reservoir.level !== 'ok' ? 'neg' : ''}"><div class="t-label">${t('rg.tile.lake')}</div><div class="t-val">${(r.reservoir.area_km2?.at(-1) ?? a.reservoir.now).toFixed(0)}<small>${r.reservoir.area_km2 ? 'km²' : r.reservoir.unit}</small></div></div>` : ''}
-        <div class="tile ${a.ground.level !== 'ok' ? 'neg' : ''}"><div class="t-label">${t('rg.tile.rate')}</div><div class="t-val">${signed(a.ground.rate)}<small>${t('unit.mmyr')}</small></div></div>
-        <div class="tile ${ref && !ref.agrees ? 'warn' : ''}"><div class="t-label">${tf('rg.tile.egms', { ref: manifest.reference?.name || 'Ref' })}</div><div class="t-val">${ref ? signed(ref.diff, 1) : '–'}<small>${t('unit.mmyr')}</small></div></div>
+        ${a.ground.rate != null ? `<div class="tile ${a.ground.level !== 'ok' ? 'neg' : ''}"><div class="t-label">${t('rg.tile.rate')}</div><div class="t-val">${signed(a.ground.rate)}<small>${t('unit.mmyr')}</small></div></div>` : ''}
+        ${a.ground.rate != null ? `<div class="tile ${ref && !ref.agrees ? 'warn' : ''}"><div class="t-label">${tf('rg.tile.egms', { ref: manifest.reference?.name || 'Ref' })}</div><div class="t-val">${ref ? signed(ref.diff, 1) : '–'}<small>${t('unit.mmyr')}</small></div></div>` : ''}
         <div class="tile"><div class="t-label">${t('rg.tile.rain')}</div><div class="t-val">${a.weather ? a.weather.rain30.toFixed(0) : '–'}<small>mm</small></div></div>
       </div>
 
@@ -281,8 +282,8 @@ export function createStatus(ctx) {
         <summary>${t('how.title')}</summary>
         <ul>
           <li>${t('how.text')}</li>
-          <li>${tf('how.sink', { a: th.sink_watch_mm_yr, b: th.sink_alert_mm_yr })}</li>
-          <li>${tf('how.egms', { a: th.egms_tolerance_mm_yr, ref: manifest.reference?.name || 'Ref' })}</li>
+          ${a.ground.rate != null ? `<li>${tf('how.sink', { a: th.sink_watch_mm_yr, b: th.sink_alert_mm_yr })}</li>
+          <li>${tf('how.egms', { a: th.egms_tolerance_mm_yr, ref: manifest.reference?.name || 'Ref' })}</li>` : ''}
           <li>${tf('how.res', { a: th.reservoir_warn_days })}</li>
           <li>${tf('how.wx', { a: th.heavy_rain_mm_day, b: th.heat_c, c: th.dry_spell_days })}</li>
           ${manifest.demo ? `<li class="demo-li">${t('how.demo')}</li>` : ''}
@@ -330,8 +331,8 @@ export function createStatus(ctx) {
       cfg = {
         labels: s.dates.map(short),
         datasets: [
-          line('HH · NISAR (dB)', s.hh_db, '#e9edf3', { pointRadius: 2.5 }),
-          line('VV · Sentinel-1 (dB)', s.vv_db, '#c9a7ff', { borderDash: [5, 4], borderWidth: 1.5 }),
+          line('HH · NISAR (dB)', s.hh_db, '#e9edf3', { pointRadius: 2.5, spanGaps: true }),
+          ...(s.vv_db ? [line('VV · Sentinel-1 (dB)', s.vv_db, '#c9a7ff', { borderDash: [5, 4], borderWidth: 1.5 })] : []),
           ...(a.effects ? [{ type: 'bar', label: t('rc.rainPass'), data: a.effects.passes.map((p) => p.rain), backgroundColor: 'rgba(92,200,240,.55)', borderRadius: 3, yAxisID: 'y1' }] : []),
         ],
         scales: { y: axis('dB'), ...(a.effects ? { y1: right('mm') } : {}) },
@@ -416,7 +417,7 @@ export function createStatus(ctx) {
       <div class="scn-kpi ${bad ? 'bad' : 'good'}"><span>${t('scn.low')}</span><b>${s.low.toFixed(0)} <small>${s.unit}</small></b><em>${t('rc.limit')} ${s.limit} · ${t('scn.same')} ${s.base.toFixed(0)}</em></div>
       ${s.area != null ? `<div class="scn-kpi"><span>${t('scn.area')}</span><b>${s.area.toFixed(0)} <small>km²</small></b><em>${t('scn.now')} ${s.areaNow.toFixed(0)}</em></div>` : ''}
       <div class="scn-kpi ${s.daysBelow ? 'bad' : 'good'}"><span>${t('scn.days')}</span><b>${s.daysBelow}</b><em>${s.daysBelow ? t('scn.fine') : t('scn.nofine')}</em></div>
-      <div class="scn-kpi"><span>${tf('scn.sink', { area: L(r.name) })}</span><b>${signed(s.sink)} <small>${t('unit.mmyr')}</small></b></div>`;
+      ${s.sink != null ? `<div class="scn-kpi"><span>${tf('scn.sink', { area: L(r.name) })}</span><b>${signed(s.sink)} <small>${t('unit.mmyr')}</small></b></div>` : ''}`;
     // map: today's shoreline (dashed) and the scenario's (filled)
     const ring = r.reservoir.outline;
     const src = map?.getSource('scenario');
@@ -446,7 +447,7 @@ export function createStatus(ctx) {
     const rows = sorted().map((r) => {
       const a = A[r.id];
       return `<tr><td><i class="dot st-${a.status}"></i> ${L(r.name)}</td><td>${t(`st.${a.status}`)}</td>
-        <td>${signed(a.ground.rate)}</td><td>${a.reference ? `${signed(a.reference.diff, 1)} ${a.reference.agrees ? '✓' : '✗'}` : '–'}</td>
+        <td>${rate(a)}</td><td>${a.reference ? `${signed(a.reference.diff, 1)} ${a.reference.agrees ? '✓' : '✗'}` : '–'}</td>
         <td>${a.soil ? `${a.soil.now.toFixed(0)}%` : '–'}</td><td>${a.weather ? a.weather.rain30.toFixed(0) : '–'}</td></tr>`;
     }).join('');
     const issues = sorted().flatMap((r) => A[r.id].findings.filter((f) => f.level !== 'ok').map((f) => ({ r, f })));

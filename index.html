@@ -56,6 +56,10 @@
     </nav>
 
     <div class="top-actions">
+      <div class="src-switch" role="group" aria-label="Data">
+        <button data-src="real" data-i18n="src.real"></button>
+        <button data-src="demo" data-i18n="src.demo"></button>
+      </div>
       <span class="demo-badge" id="demoBadge" hidden data-i18n="demo.badge"></span>
       <button class="chip-btn" id="btnValidation">
         <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg><span data-i18n="nav.validation"></span>
@@ -83,6 +87,7 @@
         <span class="count" id="layerCount"></span>
       </div>
       <div id="layerList" class="layer-list"></div>
+      <p class="missing-note" id="missingNote" hidden></p>
 
       <div class="legend" id="legend"></div>
     </div>

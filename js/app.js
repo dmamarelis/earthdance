@@ -27,6 +27,23 @@ const markers = {};
 let chart, valChart;
 let status;                      // the Status view (js/status.js)
 const RADAR_OPACITY = 0.9;
+
+// Which data set: 'real' (data/real/, the NISAR + Sentinel-2 files for Lake Koronia) or 'demo' (data/, synthetic).
+// Chosen with the switch in the top bar; kept in the URL (?src=) and in localStorage.
+const SOURCES = { real: 'data/real/manifest.json', demo: 'data/manifest.json' };
+const SRC = (() => {
+  const q = new URLSearchParams(location.search).get('src');
+  let saved = null;
+  try { saved = localStorage.getItem('ed.src'); } catch { /* private mode */ }
+  return SOURCES[q] ? q : SOURCES[saved] ? saved : 'real';
+})();
+
+function switchSource(src, mode = state.mode) {
+  if (src === SRC) return;
+  try { localStorage.setItem('ed.src', src); } catch { /* private mode */ }
+  const next = src === 'real' && mode === 'story' ? 'explore' : mode;
+  location.href = `${location.pathname}?src=${src}${next !== 'explore' ? `#${next}` : ''}`;
+}
 const valueCache = new Map();    // hover values per frame (Int16Array)
 
 // ───────────────────────────────────────────────────────── helpers
@@ -56,7 +73,7 @@ function pad() {
   return { top: 76, bottom: 150, left: state.mode === 'explore' ? 348 : 432, right: state.pointId || state.regionId ? 408 : 16 };
 }
 
-const overlayOpacity = () => (state.sensor === 'radar' ? RADAR_OPACITY : 0);
+const overlayOpacity = (map) => (state.sensor === 'radar' && !map?.__ovEmpty ? RADAR_OPACITY : 0);
 const frameDate = () => frames()[state.frame].date;
 
 // ───────────────────────────────────────────────────────── map
@@ -91,6 +108,11 @@ const cornersOf = ([w, s, e, n]) => [[w, n], [e, n], [e, s], [w, s]];
 /** Shows one frame of a layer on a map. A frame is either {image} (one picture + bounds) or {tiles} (XYZ URL). */
 function applyOverlay(map, ly, frame) {
   if (!map?.__ready || !frame) return;
+  map.__ovEmpty = !!frame.empty;
+  if (frame.empty) {                 // a pass whose file holds no valid pixels: show nothing, say so
+    if (map.getLayer('ov')) map.setPaintProperty('ov', 'raster-opacity', 0);
+    return;
+  }
   const kind = frame.tiles ? 'tiles' : 'image';
   const coordinates = cornersOf(ly.bounds || M.site.bounds);
   const src = map.getSource('ov');
@@ -105,7 +127,7 @@ function applyOverlay(map, ly, frame) {
     map.addLayer({ id: 'ov', type: 'raster', source: 'ov', paint: { 'raster-fade-duration': 0 } }, 'labels');
     map.__ovKind = kind;
   }
-  map.setPaintProperty('ov', 'raster-opacity', overlayOpacity());
+  map.setPaintProperty('ov', 'raster-opacity', overlayOpacity(map));
 }
 
 /** Optical view: the clouds a normal satellite would have seen on that date. */
@@ -113,7 +135,7 @@ function applyClouds(map, date) {
   const list = M.optical?.clouds;
   if (!map?.__ready || !list?.length) return;
   const c = list[nearestIndex(list.map((x) => x.date), date)];
-  const coordinates = cornersOf(M.site.bounds);
+  const coordinates = cornersOf(M.optical.bounds || M.site.bounds);
   const src = map.getSource('clouds');
   if (src) src.updateImage({ url: c.image, coordinates });
   else {
@@ -127,15 +149,25 @@ function applyClouds(map, date) {
 
 function renderSensorNote(c = M.optical?.clouds?.[nearestIndex(M.optical.clouds.map((x) => x.date), frameDate())]) {
   $$('[data-sensor]').forEach((b) => b.classList.toggle('is-on', b.dataset.sensor === state.sensor));
-  $('#sensorNote').innerHTML = state.sensor === 'optical'
-    ? (c ? `${t('sensor.cover').replace('{n}', c.cover)} · ${fmtDate(c.date, { day: 'numeric', month: 'short' })}` : '')
-    : `NISAR L-band · ${L(layer().name)} · ${t('sensor.through')}`;
+  const f = frames()[state.frame];
+  const short = (iso) => fmtDate(iso, { day: 'numeric', month: 'short' });
+  let note;
+  if (state.sensor === 'optical') {
+    if (!c) note = '';
+    else if (c.cover != null) note = `${t('sensor.cover').replace('{n}', c.cover)} · ${short(c.date)}`;
+    else {
+      const gap = Math.round(Math.abs(days(c.date) - days(f.date)));
+      note = (gap ? t('sensor.s2gap').replace('{n}', gap) : t('sensor.s2')).replace('{d}', short(c.date));
+    }
+  } else note = f.empty ? `${t('sensor.nodata')} · ${short(f.date)}` : `NISAR L-band · ${L(layer().name)} · ${t('sensor.through')}`;
+  $('#sensorNote').textContent = note;
+  $('#sensorNote').classList.toggle('nodata', state.sensor === 'radar' && !!f.empty);
 }
 
 function setSensor(s) {
   state.sensor = s;
   for (const m of [mapA, mapB]) {
-    if (m?.__ready && m.getLayer('ov')) m.setPaintProperty('ov', 'raster-opacity', overlayOpacity());
+    if (m?.__ready && m.getLayer('ov')) m.setPaintProperty('ov', 'raster-opacity', overlayOpacity(m));
     if (m?.__ready && m.getLayer('clouds')) m.setPaintProperty('clouds', 'raster-opacity', s === 'optical' ? 1 : 0);
   }
   app.dataset.sensor = s;
@@ -239,6 +271,9 @@ function renderLayers() {
       <span class="band ${ly.band}">${ly.band}</span>
     </button>`).join('');
   $('#legend').innerHTML = `<h3 class="sec">${t('legend.seeing')}</h3>${legendHTML(layer())}`;
+  const miss = M.missing || [];
+  $('#missingNote').hidden = !miss.length;
+  if (miss.length) $('#missingNote').innerHTML = t('src.missing').replace('{list}', miss.map((x) => L(x.name)).join(', '));
   $('#storyLegend').innerHTML = legendHTML(layer());
 }
 
@@ -249,7 +284,7 @@ function renderTimeline() {
   const fr = frames();
   const every = Math.ceil(fr.length / 10);
   $('#ticks').innerHTML = fr.map((f, i) => `
-    <button class="tick" data-i="${i}" style="left:${tickPos(i, fr.length)}%" title="${fmtDate(f.date)}">
+    <button class="tick ${f.empty ? 'empty' : ''}" data-i="${i}" style="left:${tickPos(i, fr.length)}%" title="${fmtDate(f.date)}${f.empty ? ` · ${t('tl.nodata')}` : ''}">
       <i></i><span class="${i % every ? 'nolabel' : ''}">${fmtDate(f.date, { day: 'numeric', month: 'short' })}</span>
     </button>`).join('');
   $('#compareSel').innerHTML = fr.map((f, i) => `<option value="${i}">${fmtDate(f.date)}</option>`).join('');
@@ -267,7 +302,7 @@ function updateTimeline() {
   });
   $('#trackFill').style.width = `${tickPos(state.frame, fr.length)}%`;
   $('#tlDate').textContent = fmtDate(f.date, { day: 'numeric', month: 'long', year: 'numeric' });
-  $('#tlMeta').textContent = `${t('tl.frame')} ${state.frame + 1} ${t('tl.of')} ${fr.length} · ${L(layer().name)}`;
+  $('#tlMeta').textContent = `${t('tl.frame')} ${state.frame + 1} ${t('tl.of')} ${fr.length} · ${L(layer().name)}${f.empty ? ` · ${t('tl.nodata')}` : ''}`;
   $('#swipeTagL').textContent = fmtDate(fr[state.compareFrame].date);
   $('#swipeTagR').textContent = fmtDate(f.date);
 }
@@ -561,6 +596,7 @@ function goStory(i) {
 
 // ───────────────────────────────────────────────────────── modes
 function setMode(mode) {
+  if (mode === 'story' && SRC === 'real') return switchSource('demo', 'story');
   state.mode = mode;
   app.dataset.mode = mode;
   app.classList.remove('drawer');
@@ -634,6 +670,10 @@ function renderAll() {
   $('#btnLang').classList.toggle('en', state.lang === 'en');
   $('#siteName').textContent = `${L(M.site.name)} · ${L(M.site.country)}`;
   $('#demoBadge').hidden = !M.demo;
+  $$('[data-src]').forEach((b) => b.classList.toggle('is-on', b.dataset.src === SRC));
+  $('[data-mode="story"]').title = SRC === 'real' ? t('src.story') : '';
+  $('#btnValidation').hidden = !validation;
+  $('#hint').hidden = !points.length;
   listenUI(sound.isPlaying());
   renderLayers();
   renderTimeline();
@@ -679,6 +719,7 @@ function bindUI() {
 
   $$('.mode').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
   $$('[data-sensor]').forEach((b) => b.addEventListener('click', () => setSensor(b.dataset.sensor)));
+  app.addEventListener('click', (e) => { const b = e.target.closest('[data-src]'); if (b) switchSource(b.dataset.src); });
   $('#storyNext').addEventListener('click', () => goStory(state.storyIdx + 1));
   $('#storyPrev').addEventListener('click', () => goStory(state.storyIdx - 1));
   $('#storyDots').addEventListener('click', (e) => { if (e.target.dataset.story) goStory(+e.target.dataset.story); });
@@ -736,9 +777,9 @@ function snapshot() {
 // ───────────────────────────────────────────────────────── boot
 async function boot() {
   try {
-    M = await getJSON('data/manifest.json');
+    M = await getJSON(SOURCES[SRC]);
     const [content, pts, val, regions] = await Promise.all([
-      getJSON(M.content), getJSON(M.points), getJSON(M.validation),
+      getJSON(M.content), getJSON(M.points), M.validation ? getJSON(M.validation) : null,
       M.regions ? getJSON(M.regions) : { regions: [], thresholds: {} },
     ]);
     status = createStatus({ $, $$, t, L, fmtDate, state, manifest: M, selectRegion, snapshot, setSensor });
@@ -769,6 +810,8 @@ async function boot() {
     mapA.on('mousemove', probe);
     mapA.getCanvas().addEventListener('mouseleave', () => { $('#probe').hidden = true; });
     $('#loader').classList.add('done');
+    const m = location.hash.slice(1);
+    if (m === 'status' || (m === 'story' && SRC === 'demo')) setMode(m);
   });
 }
 

@@ -470,6 +470,19 @@ h1, h2, h3, p { margin: 0; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01s !important; transition-duration: .01s !important; } }
 
 /* Optical vs radar ------------------------------------------------------- */
+/* Real / demo data switch */
+.src-switch { display: flex; padding: 3px; gap: 2px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line-2); }
+.src-switch button { padding: 5px 12px; border-radius: 999px; color: var(--soft); font-weight: 600; font-size: 12px; transition: .25s var(--ease); white-space: nowrap; }
+.src-switch button:hover { color: var(--text); }
+.src-switch button.is-on[data-src="real"] { background: var(--ok, #7bd88f); color: #0b0f16; }
+.src-switch button.is-on[data-src="demo"] { background: var(--line-2); color: var(--text); }
+.missing-note { margin: 12px 2px 0; font-size: 12px; line-height: 1.5; color: var(--muted); }
+.missing-note b { color: var(--soft); font-weight: 600; }
+.missing-note button { color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.tick.empty i { background: transparent; border-style: dashed; border-color: var(--muted); }
+.tick.empty.now i { background: transparent; border-color: var(--accent); box-shadow: none; }
+.sensor-note.nodata { color: var(--watch, #f4b94a); }
+
 .sensor { position: absolute; z-index: 5; top: calc(var(--top-h) + 6px); left: 50%; transform: translateX(-50%); display: grid; justify-items: center; gap: 6px; pointer-events: none; }
 .sensor-switch { display: flex; padding: 4px; gap: 2px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line-2); backdrop-filter: blur(18px); box-shadow: 0 10px 30px rgba(0, 0, 0, .4); pointer-events: auto; }
 .sensor-switch button { display: inline-flex; align-items: center; gap: 7px; padding: 7px 15px 7px 12px; border-radius: 999px; color: var(--soft); font-weight: 600; font-size: 13px; transition: .25s var(--ease); white-space: nowrap; }
