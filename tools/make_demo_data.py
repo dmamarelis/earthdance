@@ -345,11 +345,12 @@ def main() -> None:
     manifest = {
         "demo": True,
         "site": {
-            "name": {"el": "Θεσσαλικός Κάμπος", "en": "Thessaly Plain"},
+            # The map opens on Lake Koroneia. The synthetic layers and points below still cover BOUNDS (Thessaly).
+            "name": {"el": "Λίμνη Κορώνεια", "en": "Lake Koroneia"},
             "country": {"el": "Ελλάδα", "en": "Greece"},
-            "bounds": BOUNDS,
-            "center": [22.42, 39.50],
-            "zoom": 9.4,
+            "bounds": [23.03, 40.62, 23.27, 40.74],
+            "center": [23.145, 40.682],
+            "zoom": 12.2,
         },
         "reference": {"name": "EGMS", "label": {"el": "EGMS (Ευρωπαϊκή Υπηρεσία Κίνησης Εδάφους)", "en": "EGMS (European Ground Motion Service)"}},
         "layers": [{**{k_: v_ for k_, v_ in d_.items()}, "bounds": BOUNDS, "frames": frames[d_["id"]]} for d_ in LAYER_DEFS],

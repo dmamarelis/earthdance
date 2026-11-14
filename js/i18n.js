@@ -1,20 +1,12 @@
-// UI strings. Content that describes the DATA (layer names, story, explanations) lives in
+// UI strings. Content that describes the DATA (layer names, explanations) lives in
 // data/manifest.json and data/content.json so the team can edit it without touching code.
 
 export const STR = {
   'mode.explore': { el: 'Εξερεύνηση', en: 'Explore' },
-  'mode.story': { el: 'Ιστορία', en: 'Story' },
   'nav.validation': { el: 'Επαλήθευση', en: 'Validation' },
   'demo.badge': { el: 'Δεδομένα επίδειξης', en: 'Demo data' },
   'demo.warn': { el: 'Συνθετικά δεδομένα επίδειξης — όχι πραγματικές μετρήσεις.', en: 'Synthetic demo data — not real measurements.' },
   'layers.title': { el: 'Επίπεδα ραντάρ', en: 'Radar layers' },
-  'layers.opacity': { el: 'Αδιαφάνεια', en: 'Opacity' },
-  'src.title': { el: 'Πηγή δεδομένων', en: 'Data source' },
-  'src.sensor': { el: 'Δορυφόρος', en: 'Satellite' },
-  'src.product': { el: 'Προϊόν', en: 'Product' },
-  'src.band': { el: 'Ζώνη', en: 'Band' },
-  'src.date': { el: 'Λήψη', en: 'Acquired' },
-  'src.open': { el: 'Άνοιγμα αρχείου ↗', en: 'Open granule ↗' },
   'hint.click': { el: 'Πάτησε ένα σημείο για να δεις τη χρονοσειρά του', en: 'Click a point to see its time series' },
   'tab.ground': { el: 'Έδαφος', en: 'Ground' },
   'tab.radar': { el: 'Ραντάρ', en: 'Radar' },
@@ -32,9 +24,6 @@ export const STR = {
   'chart.note.ground': { el: 'Αρνητικές τιμές = το έδαφος απομακρύνεται από τον δορυφόρο (βύθιση).', en: 'Negative values = ground moving away from the satellite (sinking).' },
   'chart.note.radar': { el: 'Οπισθοσκέδαση σε dB. HH/HV: NISAR L-band · VV: Sentinel-1 C-band.', en: 'Backscatter in dB. HH/HV: NISAR L-band · VV: Sentinel-1 C-band.' },
   'voice.tag': { el: 'Η φωνή του τόπου', en: 'A local voice' },
-  'story.next': { el: 'Συνέχεια', en: 'Continue' },
-  'story.start': { el: 'Ξεκίνα', en: 'Begin' },
-  'story.finish': { el: 'Εξερεύνηση', en: 'Explore' },
   'val.kicker': { el: 'Είναι αληθινό;', en: 'Is it real?' },
   'val.title': { el: 'Το NISAR απέναντι σε ανεξάρτητες μετρήσεις', en: 'NISAR against independent measurements' },
   'val.n': { el: 'Σημεία', en: 'Points' },
@@ -55,8 +44,6 @@ export const STR = {
   'kind.crop': { el: 'Καλλιέργεια', en: 'Cropland' },
   'kind.urban': { el: 'Πόλη', en: 'Urban' },
   'kind.stable': { el: 'Σταθερό', en: 'Stable' },
-  'base.sat': { el: 'Δορυφορική εικόνα', en: 'Satellite imagery' },
-  'base.dark': { el: 'Σκούρος χάρτης', en: 'Dark map' },
   'mode.status': { el: 'Κατάσταση', en: 'Status' },
   'demo.short': { el: 'δεδομένα επίδειξης', en: 'demo data' },
   'st.alert': { el: 'Συναγερμός', en: 'Alert' },

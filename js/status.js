@@ -126,7 +126,7 @@ export function createStatus(ctx) {
     todo.sort((a, b) => RANK[b.f.level] - RANK[a.f.level]);
 
     $('#brief').innerHTML = `
-      <div class="story-kicker">${t('brief.kicker')} · ${fmtDate(today, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+      <div class="brief-kicker">${t('brief.kicker')} · ${fmtDate(today, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
       <h1 class="brief-title">${title}</h1>
       <div class="brief-counts">
         ${['alert', 'watch', 'ok'].map((s) => `<span class="st st-${s}">${count[s]} ${t(`st.${s}`)}</span>`).join('')}

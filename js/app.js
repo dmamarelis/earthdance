@@ -12,18 +12,18 @@ const app = $('#app');
 
 const state = {
   lang: 'el', mode: 'explore',
-  layerId: null, frame: 0, opacity: 0.85,
+  layerId: null, frame: 0, opacity: 0,
   compare: false, compareFrame: 0, swipeX: null,
   pointId: null, tab: 'ground',
   regionId: null, rtab: 'wx',
-  storyIdx: 0, basemap: 'dark', tilt: false,
+  tilt: false,
 };
 
 let M, C, validation;            // manifest, content, validation data
 let points = [];
 let mapA, mapB = null;
 const markers = {};
-let chart, valChart, playTimer = null, toastTimer;
+let chart, valChart;
 let status;                      // the Status view (js/status.js)
 
 // ───────────────────────────────────────────────────────── helpers
@@ -53,30 +53,23 @@ function pad() {
   return { top: 76, bottom: 150, left: state.mode === 'explore' ? 348 : 432, right: state.pointId || state.regionId ? 408 : 16 };
 }
 
-function toast(msg) {
-  const el = $('#toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
-}
-
 // ───────────────────────────────────────────────────────── map
 function baseStyle() {
-  // Keyless Esri basemaps. Swap these URLs if you prefer another provider.
+  // Keyless Esri basemap: satellite imagery only, at full quality (no dimming or desaturation).
+  // On high-density screens each 256 px tile is drawn at 128 CSS px, so the map loads one zoom level
+  // sharper and the imagery stays crisp. Swap these URLs if you prefer another provider.
   const esri = (name) => [`https://server.arcgisonline.com/ArcGIS/rest/services/${name}/MapServer/tile/{z}/{y}/{x}`];
+  const hiDpi = (window.devicePixelRatio || 1) >= 1.5;
   return {
     version: 8,
     sources: {
-      dark: { type: 'raster', tiles: esri('Canvas/World_Dark_Gray_Base'), tileSize: 256, maxzoom: 16, attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors' },
-      sat: { type: 'raster', tiles: esri('World_Imagery'), tileSize: 256, maxzoom: 18, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
-      labels: { type: 'raster', tiles: esri('Canvas/World_Dark_Gray_Reference'), tileSize: 256, maxzoom: 16 },
+      sat: { type: 'raster', tiles: esri('World_Imagery'), tileSize: hiDpi ? 128 : 256, maxzoom: 19, attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
+      labels: { type: 'raster', tiles: esri('Reference/World_Boundaries_and_Places'), tileSize: 256, maxzoom: 19 },
     },
     layers: [
       { id: 'bg', type: 'background', paint: { 'background-color': '#070a10' } },
-      { id: 'dark', type: 'raster', source: 'dark' },
-      { id: 'sat', type: 'raster', source: 'sat', layout: { visibility: 'none' }, paint: { 'raster-saturation': -0.4, 'raster-brightness-max': 0.72 } },
-      { id: 'labels', type: 'raster', source: 'labels', paint: { 'raster-opacity': 0.75 } },
+      { id: 'sat', type: 'raster', source: 'sat' },
+      { id: 'labels', type: 'raster', source: 'labels', paint: { 'raster-opacity': 0.9 } },
     ],
   };
 }
@@ -111,12 +104,6 @@ function applyOverlay(map, ly, frame) {
   map.setPaintProperty('ov', 'raster-opacity', state.opacity);
 }
 
-function applyBasemap(map) {
-  if (!map?.__ready) return;
-  map.setLayoutProperty('sat', 'visibility', state.basemap === 'sat' ? 'visible' : 'none');
-  map.setLayoutProperty('dark', 'visibility', state.basemap === 'dark' ? 'visible' : 'none');
-}
-
 function syncB() {
   if (!mapB) return;
   mapB.jumpTo({
@@ -146,7 +133,7 @@ function renderMarkers() {
   }
 }
 
-// ───────────────────────────────────────────────────────── layers, legend, source
+// ───────────────────────────────────────────────────────── layers, legend
 function setLayer(id) {
   const date = state.layerId ? frames()[state.frame]?.date : null;
   state.layerId = id;
@@ -184,23 +171,6 @@ function renderLayers() {
       <span class="band ${ly.band}">${ly.band}</span>
     </button>`).join('');
   $('#legend').innerHTML = legendHTML(layer());
-  $('#storyLegend').innerHTML = legendHTML(layer());
-}
-
-function renderSource() {
-  const ly = layer();
-  const f = frames()[state.frame];
-  $('#source').innerHTML = `
-    <h3>${t('src.title')}</h3>
-    <dl>
-      <dt>${t('src.sensor')}</dt><dd>${ly.sensor}</dd>
-      <dt>${t('src.product')}</dt><dd>${ly.product}</dd>
-      <dt>${t('src.band')}</dt><dd>${ly.band}-band</dd>
-      <dt>${t('src.date')}</dt><dd>${fmtDate(f.date)}</dd>
-    </dl>
-    <div class="granule">${f.source || '—'}</div>
-    ${f.url ? `<a href="${f.url}" target="_blank" rel="noopener">${t('src.open')}</a>` : ''}
-    ${M.demo ? `<div class="demo-warn">${t('demo.warn')}</div>` : ''}`;
 }
 
 // ───────────────────────────────────────────────────────── timeline
@@ -237,24 +207,10 @@ function setFrame(i) {
   state.frame = Math.max(0, Math.min(frames().length - 1, i));
   applyOverlay(mapA, layer(), frames()[state.frame]);
   updateTimeline();
-  renderSource();
   if (chart && point()) {
     chart.$cursor = nearestIndex(point().series.dates, frames()[state.frame].date);
     chart.update('none');
   }
-}
-
-function stopPlay() {
-  clearInterval(playTimer);
-  playTimer = null;
-  $('#btnPlay').classList.remove('is-on');
-}
-
-function togglePlay() {
-  if (playTimer) return stopPlay();
-  sound.stop(); listenUI(false);
-  $('#btnPlay').classList.add('is-on');
-  playTimer = setInterval(() => setFrame((state.frame + 1) % frames().length), 950);
 }
 
 // ───────────────────────────────────────────────────────── swipe compare
@@ -269,8 +225,7 @@ function setCompare(on) {
   $('#btnCompare').classList.toggle('is-on', on);
   for (const id of ['#compareSel', '#swipe', '#mapB']) $(id).hidden = !on;
   if (on) {
-    stopPlay();
-    if (state.compareFrame === state.frame) {
+      if (state.compareFrame === state.frame) {
       state.compareFrame = 0;
       if (state.frame === 0) setFrame(frames().length - 1);
     }
@@ -281,7 +236,6 @@ function setCompare(on) {
       mapB = makeMap('mapB', false);
       mapB.on('load', () => {
         mapB.__ready = true;
-        applyBasemap(mapB);
         syncB();
         applyOverlay(mapB, layer(), frames()[state.compareFrame]);
       });
@@ -398,7 +352,7 @@ const cursorPlugin = {
 };
 
 function chartDefaults() {
-  Chart.defaults.font.family = 'Commissioner, system-ui, sans-serif';
+  Chart.defaults.font.family = '"Iosevka UI", ui-monospace, monospace';
   Chart.defaults.font.size = 11;
   Chart.defaults.color = '#8b96a8';
   Chart.defaults.plugins.legend.labels.usePointStyle = true;
@@ -455,7 +409,6 @@ function renderChart() {
           const i = c.scales.x.getValueForPixel(e.x);
           const pt = point();
           if (pt && i >= 0 && i < pt.series.dates.length) {
-            stopPlay();
             setFrame(nearestIndex(frames().map((f) => f.date), pt.series.dates[i]));
           }
         },
@@ -481,7 +434,6 @@ function toggleListen() {
   if (sound.isPlaying()) { sound.stop(); listenUI(false); return; }
   const p = point();
   if (!p) return;
-  stopPlay();
   const s = p.series;
   const [lo, hi] = [Math.min(...s.hv_db), Math.max(...s.hv_db)];
   const frameDates = frames().map((f) => f.date);
@@ -499,49 +451,15 @@ function toggleListen() {
   });
 }
 
-// ───────────────────────────────────────────────────────── story mode
-function renderStory() {
-  const n = C.story.length;
-  const ch = C.story[state.storyIdx];
-  $('#storyDots').innerHTML = C.story.map((_, i) =>
-    `<button data-story="${i}" class="${i < state.storyIdx ? 'done' : i === state.storyIdx ? 'now' : ''}" aria-label="${i + 1}"></button>`).join('');
-  $('#storyKicker').textContent = L(ch.kicker);
-  $('#storyTitle').textContent = L(ch.title);
-  $('#storyBody').textContent = L(ch.body);
-  $('#storyNextLabel').textContent = t(state.storyIdx === 0 ? 'story.start' : state.storyIdx === n - 1 ? 'story.finish' : 'story.next');
-  $('#storyPrev').disabled = state.storyIdx === 0;
-}
-
-function goStory(i) {
-  if (i >= C.story.length) return setMode('explore');
-  state.storyIdx = Math.max(0, i);
-  const ch = C.story[state.storyIdx];
-  stopPlay();
-  if (state.compare) setCompare(false);
-  if (ch.layer && ch.layer !== state.layerId) setLayer(ch.layer);
-  if (ch.frame != null) setFrame(ch.frame);
-  if (ch.point) selectPoint(ch.point, false); else closePoint(false);
-  renderStory();
-  const box = $('.story-only');
-  box.classList.remove('story-anim');
-  void box.offsetWidth;
-  box.classList.add('story-anim');
-  mapA.flyTo({
-    center: ch.center ?? M.site.center, zoom: ch.zoom ?? M.site.zoom, pitch: ch.pitch ?? 0, bearing: ch.bearing ?? 0,
-    padding: pad(), duration: 2600, essential: true,
-  });
-}
-
+// ───────────────────────────────────────────────────────── modes
 function setMode(mode) {
   state.mode = mode;
   app.dataset.mode = mode;
   app.classList.remove('drawer');
   $$('.mode').forEach((b) => b.classList.toggle('is-active', b.dataset.mode === mode));
   status.setVisible(mode === 'status');
-  if (mode === 'story') return goStory(0);
   if (mode === 'status') {
-    stopPlay();
-    closePoint(false);
+      closePoint(false);
     mapA.easeTo({ center: M.site.center, zoom: M.site.zoom, pitch: 0, bearing: 0, padding: pad(), duration: 900 });
   } else {
     if (state.regionId) closePoint(false);
@@ -610,10 +528,8 @@ function renderAll() {
   listenUI(sound.isPlaying());
   renderLayers();
   renderTimeline();
-  renderSource();
   renderMarkers();
   renderInspector();
-  renderStory();
   renderAbout();
   status.render();
   if (!$('#validation').hidden) renderValidation();
@@ -625,11 +541,7 @@ function bindUI() {
     const b = e.target.closest('[data-layer]');
     if (b) setLayer(b.dataset.layer);
   });
-  $('#opacity').addEventListener('input', (e) => {
-    state.opacity = e.target.value / 100;
-    $('#opacityOut').textContent = `${e.target.value}%`;
-    for (const m of [mapA, mapB]) if (m?.__ready && m.getLayer('ov')) m.setPaintProperty('ov', 'raster-opacity', state.opacity);
-  });
+
 
   // timeline: click or drag anywhere on the track
   const track = $('#track');
@@ -639,10 +551,9 @@ function bindUI() {
     const n = frames().length;
     return Math.max(0, Math.min(n - 1, Math.round(((e.clientX - r.left) / r.width) * (n - 1))));
   };
-  track.addEventListener('pointerdown', (e) => { dragging = true; track.setPointerCapture(e.pointerId); stopPlay(); setFrame(indexAt(e)); });
+  track.addEventListener('pointerdown', (e) => { dragging = true; track.setPointerCapture(e.pointerId); setFrame(indexAt(e)); });
   track.addEventListener('pointermove', (e) => { if (dragging && indexAt(e) !== state.frame) setFrame(indexAt(e)); });
   track.addEventListener('pointerup', () => { dragging = false; });
-  $('#btnPlay').addEventListener('click', togglePlay);
 
   $('#btnCompare').addEventListener('click', () => setCompare(!state.compare));
   $('#compareSel').addEventListener('change', (e) => {
@@ -657,9 +568,6 @@ function bindUI() {
   handle.addEventListener('pointerup', () => { swiping = false; });
 
   $$('.mode').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
-  $('#storyNext').addEventListener('click', () => goStory(state.storyIdx + 1));
-  $('#storyPrev').addEventListener('click', () => goStory(state.storyIdx - 1));
-  $('#storyDots').addEventListener('click', (e) => { if (e.target.dataset.story) goStory(+e.target.dataset.story); });
 
   $('#right').addEventListener('click', (e) => { if (e.target.closest('[data-close-right]')) closePoint(); });
   status.bind();
@@ -685,24 +593,13 @@ function bindUI() {
     e.currentTarget.classList.toggle('is-on', state.tilt);
     mapA.easeTo({ pitch: state.tilt ? 55 : 0, bearing: state.tilt ? -18 : 0, duration: 1000 });
   });
-  $('#btnBase').addEventListener('click', (e) => {
-    state.basemap = state.basemap === 'dark' ? 'sat' : 'dark';
-    e.currentTarget.classList.toggle('is-on', state.basemap === 'sat');
-    applyBasemap(mapA); applyBasemap(mapB);
-    toast(t(`base.${state.basemap}`));
-  });
+
 
   addEventListener('keydown', (e) => {
     if (e.target.matches('input, select, textarea')) return;
     if (e.key === 'Escape') { $$('.sheet').forEach((s) => { s.hidden = true; }); return; }
-    if (state.mode === 'story') {
-      if (e.key === 'ArrowRight') goStory(state.storyIdx + 1);
-      if (e.key === 'ArrowLeft') goStory(state.storyIdx - 1);
-      return;
-    }
-    if (e.key === 'ArrowRight') { stopPlay(); setFrame(state.frame + 1); }
-    if (e.key === 'ArrowLeft') { stopPlay(); setFrame(state.frame - 1); }
-    if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    if (e.key === 'ArrowRight') setFrame(state.frame + 1);
+    if (e.key === 'ArrowLeft') setFrame(state.frame - 1);
   });
   addEventListener('resize', () => { if (state.compare) setSwipe(state.swipeX); });
 }
