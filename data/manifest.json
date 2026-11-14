@@ -2,24 +2,24 @@
   "demo": true,
   "site": {
     "name": {
-      "el": "Θεσσαλικός Κάμπος",
-      "en": "Thessaly Plain"
+      "el": "Λίμνη Κορώνεια",
+      "en": "Lake Koroneia"
     },
     "country": {
       "el": "Ελλάδα",
       "en": "Greece"
     },
     "bounds": [
-      21.85,
-      39.15,
-      23.05,
-      39.85
+      23.03,
+      40.62,
+      23.27,
+      40.74
     ],
     "center": [
-      22.42,
-      39.5
+      23.145,
+      40.682
     ],
-    "zoom": 9.4
+    "zoom": 12.2
   },
   "reference": {
     "name": "EGMS",
