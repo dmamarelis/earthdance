@@ -618,6 +618,11 @@
     }
   ],
   "points": "data/points.geojson",
+  "regions": "data/regions.json",
+  "weather": {
+    "provider": "open-meteo",
+    "snapshot": "data/weather.json"
+  },
   "validation": "data/validation.json",
   "content": "data/content.json"
 }

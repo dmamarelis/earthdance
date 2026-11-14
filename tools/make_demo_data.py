@@ -105,6 +105,18 @@ POINTS = [
     ("tyrnavos", {"el": "Τύρναβος", "en": "Tyrnavos"}, 22.29, 39.74, "stable"),
 ]
 
+# Monitoring areas for the "Status" view: id, name, lon, lat, radius km, ids of the points inside
+REGIONS = [
+    ("larissa", {"el": "Δήμος Λαρισαίων", "en": "Larissa"}, 22.42, 39.64, 6.0, ["larissa"]),
+    ("kileler", {"el": "Δήμος Κιλελέρ", "en": "Kileler"}, 22.57, 39.54, 10.0, ["nikaia", "platykampos", "kileler", "flood"]),
+    ("rigas", {"el": "Δήμος Ρήγα Φεραίου", "en": "Rigas Feraios"}, 22.78, 39.47, 9.0, ["stefanovikeio", "karla"]),
+    ("farsala", {"el": "Δήμος Φαρσάλων", "en": "Farsala"}, 22.38, 39.30, 9.0, ["farsala"]),
+    ("palamas", {"el": "Δήμος Παλαμά", "en": "Palamas"}, 22.08, 39.46, 9.0, ["palamas"]),
+    ("tyrnavos", {"el": "Δήμος Τυρνάβου", "en": "Tyrnavos"}, 22.29, 39.74, 7.0, ["tyrnavos"]),
+]
+KM_LON, KM_LAT = 85.9, 110.9  # km per degree at 39.5°N
+PX_KM2 = ((BOUNDS[2] - BOUNDS[0]) / W * KM_LON) * ((BOUNDS[3] - BOUNDS[1]) / H * KM_LAT)
+
 BOWLS = [  # lon, lat, sigma_lon, sigma_lat, mm/yr at centre
     (22.74, 39.46, 0.060, 0.040, 78.0),
     (22.47, 39.56, 0.070, 0.045, 46.0),
@@ -241,6 +253,55 @@ def sample(arr: np.ndarray, plon: float, plat: float) -> float:
     return float(np.mean(arr[max(y - 1, 0):y + 2, max(x - 1, 0):x + 2]))
 
 
+def write_regions(stack: list[dict], rng) -> None:
+    """Area statistics for the Status view. With real data, compute the same numbers over each area."""
+    iso = [d.isoformat() for d in DATES]
+    regions = []
+    for rid, name, rlon, rlat, radius, pts in REGIONS:
+        inside = np.hypot((LON - rlon) * KM_LON, (LAT - rlat) * KM_LAT) < radius
+        land = [inside & (PLAIN > 0.4) & ~s["water"] for s in stack]
+        disp = [float(np.percentile(s["disp"][m], 10)) for s, m in zip(stack, land)]
+        disp = [round(x - disp[0], 1) for x in disp]
+        egms = 0.5 if rid == "palamas" else 0.94  # one area disagrees on purpose, to show the check working
+        mean = lambda key, sd: [round(float(s[key][inside].mean()) + float(rng.normal(0, sd)), 2) for s in stack]  # noqa: E731
+        region = {
+            "id": rid, "name": name, "center": [rlon, rlat], "radius_km": radius, "points": pts,
+            "series": {
+                "dates": iso,
+                "disp_mm": disp,
+                "ref_mm": [0.0] + [round(x * egms + float(rng.normal(0, 1.8)), 1) for x in disp[1:]],
+                "hh_db": mean("hh_clean", 0.15),
+                "hv_db": mean("hv_clean", 0.15),
+                "vv_db": mean("vv_clean", 0.2),
+                "water_km2": [round(float((s["water"] & inside).sum()) * PX_KM2, 1) for s in stack],
+                "vol_loss_hm3": [round(float(-np.minimum(s["disp"], 0)[m].sum()) * PX_KM2 * 1e-3, 2) for s, m in zip(stack, land)],
+            },
+        }
+        if rid == "rigas":
+            cap, vol = 180.0, []
+            for d in DATES:  # a reservoir that fills until April and is drawn down by irrigation until October
+                fill = 0.5 * (1 + math.cos(2 * math.pi * (doy(d) - 105) / 365))
+                trend = 1 - 0.10 * (d - DATES[0]).days / 365.25
+                vol.append(round(cap * (0.30 + 0.50 * fill) * trend + float(rng.normal(0, 0.8)), 1))
+            region["reservoir"] = {
+                "name": {"el": "Ταμιευτήρας Κάρλας", "en": "Lake Karla reservoir"},
+                "unit": "hm³", "capacity": cap, "limit": 45.0,
+                "dates": iso, "volume": vol,
+                "method": {"el": "Έκταση νερού από το ραντάρ × καμπύλη στάθμης–όγκου του ταμιευτήρα.",
+                           "en": "Radar water extent × the reservoir's level–volume curve."},
+                "rule": {"el": "[Συμπληρώστε: ελάχιστο επιτρεπόμενο απόθεμα και κύρωση, από το Σχέδιο Διαχείρισης Λεκανών Απορροής Θεσσαλίας (EL08) / Οδηγία 2000/60/ΕΚ]",
+                         "en": "[Fill in: minimum permitted storage and penalty, from the Thessaly River Basin Management Plan (EL08) / Directive 2000/60/EC]"},
+            }
+        regions.append(region)
+    (DATA / "regions.json").write_text(json.dumps({
+        "thresholds": {
+            "sink_watch_mm_yr": -15, "sink_alert_mm_yr": -40, "egms_tolerance_mm_yr": 6,
+            "reservoir_warn_days": 45, "heavy_rain_mm_day": 40, "heat_c": 38, "dry_spell_days": 30,
+        },
+        "regions": regions,
+    }, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
 # ---------------------------------------------------------------- main
 def main() -> None:
     LAYERS_DIR.mkdir(parents=True, exist_ok=True)
@@ -293,6 +354,8 @@ def main() -> None:
         "reference": {"name": "EGMS", "label": {"el": "EGMS (Ευρωπαϊκή Υπηρεσία Κίνησης Εδάφους)", "en": "EGMS (European Ground Motion Service)"}},
         "layers": [{**{k_: v_ for k_, v_ in d_.items()}, "bounds": BOUNDS, "frames": frames[d_["id"]]} for d_ in LAYER_DEFS],
         "points": "data/points.geojson",
+        "regions": "data/regions.json",
+        "weather": {"provider": "open-meteo", "snapshot": "data/weather.json"},
         "validation": "data/validation.json",
         "content": "data/content.json",
     }
@@ -320,6 +383,8 @@ def main() -> None:
         })
     (DATA / "points.geojson").write_text(
         json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    write_regions(stack, rng)
 
     years = (DATES[-1] - DATES[0]).days / 365.25
     final = stack[-1]["disp"]

@@ -3,6 +3,8 @@
 
 import { STR } from './i18n.js';
 import * as sound from './sound.js';
+import { createStatus } from './status.js';
+import { slopePerYear } from './insights.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -13,6 +15,7 @@ const state = {
   layerId: null, frame: 0, opacity: 0.85,
   compare: false, compareFrame: 0, swipeX: null,
   pointId: null, tab: 'ground',
+  regionId: null, rtab: 'wx',
   storyIdx: 0, basemap: 'dark', tilt: false,
 };
 
@@ -21,6 +24,7 @@ let points = [];
 let mapA, mapB = null;
 const markers = {};
 let chart, valChart, playTimer = null, toastTimer;
+let status;                      // the Status view (js/status.js)
 
 // ───────────────────────────────────────────────────────── helpers
 const t = (k) => STR[k]?.[state.lang] ?? k;
@@ -46,7 +50,7 @@ const isMobile = () => innerWidth <= 820;
 
 function pad() {
   if (isMobile()) return { top: 66, bottom: 140, left: 10, right: 10 };
-  return { top: 76, bottom: 150, left: state.mode === 'story' ? 432 : 348, right: state.pointId ? 408 : 16 };
+  return { top: 76, bottom: 150, left: state.mode === 'explore' ? 348 : 432, right: state.pointId || state.regionId ? 408 : 16 };
 }
 
 function toast(msg) {
@@ -291,11 +295,27 @@ function setCompare(on) {
 }
 
 // ───────────────────────────────────────────────────────── point inspector
+function openRight(kind) {
+  app.dataset.right = kind;
+  app.classList.add('has-point');
+  $('#right').setAttribute('aria-hidden', 'false');
+  $('#right').scrollTop = 0;
+}
+
+function selectRegion(id, fly = true) {
+  if (state.pointId) { state.pointId = null; sound.stop(); listenUI(false); renderMarkers(); }
+  state.regionId = id;
+  openRight('region');
+  status.render();
+  const r = status.region(id);
+  if (fly) mapA.easeTo({ center: r.center, zoom: Math.max(mapA.getZoom(), 9.8), padding: pad(), duration: 900 });
+}
+
 function selectPoint(id, fly = true) {
   const changed = state.pointId !== id;
   state.pointId = id;
-  app.classList.add('has-point');
-  $('#right').setAttribute('aria-hidden', 'false');
+  if (state.regionId) { state.regionId = null; status.render(); }
+  openRight('point');
   renderMarkers();
   renderInspector();
   if (changed) { sound.stop(); listenUI(false); }
@@ -304,22 +324,14 @@ function selectPoint(id, fly = true) {
 }
 
 function closePoint(ease = true) {
-  if (!state.pointId) return;
+  if (!state.pointId && !state.regionId) return;
   state.pointId = null;
+  if (state.regionId) { state.regionId = null; status.render(); }
   sound.stop(); listenUI(false);
   app.classList.remove('has-point');
   $('#right').setAttribute('aria-hidden', 'true');
   renderMarkers();
   if (ease) mapA.easeTo({ padding: pad(), duration: 600 });
-}
-
-function slopePerYear(dates, vals) {
-  const x = dates.map((d) => (days(d) - days(dates[0])) / 365.25);
-  const mx = x.reduce((a, b) => a + b, 0) / x.length;
-  const my = vals.reduce((a, b) => a + b, 0) / vals.length;
-  const num = x.reduce((a, xi, i) => a + (xi - mx) * (vals[i] - my), 0);
-  const den = x.reduce((a, xi) => a + (xi - mx) ** 2, 0);
-  return den ? num / den : 0;
 }
 
 const tile = (label, val, unit, neg = false) =>
@@ -341,6 +353,16 @@ function renderInspector() {
     tile(t('tile.total'), fmtNum(total), 'mm', total < -10) +
     tile(t('tile.rate'), fmtNum(rate), t('unit.mmyr'), rate < -10) +
     tile(t('tile.hv'), hvRange.toFixed(1), 'dB');
+
+  // does the independent reference tell the same story at this point?
+  const agree = $('#pAgree');
+  agree.hidden = !s.ref_mm;
+  if (s.ref_mm) {
+    const diff = rate - slopePerYear(s.dates, s.ref_mm);
+    const ok = Math.abs(diff) <= (status.thresholds().egms_tolerance_mm_yr ?? 6);
+    agree.className = `agree ${ok ? 'yes' : 'no'}`;
+    agree.innerHTML = `<b>${ok ? '✓' : '!'}</b> ${t(ok ? 'agree.yes' : 'agree.no').replace('{ref}', status.refName())} <span>Δ ${fmtNum(diff, 1)} ${t('unit.mmyr')}</span>`;
+  }
 
   const why = C.explanations?.[p.kind];
   $('#pWhy').hidden = !why;
@@ -515,8 +537,16 @@ function setMode(mode) {
   app.dataset.mode = mode;
   app.classList.remove('drawer');
   $$('.mode').forEach((b) => b.classList.toggle('is-active', b.dataset.mode === mode));
-  if (mode === 'story') goStory(0);
-  else mapA.easeTo({ padding: pad(), duration: 600 });
+  status.setVisible(mode === 'status');
+  if (mode === 'story') return goStory(0);
+  if (mode === 'status') {
+    stopPlay();
+    closePoint(false);
+    mapA.easeTo({ center: M.site.center, zoom: M.site.zoom, pitch: 0, bearing: 0, padding: pad(), duration: 900 });
+  } else {
+    if (state.regionId) closePoint(false);
+    mapA.easeTo({ padding: pad(), duration: 600 });
+  }
 }
 
 // ───────────────────────────────────────────────────────── validation + about
@@ -585,6 +615,7 @@ function renderAll() {
   renderInspector();
   renderStory();
   renderAbout();
+  status.render();
   if (!$('#validation').hidden) renderValidation();
 }
 
@@ -630,7 +661,8 @@ function bindUI() {
   $('#storyPrev').addEventListener('click', () => goStory(state.storyIdx - 1));
   $('#storyDots').addEventListener('click', (e) => { if (e.target.dataset.story) goStory(+e.target.dataset.story); });
 
-  $('#pClose').addEventListener('click', () => closePoint());
+  $('#right').addEventListener('click', (e) => { if (e.target.closest('[data-close-right]')) closePoint(); });
+  status.bind();
   $$('.tab').forEach((b) => b.addEventListener('click', () => { state.tab = b.dataset.tab; sound.stop(); listenUI(false); renderChart(); }));
   $('#btnListen').addEventListener('click', toggleListen);
 
@@ -679,7 +711,12 @@ function bindUI() {
 async function boot() {
   try {
     M = await getJSON('data/manifest.json');
-    const [content, pts, val] = await Promise.all([getJSON(M.content), getJSON(M.points), getJSON(M.validation)]);
+    const [content, pts, val, regions] = await Promise.all([
+      getJSON(M.content), getJSON(M.points), getJSON(M.validation),
+      M.regions ? getJSON(M.regions) : { regions: [], thresholds: {} },
+    ]);
+    status = createStatus({ $, $$, t, L, fmtDate, state, manifest: M, selectRegion });
+    status.init(regions);
     C = content;
     validation = val;
     points = pts.features.map((f) => ({ ...f.properties, lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] }));
@@ -700,6 +737,7 @@ async function boot() {
     mapA.__ready = true;
     mapA.jumpTo({ center: M.site.center, zoom: M.site.zoom, padding: pad() });
     addMarkers();
+    status.addToMap(mapA);
     setLayer(state.layerId);
     $('#loader').classList.add('done');
   });

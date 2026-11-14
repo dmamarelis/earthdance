@@ -52,6 +52,7 @@
     <nav class="modes" role="tablist">
       <button class="mode is-active" data-mode="explore" data-i18n="mode.explore"></button>
       <button class="mode" data-mode="story" data-i18n="mode.story"></button>
+      <button class="mode" data-mode="status"><span data-i18n="mode.status"></span><b class="mode-badge" id="alertCount" hidden></b></button>
     </nav>
 
     <div class="top-actions">
@@ -69,8 +70,10 @@
     </div>
   </header>
 
-  <!-- ───────── Left: layers (explore) / chapter (story) ───────── -->
+  <!-- ───────── Left: layers (explore) / chapter (story) / daily briefing (status) ───────── -->
   <aside id="left" class="panel">
+    <div class="status-only" id="brief"></div>
+
     <div class="explore-only">
       <div class="panel-head">
         <h2 data-i18n="layers.title"></h2>
@@ -103,16 +106,19 @@
 
   <!-- ───────── Right: point inspector ───────── -->
   <aside id="right" class="panel" aria-hidden="true">
+    <div class="region-view" id="regionView"></div>
+    <div class="point-view">
     <div class="insp-head">
       <div>
         <span class="kind" id="pKind"></span>
         <h2 id="pName"></h2>
         <div class="coords" id="pCoords"></div>
       </div>
-      <button class="x" id="pClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="x" data-close-right aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
 
     <div class="tiles" id="pTiles"></div>
+    <div class="agree" id="pAgree" hidden></div>
 
     <div class="tabs">
       <button class="tab is-active" data-tab="ground" data-i18n="tab.ground"></button>
@@ -131,6 +137,7 @@
       <summary data-i18n="unknowns.title"></summary>
       <ul id="unknownList"></ul>
     </details>
+    </div>
   </aside>
 
   <div class="hint" id="hint"><span class="pulse"></span><span data-i18n="hint.click"></span></div>

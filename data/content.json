@@ -108,7 +108,8 @@
     "sources": [
       { "name": "NISAR L2 GCOV / GUNW", "by": "NASA / ISRO · ASF DAAC", "url": "https://search.asf.alaska.edu" },
       { "name": "Sentinel-1 RTC", "by": "ESA / Copernicus · OPERA", "url": "https://www.jpl.nasa.gov/go/opera" },
-      { "name": "European Ground Motion Service", "by": "Copernicus Land Monitoring Service", "url": "https://egms.land.copernicus.eu" }
+      { "name": "European Ground Motion Service", "by": "Copernicus Land Monitoring Service", "url": "https://egms.land.copernicus.eu" },
+      { "name": "Open-Meteo Weather API", "by": "Open-Meteo · ERA5 / ECMWF · CC BY 4.0", "url": "https://open-meteo.com" }
     ],
     "team": { "el": "[Ονόματα ομάδας]", "en": "[Team names]" },
     "ai": {
