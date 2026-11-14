@@ -23,9 +23,9 @@
   --left-w: 316px;
   --right-w: 376px;
   --top-h: 68px;
-  --ui: "Commissioner", system-ui, "Segoe UI", sans-serif;
-  --serif: "Source Serif 4", Georgia, serif;
-  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --ui: "Iosevka Fixed", "Iosevka Term", "Iosevka", ui-monospace, Consolas, monospace;
+  --serif: "Iosevka Fixed", "Iosevka Term", "Iosevka", ui-monospace, Consolas, monospace;
+  --mono: "Iosevka Fixed", "Iosevka Term", "Iosevka", ui-monospace, Consolas, monospace;
   --ease: cubic-bezier(.2, .8, .2, 1);
 }
 
@@ -33,13 +33,14 @@
 html, body { height: 100%; margin: 0; }
 body {
   background: var(--bg); color: var(--text);
-  font: 400 14px/1.5 var(--ui);
+  font: 500 14px/1.5 var(--ui);   /* Iosevka Medium everywhere */
   -webkit-font-smoothing: antialiased; overflow: hidden;
 }
 button, select, input { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; padding: 0; }
 svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 h1, h2, h3, p { margin: 0; }
+b, strong { font-weight: 600; }
 [hidden] { display: none !important; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 

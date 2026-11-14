@@ -1,89 +1,60 @@
 {
-  "story": [
-    {
-      "kicker": { "el": "Πρόλογος", "en": "Prologue" },
-      "title": { "el": "Ένας κάμπος που δεν μένει ποτέ ακίνητος", "en": "A plain that never stands still" },
-      "body": {
-        "el": "Από ψηλά ο Θεσσαλικός κάμπος μοιάζει ήρεμος. Το ραντάρ του NISAR όμως βλέπει μέρα και νύχτα, μέσα από τα σύννεφα, και δείχνει κάτι άλλο: νερό που έρχεται και φεύγει, χωράφια που αλλάζουν, γη που βυθίζεται.",
-        "en": "From above the Thessaly plain looks calm. But NISAR's radar sees day and night, through clouds, and shows something else: water that comes and goes, fields that change, land that sinks."
-      },
-      "layer": "hh", "frame": 0, "center": [22.42, 39.5], "zoom": 9.3, "pitch": 0, "bearing": 0
-    },
-    {
-      "kicker": { "el": "Κεφάλαιο 1 · Νερό", "en": "Chapter 1 · Water" },
-      "title": { "el": "Το νερό απλώνεται", "en": "The water spreads" },
-      "body": {
-        "el": "Το ήρεμο νερό λειτουργεί σαν καθρέφτης: στέλνει το σήμα του ραντάρ μακριά από τον δορυφόρο και φαίνεται σχεδόν μαύρο. Έτσι ξεχωρίζουμε πού πλημμύρισε η πεδιάδα, ακόμη και με πυκνή συννεφιά.",
-        "en": "Calm water acts like a mirror: it sends the radar signal away from the satellite and appears almost black. That is how we can tell where the plain flooded, even under thick cloud."
-      },
-      "layer": "change", "frame": 2, "center": [22.68, 39.52], "zoom": 10.4, "pitch": 30, "bearing": -12, "point": "flood"
-    },
-    {
-      "kicker": { "el": "Κεφάλαιο 2 · Καλλιέργειες", "en": "Chapter 2 · Crops" },
-      "title": { "el": "Τα χωράφια αναπνέουν", "en": "The fields breathe" },
-      "body": {
-        "el": "Όσο μεγαλώνει η καλλιέργεια, η πόλωση HV δυναμώνει, γιατί το σήμα αναπηδά μέσα στα φύλλα και τα στελέχη. Τα σιτηρά κορυφώνουν την άνοιξη, το βαμβάκι και το καλαμπόκι το καλοκαίρι.",
-        "en": "As a crop grows, the HV polarisation strengthens, because the signal bounces around inside leaves and stems. Cereals peak in spring, cotton and maize in summer."
-      },
-      "layer": "hv", "frame": 7, "center": [22.58, 39.52], "zoom": 10.8, "pitch": 40, "bearing": 18, "point": "kileler"
-    },
-    {
-      "kicker": { "el": "Κεφάλαιο 3 · Έδαφος", "en": "Chapter 3 · Ground" },
-      "title": { "el": "Η γη βυθίζεται αθόρυβα", "en": "The land sinks quietly" },
-      "body": {
-        "el": "Όταν αντλούμε περισσότερο νερό απ' όσο αναπληρώνεται, τα υπόγεια στρώματα συμπιέζονται και η επιφάνεια κατεβαίνει. Το NISAR μετρά αυτή την κίνηση με ακρίβεια χιλιοστών, από 747 χιλιόμετρα ύψος.",
-        "en": "When we pump more water than is replenished, underground layers compact and the surface drops. NISAR measures this motion to millimetre precision, from 747 kilometres up."
-      },
-      "layer": "disp", "frame": 9, "center": [22.72, 39.46], "zoom": 10.7, "pitch": 45, "bearing": -20, "point": "stefanovikeio"
-    },
-    {
-      "kicker": { "el": "Επίλογος", "en": "Epilogue" },
-      "title": { "el": "Τώρα εξερεύνησε μόνος σου", "en": "Now explore on your own" },
-      "body": {
-        "el": "Διάλεξε επίπεδο, σύρε τον χρόνο, πάτησε σε ένα σημείο και άκου πώς «χορεύει» ο τόπος σου.",
-        "en": "Pick a layer, drag through time, click a point and listen to how your place 'dances'."
-      },
-      "layer": "disp", "frame": 9, "center": [22.42, 39.5], "zoom": 9.3, "pitch": 0, "bearing": 0
-    }
-  ],
   "explanations": {
     "subsidence": {
-      "title": { "el": "Γιατί βυθίζεται;", "en": "Why is it sinking?" },
+      "title": {
+        "el": "Γιατί βυθίζεται;",
+        "en": "Why is it sinking?"
+      },
       "text": {
         "el": "Η βύθιση επιταχύνεται το καλοκαίρι, όταν οι γεωτρήσεις αντλούν για άρδευση, και επιβραδύνεται τον χειμώνα. Αυτός ο εποχικός ρυθμός δείχνει ότι αιτία είναι η πτώση της στάθμης του υπόγειου νερού.",
         "en": "Sinking speeds up in summer, when boreholes pump for irrigation, and slows in winter. This seasonal rhythm points to falling groundwater levels as the cause."
       }
     },
     "water": {
-      "title": { "el": "Γιατί αλλάζει η λίμνη;", "en": "Why does the lake change?" },
+      "title": {
+        "el": "Γιατί αλλάζει η λίμνη;",
+        "en": "Why does the lake change?"
+      },
       "text": {
         "el": "Η επιφάνεια του νερού φαίνεται σκούρα στο ραντάρ. Η έκταση μεγαλώνει με τις χειμερινές βροχές και μικραίνει το καλοκαίρι με την εξάτμιση και την άρδευση.",
         "en": "Open water looks dark to radar. The extent grows with winter rain and shrinks in summer with evaporation and irrigation."
       }
     },
     "flood": {
-      "title": { "el": "Τι έγινε εδώ;", "en": "What happened here?" },
+      "title": {
+        "el": "Τι έγινε εδώ;",
+        "en": "What happened here?"
+      },
       "text": {
         "el": "Η απότομη πτώση του HH δείχνει ότι το χωράφι καλύφθηκε από νερό. Όταν η τιμή επιστρέφει στα προηγούμενα επίπεδα, το νερό έχει αποσυρθεί.",
         "en": "The sharp HH drop shows the field was covered by water. When the value returns to earlier levels, the water has receded."
       }
     },
     "crop": {
-      "title": { "el": "Γιατί ανεβοκατεβαίνει το HV;", "en": "Why does HV rise and fall?" },
+      "title": {
+        "el": "Γιατί ανεβοκατεβαίνει το HV;",
+        "en": "Why does HV rise and fall?"
+      },
       "text": {
         "el": "Το HV ακολουθεί τον κύκλο της καλλιέργειας: ανεβαίνει όσο το φυτό αποκτά όγκο και πέφτει απότομα μετά τη συγκομιδή.",
         "en": "HV follows the crop cycle: it rises as the plant gains volume and drops sharply after harvest."
       }
     },
     "urban": {
-      "title": { "el": "Γιατί είναι τόσο φωτεινή η πόλη;", "en": "Why is the city so bright?" },
+      "title": {
+        "el": "Γιατί είναι τόσο φωτεινή η πόλη;",
+        "en": "Why is the city so bright?"
+      },
       "text": {
         "el": "Τοίχοι και δρόμοι σχηματίζουν γωνίες που επιστρέφουν το σήμα κατευθείαν στον δορυφόρο. Η πόλη μένει σταθερά φωτεινή όλο τον χρόνο.",
         "en": "Walls and streets form corners that send the signal straight back to the satellite. The city stays bright all year."
       }
     },
     "stable": {
-      "title": { "el": "Ένα σταθερό σημείο", "en": "A stable point" },
+      "title": {
+        "el": "Ένα σταθερό σημείο",
+        "en": "A stable point"
+      },
       "text": {
         "el": "Εδώ το έδαφος δεν κινείται μετρήσιμα. Τέτοια σημεία λειτουργούν ως αναφορά για να ξεχωρίσουμε την πραγματική κίνηση από τον θόρυβο.",
         "en": "Here the ground does not move measurably. Points like this act as a reference to separate real motion from noise."
@@ -91,27 +62,67 @@
     }
   },
   "voices": {
-    "stefanovikeio": {
-      "quote": { "el": "[Θέση για απόσπασμα συνέντευξης με κάτοικο ή αγρότη της περιοχής]", "en": "[Placeholder for an interview excerpt with a local resident or farmer]" },
-      "who": { "el": "Όνομα, ιδιότητα", "en": "Name, role" },
+    "agvasileios": {
+      "quote": {
+        "el": "[Θέση για απόσπασμα συνέντευξης με κάτοικο ή αγρότη της περιοχής]",
+        "en": "[Placeholder for an interview excerpt with a local resident or farmer]"
+      },
+      "who": {
+        "el": "Όνομα, ιδιότητα",
+        "en": "Name, role"
+      },
       "media": ""
     }
   },
   "unknowns": [
-    { "el": "Η μετατόπιση μετριέται στη γραμμή όρασης του δορυφόρου, όχι καθαρά κατακόρυφα.", "en": "Displacement is measured along the satellite line of sight, not purely vertically." },
-    { "el": "Σε δάση και νερό το σήμα χάνει τη συνοχή του και δεν υπάρχει μέτρηση.", "en": "Over forest and water the signal loses coherence and there is no measurement." },
-    { "el": "Η ατμόσφαιρα προσθέτει θόρυβο λίγων χιλιοστών σε κάθε λήψη.", "en": "The atmosphere adds a few millimetres of noise to each acquisition." },
-    { "el": "Η χρονοσειρά είναι ακόμη σύντομη· οι ετήσιοι ρυθμοί θα γίνουν πιο αξιόπιστοι με τον χρόνο.", "en": "The time series is still short; annual rates will become more reliable over time." }
+    {
+      "el": "Η μετατόπιση μετριέται στη γραμμή όρασης του δορυφόρου, όχι καθαρά κατακόρυφα.",
+      "en": "Displacement is measured along the satellite line of sight, not purely vertically."
+    },
+    {
+      "el": "Σε δάση και νερό το σήμα χάνει τη συνοχή του και δεν υπάρχει μέτρηση.",
+      "en": "Over forest and water the signal loses coherence and there is no measurement."
+    },
+    {
+      "el": "Η ατμόσφαιρα προσθέτει θόρυβο λίγων χιλιοστών σε κάθε λήψη.",
+      "en": "The atmosphere adds a few millimetres of noise to each acquisition."
+    },
+    {
+      "el": "Η χρονοσειρά είναι ακόμη σύντομη· οι ετήσιοι ρυθμοί θα γίνουν πιο αξιόπιστοι με τον χρόνο.",
+      "en": "The time series is still short; annual rates will become more reliable over time."
+    }
   ],
   "about": {
-    "tagline": { "el": "Ο χορός της Γης, όπως τον βλέπει το ραντάρ του NISAR.", "en": "Earth's dance, as seen by NISAR's radar." },
+    "tagline": {
+      "el": "Ο χορός της Γης, όπως τον βλέπει το ραντάρ του NISAR.",
+      "en": "Earth's dance, as seen by NISAR's radar."
+    },
     "sources": [
-      { "name": "NISAR L2 GCOV / GUNW", "by": "NASA / ISRO · ASF DAAC", "url": "https://search.asf.alaska.edu" },
-      { "name": "Sentinel-1 RTC", "by": "ESA / Copernicus · OPERA", "url": "https://www.jpl.nasa.gov/go/opera" },
-      { "name": "European Ground Motion Service", "by": "Copernicus Land Monitoring Service", "url": "https://egms.land.copernicus.eu" },
-      { "name": "Open-Meteo Weather API", "by": "Open-Meteo · ERA5 / ECMWF · CC BY 4.0", "url": "https://open-meteo.com" }
+      {
+        "name": "NISAR L2 GCOV / GUNW",
+        "by": "NASA / ISRO · ASF DAAC",
+        "url": "https://search.asf.alaska.edu"
+      },
+      {
+        "name": "Sentinel-1 RTC",
+        "by": "ESA / Copernicus · OPERA",
+        "url": "https://www.jpl.nasa.gov/go/opera"
+      },
+      {
+        "name": "European Ground Motion Service",
+        "by": "Copernicus Land Monitoring Service",
+        "url": "https://egms.land.copernicus.eu"
+      },
+      {
+        "name": "Open-Meteo Weather API",
+        "by": "Open-Meteo · ERA5 / ECMWF · CC BY 4.0",
+        "url": "https://open-meteo.com"
+      }
     ],
-    "team": { "el": "[Ονόματα ομάδας]", "en": "[Team names]" },
+    "team": {
+      "el": "[Ονόματα ομάδας]",
+      "en": "[Team names]"
+    },
     "ai": {
       "el": "Στην ανάπτυξη χρησιμοποιήθηκαν εργαλεία τεχνητής νοημοσύνης (Claude) για κώδικα και κείμενα. Η ομάδα έλεγξε και εκτέλεσε τα αποτελέσματα.",
       "en": "AI tools (Claude) were used for code and text drafting. The team reviewed and ran the results."

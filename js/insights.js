@@ -130,7 +130,7 @@ function surfaceWater(s, wx) {
   if (!w) return null;
   const base = median(w);
   const peak = Math.max(...w);
-  if (peak - base < Math.max(5, 0.5 * base)) return null;   // a lake's normal seasonal swing is not a flood
+  if (peak - base < Math.max(5, base)) return null;   // a lake's normal seasonal swing is not a flood
   const i = w.indexOf(peak);
   const recent = i >= w.length - 2;
   const rain = wx ? wxSum(wx, 'rain', addDays(s.dates[i], -14), s.dates[i]) : null;

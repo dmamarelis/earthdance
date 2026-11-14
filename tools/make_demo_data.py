@@ -22,8 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 LAYERS_DIR = DATA / "layers"
 
-W, H = 640, 420
-BOUNDS = [21.85, 39.15, 23.05, 39.85]  # west, south, east, north
+W, H = 640, 380
+BOUNDS = [22.85, 40.50, 23.65, 40.86]  # west, south, east, north
 DATES = [dt.date(2025, 11, 20) + dt.timedelta(days=36 * k) for k in range(10)]
 
 lon = np.linspace(BOUNDS[0], BOUNDS[2], W)
@@ -91,37 +91,37 @@ LAYER_DEFS = [
 ]
 LEGEND = {d["id"]: d["legend"] for d in LAYER_DEFS}
 
-# name, lon, lat, kind
+# name, lon, lat, kind  (coordinates are approximate: check them before using real data)
 POINTS = [
-    ("stefanovikeio", {"el": "Στεφανοβίκειο", "en": "Stefanovikeio"}, 22.74, 39.46, "subsidence"),
-    ("nikaia", {"el": "Νίκαια", "en": "Nikaia"}, 22.47, 39.56, "subsidence"),
-    ("farsala", {"el": "Φάρσαλα", "en": "Farsala"}, 22.38, 39.30, "subsidence"),
-    ("palamas", {"el": "Παλαμάς", "en": "Palamas"}, 22.08, 39.46, "subsidence"),
-    ("karla", {"el": "Λίμνη Κάρλα", "en": "Lake Karla"}, 22.845, 39.49, "water"),
-    ("flood", {"el": "Πεδιάδα Πηνειού", "en": "Pineios lowland"}, 22.61, 39.535, "flood"),
-    ("kileler", {"el": "Κιλελέρ", "en": "Kileler"}, 22.63, 39.48, "crop"),
-    ("platykampos", {"el": "Πλατύκαμπος", "en": "Platykampos"}, 22.53, 39.62, "crop"),
-    ("larissa", {"el": "Λάρισα", "en": "Larissa"}, 22.42, 39.64, "urban"),
-    ("tyrnavos", {"el": "Τύρναβος", "en": "Tyrnavos"}, 22.29, 39.74, "stable"),
+    ("agvasileios", {"el": "Άγιος Βασίλειος", "en": "Agios Vasileios"}, 23.12, 40.645, "subsidence"),
+    ("gerakarou", {"el": "Γερακαρού", "en": "Gerakarou"}, 23.21, 40.63, "subsidence"),
+    ("langadikia", {"el": "Λαγκαδίκια", "en": "Langadikia"}, 23.26, 40.64, "subsidence"),
+    ("lagyna", {"el": "Λαγυνά", "en": "Lagyna"}, 23.00, 40.725, "subsidence"),
+    ("koronia", {"el": "Λίμνη Κορώνεια", "en": "Lake Koronia"}, 23.15, 40.683, "water"),
+    ("volvi", {"el": "Λίμνη Βόλβη", "en": "Lake Volvi"}, 23.47, 40.68, "water"),
+    ("flood", {"el": "Κάμπος Λαγκαδά", "en": "Langadas lowland"}, 23.05, 40.70, "flood"),
+    ("kolchiko", {"el": "Κολχικό", "en": "Kolchiko"}, 23.13, 40.745, "crop"),
+    ("evangelismos", {"el": "Ευαγγελισμός", "en": "Evangelismos"}, 23.215, 40.725, "crop"),
+    ("langadas", {"el": "Λαγκαδάς", "en": "Langadas"}, 23.07, 40.75, "urban"),
+    ("neaapollonia", {"el": "Νέα Απολλωνία", "en": "Nea Apollonia"}, 23.44, 40.63, "stable"),
 ]
 
 # Monitoring areas for the "Status" view: id, name, lon, lat, radius km, ids of the points inside
 REGIONS = [
-    ("larissa", {"el": "Δήμος Λαρισαίων", "en": "Larissa"}, 22.42, 39.64, 6.0, ["larissa"]),
-    ("kileler", {"el": "Δήμος Κιλελέρ", "en": "Kileler"}, 22.57, 39.54, 10.0, ["nikaia", "platykampos", "kileler", "flood"]),
-    ("rigas", {"el": "Δήμος Ρήγα Φεραίου", "en": "Rigas Feraios"}, 22.78, 39.47, 9.0, ["stefanovikeio", "karla"]),
-    ("farsala", {"el": "Δήμος Φαρσάλων", "en": "Farsala"}, 22.38, 39.30, 9.0, ["farsala"]),
-    ("palamas", {"el": "Δήμος Παλαμά", "en": "Palamas"}, 22.08, 39.46, 9.0, ["palamas"]),
-    ("tyrnavos", {"el": "Δήμος Τυρνάβου", "en": "Tyrnavos"}, 22.29, 39.74, 7.0, ["tyrnavos"]),
+    ("south", {"el": "Νότια όχθη Κορώνειας", "en": "Koronia south shore"}, 23.16, 40.635, 4.5, ["agvasileios", "gerakarou", "koronia"]),
+    ("east", {"el": "Λαγκαδίκια", "en": "Langadikia"}, 23.29, 40.645, 4.0, ["langadikia"]),
+    ("langadas", {"el": "Λαγκαδάς", "en": "Langadas"}, 23.04, 40.725, 5.0, ["langadas", "lagyna", "flood"]),
+    ("north", {"el": "Βόρεια όχθη Κορώνειας", "en": "Koronia north shore"}, 23.17, 40.74, 4.0, ["kolchiko", "evangelismos"]),
+    ("apollonia", {"el": "Νέα Απολλωνία", "en": "Nea Apollonia"}, 23.44, 40.63, 4.0, ["neaapollonia", "volvi"]),
 ]
-KM_LON, KM_LAT = 85.9, 110.9  # km per degree at 39.5°N
+KM_LON, KM_LAT = 84.4, 111.0  # km per degree at 40.7°N
 PX_KM2 = ((BOUNDS[2] - BOUNDS[0]) / W * KM_LON) * ((BOUNDS[3] - BOUNDS[1]) / H * KM_LAT)
 
 BOWLS = [  # lon, lat, sigma_lon, sigma_lat, mm/yr at centre
-    (22.74, 39.46, 0.060, 0.040, 78.0),
-    (22.47, 39.56, 0.070, 0.045, 46.0),
-    (22.38, 39.30, 0.065, 0.040, 58.0),
-    (22.08, 39.46, 0.080, 0.050, 31.0),
+    (23.12, 40.645, 0.045, 0.018, 74.0),
+    (23.21, 40.630, 0.050, 0.020, 50.0),
+    (23.27, 40.640, 0.040, 0.018, 40.0),
+    (23.01, 40.725, 0.050, 0.022, 30.0),
 ]
 
 
@@ -153,13 +153,13 @@ def doy(d: dt.date) -> int:
 
 
 # static landscape
-rot = math.radians(-14)
-u = (LON - 22.38) * math.cos(rot) + (LAT - 39.50) * math.sin(rot)
-v = -(LON - 22.38) * math.sin(rot) + (LAT - 39.50) * math.cos(rot)
-PLAIN = smoothstep((1.0 - (np.sqrt((u / 0.56) ** 2 + (v / 0.27) ** 2) + 0.16 * fbm(1))) / 0.14)
+rot = math.radians(-4)   # the Mygdonia basin runs east-west
+u = (LON - 23.22) * math.cos(rot) + (LAT - 40.69) * math.sin(rot)
+v = -(LON - 23.22) * math.sin(rot) + (LAT - 40.69) * math.cos(rot)
+PLAIN = smoothstep((1.0 - (np.sqrt((u / 0.39) ** 2 + (v / 0.115) ** 2) + 0.16 * fbm(1))) / 0.14)
 RELIEF = fbm(3, 2.4)
 FOREST = smoothstep((fbm(4, 2.8) + 0.3) / 1.2) * (1 - PLAIN)
-URBAN = gauss(22.42, 39.64, 0.030, 0.022)
+URBAN = gauss(23.07, 40.75, 0.018, 0.012)
 for _, _, plon, plat, kind in POINTS:
     if kind in ("subsidence", "crop", "stable"):
         URBAN = np.maximum(URBAN, 0.7 * gauss(plon, plat, 0.009, 0.007))
@@ -193,11 +193,12 @@ def wetness(d: dt.date) -> float:
 
 
 def water_mask(d: dt.date, k: int) -> np.ndarray:
-    s = 1.0 + 0.30 * wetness(d)
-    lake = np.sqrt(((LON - 22.845) / (0.060 * s)) ** 2 + ((LAT - 39.49) / (0.048 * s)) ** 2) + 0.10 * EDGE < 1.0
+    s = (1.0 + 0.30 * wetness(d)) * (1 - 0.10 * (d - DATES[0]).days / 365.25)  # seasonal, and slowly drying
+    lake = np.sqrt(((LON - 23.15) / (0.062 * s)) ** 2 + ((LAT - 40.683) / (0.021 * s)) ** 2) + 0.10 * EDGE < 1.0
+    lake |= np.sqrt(((LON - 23.47) / 0.115) ** 2 + ((LAT - 40.68) / 0.027) ** 2) + 0.06 * EDGE < 1.0  # Volvi: stable
     flood_strength = {2: 1.0, 3: 0.45}.get(k, 0.0)  # a winter flood that then recedes
     if flood_strength:
-        zone = gauss(22.61, 39.535, 0.11, 0.045)
+        zone = gauss(23.05, 40.70, 0.06, 0.022)
         lake |= (LOW * 0.55 + 2.6 * zone * flood_strength) > 1.55
     return lake & (PLAIN > 0.4)
 
@@ -260,9 +261,10 @@ def write_regions(stack: list[dict], rng) -> None:
     for rid, name, rlon, rlat, radius, pts in REGIONS:
         inside = np.hypot((LON - rlon) * KM_LON, (LAT - rlat) * KM_LAT) < radius
         land = [inside & (PLAIN > 0.4) & ~s["water"] for s in stack]
+        assert all(m.any() for m in land), f"area {rid} has no land pixels"
         disp = [float(np.percentile(s["disp"][m], 10)) for s, m in zip(stack, land)]
         disp = [round(x - disp[0], 1) for x in disp]
-        egms = 0.5 if rid == "palamas" else 0.94  # one area disagrees on purpose, to show the check working
+        egms = 0.5 if rid == "east" else 0.94  # one area disagrees on purpose, to show the check working
         mean = lambda key, sd: [round(float(s[key][inside].mean()) + float(rng.normal(0, sd)), 2) for s in stack]  # noqa: E731
         region = {
             "id": rid, "name": name, "center": [rlon, rlat], "radius_km": radius, "points": pts,
@@ -277,25 +279,25 @@ def write_regions(stack: list[dict], rng) -> None:
                 "vol_loss_hm3": [round(float(-np.minimum(s["disp"], 0)[m].sum()) * PX_KM2 * 1e-3, 2) for s, m in zip(stack, land)],
             },
         }
-        if rid == "rigas":
-            cap, vol = 180.0, []
+        if rid == "south":
+            cap, vol = 120.0, []
             for d in DATES:  # a reservoir that fills until April and is drawn down by irrigation until October
                 fill = 0.5 * (1 + math.cos(2 * math.pi * (doy(d) - 105) / 365))
                 trend = 1 - 0.10 * (d - DATES[0]).days / 365.25
                 vol.append(round(cap * (0.30 + 0.50 * fill) * trend + float(rng.normal(0, 0.8)), 1))
             region["reservoir"] = {
-                "name": {"el": "Ταμιευτήρας Κάρλας", "en": "Lake Karla reservoir"},
-                "unit": "hm³", "capacity": cap, "limit": 45.0,
+                "name": {"el": "Λίμνη Κορώνεια", "en": "Lake Koronia"},
+                "unit": "hm³", "capacity": cap, "limit": 30.0,
                 "dates": iso, "volume": vol,
-                "method": {"el": "Έκταση νερού από το ραντάρ × καμπύλη στάθμης–όγκου του ταμιευτήρα.",
-                           "en": "Radar water extent × the reservoir's level–volume curve."},
-                "rule": {"el": "[Συμπληρώστε: ελάχιστο επιτρεπόμενο απόθεμα και κύρωση, από το Σχέδιο Διαχείρισης Λεκανών Απορροής Θεσσαλίας (EL08) / Οδηγία 2000/60/ΕΚ]",
-                         "en": "[Fill in: minimum permitted storage and penalty, from the Thessaly River Basin Management Plan (EL08) / Directive 2000/60/EC]"},
+                "method": {"el": "Έκταση νερού από το ραντάρ × καμπύλη στάθμης–όγκου της λίμνης.",
+                           "en": "Radar water extent × the lake's level–volume curve."},
+                "rule": {"el": "[Συμπληρώστε: ελάχιστο επιτρεπόμενο απόθεμα και κύρωση, από το Σχέδιο Διαχείρισης Λεκανών Απορροής Κεντρικής Μακεδονίας (EL10) / Οδηγία 2000/60/ΕΚ]",
+                         "en": "[Fill in: minimum permitted storage and penalty, from the Central Macedonia River Basin Management Plan (EL10) / Directive 2000/60/EC]"},
             }
         regions.append(region)
     (DATA / "regions.json").write_text(json.dumps({
         "thresholds": {
-            "sink_watch_mm_yr": -15, "sink_alert_mm_yr": -40, "egms_tolerance_mm_yr": 6,
+            "sink_watch_mm_yr": -15, "sink_alert_mm_yr": -40, "egms_tolerance_mm_yr": 8,
             "reservoir_warn_days": 45, "heavy_rain_mm_day": 40, "heat_c": 38, "dry_spell_days": 30,
         },
         "regions": regions,
@@ -345,11 +347,11 @@ def main() -> None:
     manifest = {
         "demo": True,
         "site": {
-            "name": {"el": "Θεσσαλικός Κάμπος", "en": "Thessaly Plain"},
+            "name": {"el": "Λίμνη Κορώνεια", "en": "Lake Koronia"},
             "country": {"el": "Ελλάδα", "en": "Greece"},
             "bounds": BOUNDS,
-            "center": [22.42, 39.50],
-            "zoom": 9.4,
+            "center": [23.20, 40.68],
+            "zoom": 10.6,
         },
         "reference": {"name": "EGMS", "label": {"el": "EGMS (Ευρωπαϊκή Υπηρεσία Κίνησης Εδάφους)", "en": "EGMS (European Ground Motion Service)"}},
         "layers": [{**{k_: v_ for k_, v_ in d_.items()}, "bounds": BOUNDS, "frames": frames[d_["id"]]} for d_ in LAYER_DEFS],
