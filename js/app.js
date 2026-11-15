@@ -38,9 +38,9 @@ const SRC = (() => {
   return SOURCES[q] ? q : SOURCES[saved] ? saved : 'real';
 })();
 
-function switchSource(src, mode = state.mode) {
+function switchSource(src, mode = state.mode, remember = true) {
   if (src === SRC) return;
-  try { localStorage.setItem('ed.src', src); } catch { /* private mode */ }
+  try { if (remember) localStorage.setItem('ed.src', src); } catch { /* private mode */ }
   const next = src === 'real' && mode === 'story' ? 'explore' : mode;
   location.href = `${location.pathname}?src=${src}${next !== 'explore' ? `#${next}` : ''}`;
 }
@@ -595,8 +595,15 @@ function goStory(i) {
 }
 
 // ───────────────────────────────────────────────────────── modes
+// The Story runs on the demo data. Opening it from the real data is a visit: leaving it goes back to the real data.
+const storyVisit = {
+  get: () => { try { return sessionStorage.getItem('ed.storyFrom') === 'real'; } catch { return false; } },
+  set: (on) => { try { if (on) sessionStorage.setItem('ed.storyFrom', 'real'); else sessionStorage.removeItem('ed.storyFrom'); } catch { /* ignore */ } },
+};
+
 function setMode(mode) {
-  if (mode === 'story' && SRC === 'real') return switchSource('demo', 'story');
+  if (mode === 'story' && SRC === 'real') { storyVisit.set(true); return switchSource('demo', 'story', false); }
+  if (mode !== 'story' && SRC === 'demo' && storyVisit.get()) { storyVisit.set(false); return switchSource('real', mode, false); }
   state.mode = mode;
   app.dataset.mode = mode;
   app.classList.remove('drawer');
@@ -606,6 +613,9 @@ function setMode(mode) {
   if (mode === 'status') {
     closePoint(false);
     mapA.easeTo({ center: M.site.center, zoom: M.site.zoom, pitch: 0, bearing: 0, padding: pad(), duration: 900 });
+    // with a lake forecast, open the lake straight away: the alert and the forecast chart are the point of this view
+    const lake = status.lakeId();
+    if (lake) setTimeout(() => { if (state.mode === 'status' && !state.regionId) selectRegion(lake, false); }, 350);
   } else {
     if (state.regionId) closePoint(false);
     mapA.easeTo({ padding: pad(), duration: 600 });
@@ -719,7 +729,7 @@ function bindUI() {
 
   $$('.mode').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
   $$('[data-sensor]').forEach((b) => b.addEventListener('click', () => setSensor(b.dataset.sensor)));
-  app.addEventListener('click', (e) => { const b = e.target.closest('[data-src]'); if (b) switchSource(b.dataset.src); });
+  app.addEventListener('click', (e) => { const b = e.target.closest('[data-src]'); if (b) { storyVisit.set(false); switchSource(b.dataset.src); } });
   $('#storyNext').addEventListener('click', () => goStory(state.storyIdx + 1));
   $('#storyPrev').addEventListener('click', () => goStory(state.storyIdx - 1));
   $('#storyDots').addEventListener('click', (e) => { if (e.target.dataset.story) goStory(+e.target.dataset.story); });
@@ -778,11 +788,12 @@ function snapshot() {
 async function boot() {
   try {
     M = await getJSON(SOURCES[SRC]);
-    const [content, pts, val, regions] = await Promise.all([
+    const [content, pts, val, regions, forecast] = await Promise.all([
       getJSON(M.content), getJSON(M.points), M.validation ? getJSON(M.validation) : null,
       M.regions ? getJSON(M.regions) : { regions: [], thresholds: {} },
+      M.forecast ? getJSON(M.forecast).catch(() => null) : null,
     ]);
-    status = createStatus({ $, $$, t, L, fmtDate, state, manifest: M, selectRegion, snapshot, setSensor });
+    status = createStatus({ $, $$, t, L, fmtDate, state, manifest: M, selectRegion, snapshot, setSensor, forecast });
     status.init(regions);
     C = content;
     validation = val;

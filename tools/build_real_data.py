@@ -6,7 +6,8 @@ Inputs (kept in the repo):
   Koroneia_Sentinel/koroneia_optical_<date>_B08.tif   HLS S30 (Sentinel-2) near infrared
 
 Outputs (the demo set in data/ is not touched):
-  data/real/manifest.json      layers hh + change, one frame per NISAR pass (empty passes kept as "no data" frames)
+  data/real/manifest.json      layers hh + change, one frame per NISAR pass used for the water count
+                               (empty passes kept as "no data" frames; steep-orbit and wind passes left out)
   data/real/regions.json       lake area series (Sentinel-2 until the first NISAR pass, then NISAR) for the Status view
   data/real/points.geojson     empty: no point time series yet (needs GUNW)
   data/real/layers/ values/ optical/
@@ -60,6 +61,7 @@ KM_LAT = 110.57
 PX_KM2 = (RES * KM_LON) * (RES * KM_LAT)
 GRID = 4                                         # hover grid = image / 4
 
+LAKE_MARGIN_PX = 22                              # drawn area = fullest lake + 22 px (~400 m)
 SAR_WATER_DB = -18.0
 NDWI_MIN, NIR_MAX = 0.1, 1000
 OPTICAL_DROP = 0.8
@@ -180,8 +182,8 @@ def main() -> None:
         if red is None or nir is None:
             print(f"S2    {d}  skipped: empty band")
             continue
-        save_image(OUT / "optical" / f"{d}.webp", optical_image(red, nir))
-        optical.append({"date": d, "image": f"data/real/optical/{d}.webp", "source": f"HLS S30 · {red_path.name[:-8]}"})
+        optical.append({"date": d, "image": f"data/real/optical/{d}.webp", "source": f"HLS S30 · {red_path.name[:-8]}",
+                        "rgba": optical_image(red, nir)})
         with np.errstate(invalid="ignore", divide="ignore"):
             water = ((red - nir) / (red + nir) > NDWI_MIN) & (nir < NIR_MAX)
         s2.append({"date": d, "water_km2": float(water.sum() * PX_KM2), "mask": water})
@@ -194,6 +196,14 @@ def main() -> None:
         print(f"S2    {p['date']}  water {p['water_km2']:6.2f} km2  {'used' if p['used'] else 'not used'}")
     lake = np.any([p["mask"] for p in s2 if p["used"]], axis=0)
     lake_km2 = float(lake.sum() * PX_KM2)
+    # images are drawn over the lake only (no rectangular frame of the satellite tile on the map):
+    # the fullest lake, widened by LAKE_MARGIN_PX (~400 m) to take in the shore and the reeds, with a soft edge
+    zone = binary_dilation(lake, iterations=LAKE_MARGIN_PX)
+    zone_alpha = np.clip(gaussian_filter(zone.astype(float), sigma=4.0), 0.0, 1.0)
+    for o in optical:
+        rgba = o.pop("rgba")
+        rgba[..., 3] = (rgba[..., 3] * zone_alpha).astype(np.uint8)
+        save_image(OUT / "optical" / f"{o['date']}.webp", rgba)
 
     # ── NISAR: one frame per pass, empty passes kept as "no data"
     hh_ly = copy.deepcopy(demo_layers["hh"])
@@ -221,10 +231,10 @@ def main() -> None:
         db = np.where(valid, median_filter(np.where(valid, db, np.median(db[valid])), size=3), np.nan)
         base = first_of_orbit.setdefault(orbit, db)
         change = db - base
-        alpha = edge_alpha(valid)
+        alpha = edge_alpha(valid) * zone_alpha
         for lid, vals, ly in (("hh", db, hh_ly), ("change", change, ch_ly)):
             save_image(OUT / "layers" / f"{lid}_{d}.webp", colorize(vals, ly["legend"], alpha))
-            save_values(OUT / "values" / f"{lid}_{d}.bin", vals)
+            save_values(OUT / "values" / f"{lid}_{d}.bin", np.where(zone, vals, np.nan))   # hover only where drawn
             ly["frames"].append({"date": d, "image": f"data/real/layers/{lid}_{d}.webp",
                                  "values": f"data/real/values/{lid}_{d}.bin", "source": src, "url": ""})
         with np.errstate(invalid="ignore"):
@@ -243,6 +253,14 @@ def main() -> None:
     for p in sar:
         print(f"NISAR {p['date']}  orbit {p['orbit']:2d}  lake water {p['water_km2']:6.2f} km2  "
               f"{'used' if p['used'] else 'not used (' + p['why'] + ')'}")
+    # passes not used for the water count are left off the map timeline too: on the steep orbit calm water shows
+    # bright, and a wind-roughened pass shows a lake that is not there, so the map would flicker between dates
+    dropped = {p["date"] for p in sar if not p["used"]}
+    for ly, lid in ((hh_ly, "hh"), (ch_ly, "change")):
+        ly["frames"] = [f for f in ly["frames"] if f["date"] not in dropped]
+        for d in dropped:
+            for f in (OUT / "layers" / f"{lid}_{d}.webp", OUT / "values" / f"{lid}_{d}.bin"):
+                f.unlink(missing_ok=True)
 
     # ── regions: lake area series for the Status view (no displacement: that needs GUNW)
     rows = [{**p, "sensor": "Sentinel-2"} for p in s2 if p["used"]] + [{**p, "sensor": "NISAR"} for p in sar if p["used"]]
@@ -289,6 +307,7 @@ def main() -> None:
         "optical": {"kind": "image", "bounds": BOUNDS, "clouds": optical},
         "points": "data/real/points.geojson",
         "regions": "data/real/regions.json",
+        "forecast": "data/real/forecast.json",            # written by tools/fit_forecast.py
         "weather": {"provider": "open-meteo", "snapshot": "data/real/weather.json"},
         "content": demo["content"],
         "missing": [{"id": i, "name": demo_layers[i]["name"]} for i in ("hv", "disp", "s1vv", "sm") if i in demo_layers],

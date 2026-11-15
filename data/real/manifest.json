@@ -132,13 +132,6 @@
      "url": ""
     },
     {
-     "date": "2026-06-20",
-     "image": "data/real/layers/hh_2026-06-20.webp",
-     "values": "data/real/values/hh_2026-06-20.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-20.tif",
-     "url": ""
-    },
-    {
      "date": "2026-06-25",
      "empty": true,
      "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-25.tif",
@@ -152,13 +145,6 @@
      "url": ""
     },
     {
-     "date": "2026-07-02",
-     "image": "data/real/layers/hh_2026-07-02.webp",
-     "values": "data/real/values/hh_2026-07-02.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-02.tif",
-     "url": ""
-    },
-    {
      "date": "2026-07-07",
      "image": "data/real/layers/hh_2026-07-07.webp",
      "values": "data/real/values/hh_2026-07-07.bin",
@@ -166,31 +152,10 @@
      "url": ""
     },
     {
-     "date": "2026-07-14",
-     "image": "data/real/layers/hh_2026-07-14.webp",
-     "values": "data/real/values/hh_2026-07-14.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-14.tif",
-     "url": ""
-    },
-    {
-     "date": "2026-07-19",
-     "image": "data/real/layers/hh_2026-07-19.webp",
-     "values": "data/real/values/hh_2026-07-19.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-19.tif",
-     "url": ""
-    },
-    {
      "date": "2026-07-24",
      "image": "data/real/layers/hh_2026-07-24.webp",
      "values": "data/real/values/hh_2026-07-24.bin",
      "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-24.tif",
-     "url": ""
-    },
-    {
-     "date": "2026-07-26",
-     "image": "data/real/layers/hh_2026-07-26.webp",
-     "values": "data/real/values/hh_2026-07-26.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-26.tif",
      "url": ""
     },
     {
@@ -215,13 +180,6 @@
      "url": ""
     },
     {
-     "date": "2026-08-31",
-     "image": "data/real/layers/hh_2026-08-31.webp",
-     "values": "data/real/values/hh_2026-08-31.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-31.tif",
-     "url": ""
-    },
-    {
      "date": "2026-09-05",
      "image": "data/real/layers/hh_2026-09-05.webp",
      "values": "data/real/values/hh_2026-09-05.bin",
@@ -233,13 +191,6 @@
      "image": "data/real/layers/hh_2026-09-10.webp",
      "values": "data/real/values/hh_2026-09-10.bin",
      "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-10.tif",
-     "url": ""
-    },
-    {
-     "date": "2026-09-12",
-     "image": "data/real/layers/hh_2026-09-12.webp",
-     "values": "data/real/values/hh_2026-09-12.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-12.tif",
      "url": ""
     },
     {
@@ -349,13 +300,6 @@
      "url": ""
     },
     {
-     "date": "2026-06-20",
-     "image": "data/real/layers/change_2026-06-20.webp",
-     "values": "data/real/values/change_2026-06-20.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-20.tif",
-     "url": ""
-    },
-    {
      "date": "2026-06-25",
      "empty": true,
      "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-06-25.tif",
@@ -369,13 +313,6 @@
      "url": ""
     },
     {
-     "date": "2026-07-02",
-     "image": "data/real/layers/change_2026-07-02.webp",
-     "values": "data/real/values/change_2026-07-02.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-02.tif",
-     "url": ""
-    },
-    {
      "date": "2026-07-07",
      "image": "data/real/layers/change_2026-07-07.webp",
      "values": "data/real/values/change_2026-07-07.bin",
@@ -383,31 +320,10 @@
      "url": ""
     },
     {
-     "date": "2026-07-14",
-     "image": "data/real/layers/change_2026-07-14.webp",
-     "values": "data/real/values/change_2026-07-14.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-14.tif",
-     "url": ""
-    },
-    {
-     "date": "2026-07-19",
-     "image": "data/real/layers/change_2026-07-19.webp",
-     "values": "data/real/values/change_2026-07-19.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-19.tif",
-     "url": ""
-    },
-    {
      "date": "2026-07-24",
      "image": "data/real/layers/change_2026-07-24.webp",
      "values": "data/real/values/change_2026-07-24.bin",
      "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-24.tif",
-     "url": ""
-    },
-    {
-     "date": "2026-07-26",
-     "image": "data/real/layers/change_2026-07-26.webp",
-     "values": "data/real/values/change_2026-07-26.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-07-26.tif",
      "url": ""
     },
     {
@@ -432,13 +348,6 @@
      "url": ""
     },
     {
-     "date": "2026-08-31",
-     "image": "data/real/layers/change_2026-08-31.webp",
-     "values": "data/real/values/change_2026-08-31.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-08-31.tif",
-     "url": ""
-    },
-    {
      "date": "2026-09-05",
      "image": "data/real/layers/change_2026-09-05.webp",
      "values": "data/real/values/change_2026-09-05.bin",
@@ -450,13 +359,6 @@
      "image": "data/real/layers/change_2026-09-10.webp",
      "values": "data/real/values/change_2026-09-10.bin",
      "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-10.tif",
-     "url": ""
-    },
-    {
-     "date": "2026-09-12",
-     "image": "data/real/layers/change_2026-09-12.webp",
-     "values": "data/real/values/change_2026-09-12.bin",
-     "source": "NISAR L2 GCOV HHHH · koroneia_nisar_2026-09-12.tif",
      "url": ""
     },
     {
@@ -568,6 +470,7 @@
  },
  "points": "data/real/points.geojson",
  "regions": "data/real/regions.json",
+ "forecast": "data/real/forecast.json",
  "weather": {
   "provider": "open-meteo",
   "snapshot": "data/real/weather.json"

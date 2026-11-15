@@ -4,6 +4,8 @@
 
 import { loadWeather, isoDay } from './weather.js';
 import { assess, scenario } from './insights.js';
+import { runForecast } from './forecast.js';
+import { brief, finding as lakeFinding, lines as alertLines, backtestLine, answer, route, QUESTIONS } from './ask.js';
 
 const COLORS = { alert: '#ff6b5e', watch: '#f4b94a', ok: '#7bd88f' };
 const RANK = { ok: 0, watch: 1, alert: 2 };
@@ -26,6 +28,9 @@ export function createStatus(ctx) {
   let chart = null;
   const labels = {};
   const scn = { rain: 0, irrigation: 0 };   // what-if, in % change for next season
+  const fc = ctx.forecast || null;          // fitted lake model (real data only): js/forecast.js
+  let B = null;                             // forecast + what-ifs for the lake, the source of the alert and of "Ask"
+  let asked = null;                         // last question asked
 
   const region = (id) => data.regions.find((r) => r.id === id);
   const sorted = () => [...data.regions].sort((a, b) => RANK[A[b.id].status] - RANK[A[a.id].status]);
@@ -37,6 +42,20 @@ export function createStatus(ctx) {
     for (const r of data.regions) {
       A[r.id] = assess(r, wx?.byRegion?.[r.id] ?? null, data.thresholds, { today, refName: manifest.reference?.name, soilRef });
     }
+    // with a fitted model, the lake finding comes from the forecast instead of the straight-line projection
+    const lake = fc && wxState !== 'loading' ? data.regions.find((r) => r.id === fc.region && r.reservoir) : null;
+    B = lake ? brief(fc, lake.reservoir, wx?.byRegion?.[lake.id] ?? null, today, lake.name) : null;
+    if (B) {
+      const a = A[lake.id];
+      const f = lakeFinding(B, data.thresholds);
+      const i = a.findings.findIndex((x) => x.key === 'reservoir');
+      if (i >= 0) a.findings[i] = f; else a.findings.push(f);
+      a.reservoir.finding = f;
+      a.reservoir.level = f.level;
+      a.findings.sort((x, y) => RANK[y.level] - RANK[x.level]);
+      a.status = a.findings[0]?.level ?? 'ok';
+      a.headline = a.findings[0];
+    }
   }
 
   async function init(regionsData) {
@@ -44,6 +63,7 @@ export function createStatus(ctx) {
     compute();
     const first = data.regions.map((r) => r.series.dates[0]).sort()[0];
     const start = new Date(Date.parse(`${first}T12:00:00`) - 30 * 864e5);
+    if (fc) state.rtab = 'h2o';
     loadWeather(data.regions, isoDay(start), manifest.weather?.snapshot).then((w) => {
       wx = w;
       wxState = w ? w.source : 'none';
@@ -116,6 +136,8 @@ export function createStatus(ctx) {
 
   // ───────────────────────────────────────────────────────── left: daily briefing
   function renderBrief() {
+    const ask = $('#ask');                  // "Ask" sits inside the briefing: take it out before the briefing is redrawn
+    if (ask && $('#brief').contains(ask)) $('#brief').after(ask);
     const count = { alert: 0, watch: 0, ok: 0 };
     for (const r of data.regions) count[A[r.id].status]++;
     const badge = $('#alertCount');
@@ -157,6 +179,7 @@ export function createStatus(ctx) {
           </button>`).join('') : `<p class="empty">${t('brief.none')}</p>`}
       </div>
 
+      <div id="askSlot"></div>
       <h2 class="sec">${t('brief.areas')}</h2>
       <div class="areas">
         ${sorted().map((r) => {
@@ -175,6 +198,7 @@ export function createStatus(ctx) {
   }).join('')}
       </div>
       <p class="brief-foot">${t('brief.foot')}</p>`;
+    if (ask && $('#askSlot')) $('#askSlot').replaceWith(ask);
   }
 
   // ───────────────────────────────────────────────────────── right: one area
@@ -214,6 +238,21 @@ export function createStatus(ctx) {
   }
 
   function alertHTML(r, a) {
+    if (B && r.id === fc.region) {
+      const [m, c, d] = alertLines(B, state.lang);
+      const lv = a.reservoir.level === 'ok' ? 'watch' : a.reservoir.level;
+      return `<section class="card alertcard lv-${lv}">
+        <div class="voice-tag">${t('al.title')}</div>
+        <h3>${L(a.reservoir.finding.title)}</h3>
+        <dl class="al3">
+          <dt>${t('al3.seen')}</dt><dd>${m}</dd>
+          <dt>${t('al3.coming')}</dt><dd>${c}</dd>
+          <dt>${t('al3.do')}</dt><dd>${d}</dd>
+        </dl>
+        <p class="al-bt">${backtestLine(B, state.lang)}</p>
+        <p class="rule"><b>${t('al.rule')}:</b> ${L(r.reservoir.rule)}</p>
+      </section>`;
+    }
     const res = a.reservoir;
     if (!res || res.level === 'ok') return '';
     return `<section class="card alertcard lv-${res.level}">
@@ -235,6 +274,13 @@ export function createStatus(ctx) {
     const th = data.thresholds;
     const ago = Math.round(dayNum(today) - dayNum(a.lastPass));
     const ref = a.reference;
+    const lead = !!(B && r.id === fc.region);      // the lake with a forecast: alert and chart first
+    const charts = `
+      <div class="tabs rtabs">
+        ${['wx', 'fx', 'h2o'].map((k) => `<button class="tab ${k === state.rtab ? 'is-active' : ''}" data-rtab="${k}">${t(`rtab.${k}`)}</button>`).join('')}
+      </div>
+      <div class="chart-wrap"><canvas id="rChart"></canvas></div>
+      <div class="chart-note" id="rNote"></div>`;
 
     box.innerHTML = `
       <div class="insp-head">
@@ -245,6 +291,8 @@ export function createStatus(ctx) {
         </div>
         <button class="x" data-close-right aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
+
+      ${lead ? alertHTML(r, a) + charts : ''}
 
       ${w ? forecastHTML(w) : `<p class="empty">${t(wxState === 'loading' ? 'brief.wx.loading' : 'rnote.nowx')}</p>`}
 
@@ -259,7 +307,7 @@ export function createStatus(ctx) {
 
       <h3 class="sec">${t('rg.findings')}</h3>
       <div class="findings">
-        ${a.findings.map((f) => `
+        ${a.findings.filter((f) => !(lead && f.key === 'reservoir')).map((f) => `
           <article class="finding lv-${f.level}">
             <h4>${L(f.title)}</h4>
             <p>${L(f.text)}</p>
@@ -268,13 +316,7 @@ export function createStatus(ctx) {
           </article>`).join('')}
       </div>
 
-      ${alertHTML(r, a)}
-
-      <div class="tabs rtabs">
-        ${['wx', 'fx', 'h2o'].map((k) => `<button class="tab ${k === state.rtab ? 'is-active' : ''}" data-rtab="${k}">${t(`rtab.${k}`)}</button>`).join('')}
-      </div>
-      <div class="chart-wrap"><canvas id="rChart"></canvas></div>
-      <div class="chart-note" id="rNote"></div>
+      ${lead ? '' : alertHTML(r, a) + charts}
 
       ${eventsHTML(a)}
 
@@ -338,6 +380,46 @@ export function createStatus(ctx) {
         scales: { y: axis('dB'), ...(a.effects ? { y1: right('mm') } : {}) },
       };
       note = t(a.effects ? 'rnote.fx' : 'rnote.nowx');
+    } else if (r.reservoir && B && r.id === fc.region) {
+      const F = B.base;
+      const res = r.reservoir;
+      const first = fc.fit.dates[0];
+      const all = [];
+      // shown up to 1 October after next summer: far enough to see the next fall below the limit
+      const until = F.dates.find((d) => d > today && d.slice(5) === '10-01' && d.slice(0, 4) > today.slice(0, 4)) || F.dates.at(-1);
+      for (let n = dayNum(first); n <= dayNum(until); n++) all.push(new Date(n * 864e5).toISOString().slice(0, 10));
+      const off = all.indexOf(F.dates[0]);
+      const fcast = (arr) => all.map((d, i) => (i >= off ? arr[i - off] : null));
+      const meas = all.map((d) => { const i = res.dates.indexOf(d); return i >= 0 ? res.area_km2[i] : null; });
+      const ti = all.indexOf(today);
+      cfg = {
+        labels: all.map((d) => fmtDate(d, { day: 'numeric', month: 'short', year: '2-digit' })),
+        datasets: [
+          line(t('rc.band'), fcast(F.p90), 'rgba(92,200,240,0)', { fill: false, pointHoverRadius: 0 }),
+          line(t('rc.band'), fcast(F.p10), 'rgba(92,200,240,.35)', { fill: '-1', backgroundColor: 'rgba(92,200,240,.2)', borderWidth: 0, pointHoverRadius: 0 }),
+          line(t('rc.forecast'), fcast(F.p50), '#5cc8f0', { borderDash: [5, 4], borderWidth: 1.8 }),
+          line(t('rc.measured'), meas, '#ffffff', { showLine: false, pointRadius: 3.5, pointHoverRadius: 5 }),
+          line(`${t('rc.limit')} (km²)`, all.map(() => res.limit), COLORS.alert, { borderDash: [6, 4], borderWidth: 1.5 }),
+        ],
+        scales: { y: axis('km²', { beginAtZero: true, max: Math.ceil(F.amax / 5) * 5 }) },
+        plugins: [{
+          id: 'today',
+          afterDatasetsDraw(c) {
+            if (ti < 0) return;
+            const x = c.scales.x.getPixelForValue(ti);
+            const { top, bottom } = c.chartArea;
+            const g = c.ctx;
+            g.save();
+            g.strokeStyle = 'rgba(255,255,255,.7)'; g.setLineDash([2, 3]); g.lineWidth = 1;
+            g.beginPath(); g.moveTo(x, top); g.lineTo(x, bottom); g.stroke();
+            g.setLineDash([]); g.fillStyle = '#fff'; g.font = '600 10px system-ui'; g.textAlign = 'center';
+            g.fillText(t('rc.today'), x, top + 9);
+            g.restore();
+          },
+        }],
+        legendFilter: (it) => it.datasetIndex !== 0,
+      };
+      note = t('rnote.h2o.fc');
     } else if (r.reservoir) {
       const res = r.reservoir;
       const proj = a.reservoir.crossDate;
@@ -374,13 +456,59 @@ export function createStatus(ctx) {
     if (!cfg) return;
     chart = new Chart(canvas, {
       data: { labels: cfg.labels, datasets: cfg.datasets },
+      plugins: cfg.plugins || [],
       options: {
         responsive: true, maintainAspectRatio: false, animation: { duration: 350 },
         interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { position: 'bottom', labels: { padding: 12 } } },
-        scales: { x: { grid: { display: false }, border: { color: 'rgba(255,255,255,.12)' }, ticks: { maxRotation: 0, autoSkipPadding: 16 } }, ...cfg.scales },
+        plugins: {
+          legend: { position: 'bottom', labels: { padding: 12, ...(cfg.legendFilter ? { filter: cfg.legendFilter } : {}) } },
+          ...(cfg.legendFilter ? { tooltip: { filter: (it) => it.raw != null && it.datasetIndex > 1 } } : {}),
+        },
+        scales: { x: { grid: { display: false }, border: { color: 'rgba(255,255,255,.12)' }, ticks: { maxRotation: 0, autoSkipPadding: 16, ...(cfg.legendFilter ? { maxTicksLimit: 8 } : {}) } }, ...cfg.scales },
       },
     });
+  }
+
+  // ───────────────────────────────────────────────────────── ask
+  function renderAsk() {
+    const box = $('#ask');
+    if (!box) return;
+    box.hidden = !B;
+    if (!B) { box.innerHTML = ''; return; }
+    box.innerHTML = `
+      <h2 class="sec">${t('ask.title')}</h2>
+      <div class="ask card">
+        <div class="ask-chips">${QUESTIONS.map((q) => `<button class="ask-chip ${asked?.id === q.id ? 'is-on' : ''}" data-ask="${q.id}">${q[state.lang] || q.el}</button>`).join('')}</div>
+        <form class="ask-form" id="askForm"><input id="askInput" type="text" autocomplete="off" placeholder="${t('ask.ph')}"><button type="submit" aria-label="${t('ask.send')}"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
+        <div class="ask-out" id="askOut" aria-live="polite"></div>
+        <p class="scn-note">${t('ask.note')}</p>
+      </div>`;
+    if (asked) showAnswer(asked, false);
+  }
+
+  let typing = 0;
+  function showAnswer(q, animate = true) {
+    asked = q;
+    const out = $('#askOut');
+    if (!out || !B) return;
+    $$('[data-ask]').forEach((b) => b.classList.toggle('is-on', b.dataset.ask === q.id));
+    const a = answer(q.id, B, state.lang);
+    const html = `<p class="ask-q">${q.text}</p>${a.text.map((p) => `<p>${p}</p>`).join('')}${a.sources ? `<small>${a.sources}</small>` : ''}`;
+    const run = ++typing;
+    if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { out.innerHTML = html; return; }
+    // reveal word by word: the answer is ready at once, this only makes it readable on video
+    out.innerHTML = `<p class="ask-q">${q.text}</p><p class="ask-wait">${t('ask.thinking')}</p>`;
+    const words = a.text.map((p) => p.split(' '));
+    let pi = 0;
+    let wi = 0;
+    setTimeout(function step() {
+      if (run !== typing) return;
+      if (pi >= words.length) { out.innerHTML = html; return; }
+      wi = Math.min(wi + 3, words[pi].length);
+      out.innerHTML = `<p class="ask-q">${q.text}</p>${words.slice(0, pi).map((w) => `<p>${w.join(' ')}</p>`).join('')}<p>${words[pi].slice(0, wi).join(' ')}</p>`;
+      if (wi >= words[pi].length) { pi++; wi = 0; }
+      setTimeout(step, 28);
+    }, 450);
   }
 
   // ───────────────────────────────────────────────────────── what if
@@ -393,27 +521,46 @@ export function createStatus(ctx) {
     box.innerHTML = `
       <h2 class="sec">${t('scn.title')}</h2>
       <div class="scn card">
-        <p class="scn-q">${tf('scn.q', { lake: L(r.reservoir.name) })}</p>
+        <p class="scn-q">${tf(B && r.id === fc?.region ? 'scn.q.model' : 'scn.q', { lake: L(r.reservoir.name) })}</p>
         <label class="scn-row"><span>${t('scn.rain')}</span><output id="scnRainOut"></output>
           <input type="range" id="scnRain" min="-50" max="30" step="5" value="${scn.rain}"></label>
         <label class="scn-row"><span>${t('scn.irr')}</span><output id="scnIrrOut"></output>
           <input type="range" id="scnIrr" min="-50" max="50" step="5" value="${scn.irrigation}"></label>
         <div class="scn-out" id="scnOut"></div>
         <button class="scn-reset" id="scnReset">${t('scn.reset')}</button>
-        <p class="scn-note">${t('scn.note')}${manifest.demo ? ` ${t('demo.warn')}` : ''}</p>
+        <p class="scn-note">${t(B && r.id === fc?.region ? 'scn.note.model' : 'scn.note')}${manifest.demo ? ` ${t('demo.warn')}` : ''}</p>
       </div>`;
     updateScenario();
+  }
+
+  /** The what-if run through the fitted model: same shape as scenario() so the map and the report can use either. */
+  function modelScenario(r) {
+    const F = runForecast(fc, r.reservoir, wx?.byRegion?.[r.id] ?? null, today, scn);
+    const sep = F.dates.findIndex((d) => d > today && d.slice(5) === '06-01');
+    const area = sep >= 0 ? F.p50[sep] : F.lowNext;
+    return {
+      model: true, F, base: B.base, low: area, limit: r.reservoir.limit, unit: 'km²',
+      area: null, areaNow: r.reservoir.area_km2.at(-1), daysBelow: F.daysBelowNext, next: F.next?.mid,
+      scale: Math.sqrt(Math.max(area, 0.3) / r.reservoir.area_km2.at(-1)), sink: null,
+    };
   }
 
   function updateScenario() {
     const r = lakeRegion();
     if (!r || !$('#scnOut')) return;
-    const s = scenario(r, A[r.id], scn);
+    const s = B && r.id === fc.region ? modelScenario(r) : scenario(r, A[r.id], scn);
     const pct = (v) => `${v > 0 ? '+' : ''}${v}%`.replace('-', '−');
     $('#scnRainOut').textContent = pct(scn.rain);
     $('#scnIrrOut').textContent = pct(scn.irrigation);
     const bad = s.low < s.limit;
-    $('#scnOut').innerHTML = `
+    if (s.model) {
+      const nd = (iso) => (iso ? fmtDate(iso, { day: 'numeric', month: 'short', year: 'numeric' }) : '–');
+      const sepBase = (() => { const i = s.base.dates.findIndex((d) => d > today && d.slice(5) === '06-01'); return i >= 0 ? s.base.p50[i] : null; })();
+      $('#scnOut').innerHTML = `
+        <div class="scn-kpi ${s.next ? 'bad' : 'good'}"><span>${t('scn.next')}</span><b>${nd(s.next)}</b><em>${t('scn.base')} ${nd(s.base.next?.mid)}</em></div>
+        <div class="scn-kpi ${bad ? 'bad' : 'good'}"><span>${t('scn.sep')}</span><b>${s.low.toFixed(0)} <small>km²</small></b><em>${t('rc.limit')} ${s.limit} · ${t('scn.base')} ${sepBase == null ? '–' : sepBase.toFixed(0)}</em></div>
+        <div class="scn-kpi ${s.daysBelow ? 'bad' : 'good'}"><span>${t('scn.days')}</span><b>${s.daysBelow}</b><em>${s.daysBelow ? t('scn.fine') : t('scn.nofine')} · ${t('scn.base')} ${s.base.daysBelowNext}</em></div>`;
+    } else $('#scnOut').innerHTML = `
       <div class="scn-kpi ${bad ? 'bad' : 'good'}"><span>${t('scn.low')}</span><b>${s.low.toFixed(0)} <small>${s.unit}</small></b><em>${t('rc.limit')} ${s.limit} · ${t('scn.same')} ${s.base.toFixed(0)}</em></div>
       ${s.area != null ? `<div class="scn-kpi"><span>${t('scn.area')}</span><b>${s.area.toFixed(0)} <small>km²</small></b><em>${t('scn.now')} ${s.areaNow.toFixed(0)}</em></div>` : ''}
       <div class="scn-kpi ${s.daysBelow ? 'bad' : 'good'}"><span>${t('scn.days')}</span><b>${s.daysBelow}</b><em>${s.daysBelow ? t('scn.fine') : t('scn.nofine')}</em></div>
@@ -443,7 +590,7 @@ export function createStatus(ctx) {
     const lastPass = data.regions.map((r) => r.series.dates.at(-1)).sort().at(-1);
     const ref = manifest.reference?.name || 'Ref';
     const lake = lakeRegion();
-    const s = lake ? scenario(lake, A[lake.id], scn) : null;
+    const s = lake ? (B && lake.id === fc.region ? modelScenario(lake) : scenario(lake, A[lake.id], scn)) : null;
     const rows = sorted().map((r) => {
       const a = A[r.id];
       return `<tr><td><i class="dot st-${a.status}"></i> ${L(r.name)}</td><td>${t(`st.${a.status}`)}</td>
@@ -469,7 +616,8 @@ export function createStatus(ctx) {
           ${f.action ? `<p class="r-act"><b>${t('action.title')}:</b> ${L(f.action)}</p>` : ''}
           <p class="r-basis">${L(f.basis)}</p>
         </div>`).join('') : `<p>${t('brief.none')}</p>`}
-      ${s && (scn.rain || scn.irrigation) ? `<h2>${t('scn.title')}</h2><p>${tf('report.scn', { rain: scn.rain, irr: scn.irrigation, low: s.low.toFixed(0), unit: s.unit, limit: s.limit, days: s.daysBelow })}</p>` : ''}
+      ${B ? `<h2>${t('report.forecast')}</h2>${alertLines(B, state.lang).map((x, i) => `<p><b>${t(['al3.seen', 'al3.coming', 'al3.do'][i])}:</b> ${x}</p>`).join('')}<p class="r-basis">${backtestLine(B, state.lang)}</p>` : ''}
+      ${s && (scn.rain || scn.irrigation) ? `<h2>${t('scn.title')}</h2><p>${tf(s.model ? 'report.scn.model' : 'report.scn', { rain: scn.rain, irr: scn.irrigation, low: s.low.toFixed(0), unit: s.unit, limit: s.limit, days: s.daysBelow, next: s.next ? fmtDate(s.next) : '–' })}</p>` : ''}
       <footer>${t('report.foot')}</footer>`;
     if (btn) btn.disabled = false;
     setTimeout(() => window.print(), 60);
@@ -477,6 +625,7 @@ export function createStatus(ctx) {
 
   function render() {
     renderBrief();
+    renderAsk();
     renderScenario();
     renderRegion();
     refreshMap();
@@ -487,6 +636,20 @@ export function createStatus(ctx) {
       if (e.target.closest('[data-report]')) { exportReport(); return; }
       const b = e.target.closest('[data-region]');
       if (b) ctx.selectRegion(b.dataset.region);
+    });
+    $('#ask').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-ask]');
+      if (!b) return;
+      const q = QUESTIONS.find((x) => x.id === b.dataset.ask);
+      showAnswer({ id: q.id, text: q[state.lang] || q.el });
+    });
+    $('#ask').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = $('#askInput');
+      const text = input.value.trim();
+      if (!text) return;
+      showAnswer({ id: route(text) || 'none', text });
+      input.value = '';
     });
     $('#scenario').addEventListener('input', (e) => {
       if (e.target.id === 'scnRain') scn.rain = +e.target.value;
@@ -506,6 +669,7 @@ export function createStatus(ctx) {
 
   return {
     init, bind, render, addToMap, setVisible, region, exportReport,
+    lakeId: () => (fc ? fc.region : null),
     thresholds: () => data.thresholds,
     refName: () => manifest.reference?.name || 'Reference',
   };
