@@ -138,6 +138,7 @@ export const STR = {
   'al.title': { el: 'Ειδοποίηση για αποφυγή προστίμου', en: 'Alert to avoid a penalty' },
   'al.warned': { el: 'Με προειδοποίηση {w} ημερών πριν από το όριο, η ειδοποίηση βγαίνει από τη λήψη της {d}.', en: 'With a {w}-day warning before the limit, the alert fires from the pass of {d}.' },
   'al.rule': { el: 'Κανόνας', en: 'Rule' },
+  'al.open': { el: 'Ειδοποίηση για τη λίμνη', en: 'Lake alert' },
   'al3.seen': { el: 'Τι μετρήσαμε', en: 'What we measured' },
   'al3.coming': { el: 'Τι έρχεται', en: 'What is coming' },
   'al3.do': { el: 'Τι να γίνει', en: 'What to do' },

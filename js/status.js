@@ -624,6 +624,15 @@ export function createStatus(ctx) {
   }
 
   function render() {
+    // the warning button in the map tools: shown with a lake forecast, coloured by its level, lit while the lake is open
+    const ab = document.getElementById('btnAlert');
+    if (ab) {
+      const lv = B ? A[fc.region]?.reservoir?.level : null;
+      ab.hidden = !B;
+      ab.dataset.level = lv || '';
+      ab.title = t('al.open');
+      ab.classList.toggle('is-on', !!B && state.regionId === fc.region);
+    }
     renderBrief();
     renderAsk();
     renderScenario();

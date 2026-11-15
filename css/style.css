@@ -568,3 +568,12 @@ input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 
 .ask-out .ask-q { font: 600 13.5px var(--serif); color: var(--text); }
 .ask-out .ask-wait { color: var(--muted); font-style: italic; }
 .ask-out small { display: block; margin-top: 4px; font: 10.5px var(--mono); color: var(--muted); }
+
+/* lake alert button in the map tools (Status, real data) */
+#app:not([data-mode="status"]) #btnAlert { display: none; }
+#btnAlert { position: relative; }
+#btnAlert[data-level="alert"] { color: var(--alert, #ff6b5e); }
+#btnAlert[data-level="watch"] { color: var(--watch, #f4b94a); }
+#btnAlert i { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 2px var(--panel, #11161c); }
+#btnAlert[data-level=""] i, #btnAlert[data-level="ok"] i { display: none; }
+#btnAlert.is-on { background: var(--raise-2); }

@@ -613,9 +613,6 @@ function setMode(mode) {
   if (mode === 'status') {
     closePoint(false);
     mapA.easeTo({ center: M.site.center, zoom: M.site.zoom, pitch: 0, bearing: 0, padding: pad(), duration: 900 });
-    // with a lake forecast, open the lake straight away: the alert and the forecast chart are the point of this view
-    const lake = status.lakeId();
-    if (lake) setTimeout(() => { if (state.mode === 'status' && !state.regionId) selectRegion(lake, false); }, 350);
   } else {
     if (state.regionId) closePoint(false);
     mapA.easeTo({ padding: pad(), duration: 600 });
@@ -752,6 +749,12 @@ function bindUI() {
   $('#btnHome').addEventListener('click', () => {
     state.tilt = false; $('#btnTilt').classList.remove('is-on');
     mapA.easeTo({ center: M.site.center, zoom: M.site.zoom, pitch: 0, bearing: 0, padding: pad(), duration: 1200 });
+  });
+  // the lake alert opens only when asked for: the warning button in the map tools (Status, real data)
+  $('#btnAlert').addEventListener('click', () => {
+    const lake = status.lakeId();
+    if (!lake) return;
+    if (state.regionId === lake) closePoint(); else selectRegion(lake);
   });
   $('#btnTilt').addEventListener('click', (e) => {
     state.tilt = !state.tilt;
