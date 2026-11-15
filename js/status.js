@@ -96,8 +96,10 @@ export function createStatus(ctx) {
     map = m;
     const color = ['match', ['get', 'status'], 'alert', COLORS.alert, 'watch', COLORS.watch, COLORS.ok];
     m.addSource('regions', { type: 'geojson', data: geojson() });
-    m.addLayer({ id: 'regions-fill', type: 'fill', source: 'regions', layout: { visibility: 'none' }, paint: { 'fill-color': color, 'fill-opacity': ['case', ['get', 'sel'], 0.3, 0.13] } });
-    m.addLayer({ id: 'regions-line', type: 'line', source: 'regions', layout: { visibility: 'none' }, paint: { 'line-color': color, 'line-width': ['case', ['get', 'sel'], 3, 1.6] } });
+    // real data: the circles are not drawn (the lake itself is the picture); they stay as an invisible click area under the name tags
+    const drawn = !!manifest.demo;
+    m.addLayer({ id: 'regions-fill', type: 'fill', source: 'regions', layout: { visibility: 'none' }, paint: { 'fill-color': color, 'fill-opacity': drawn ? ['case', ['get', 'sel'], 0.3, 0.13] : 0 } });
+    m.addLayer({ id: 'regions-line', type: 'line', source: 'regions', layout: { visibility: 'none' }, paint: { 'line-color': color, 'line-width': ['case', ['get', 'sel'], 3, 1.6], 'line-opacity': drawn ? 1 : 0 } });
     m.on('click', 'regions-fill', (e) => ctx.selectRegion(e.features[0].properties.id));
     m.on('mouseenter', 'regions-fill', () => { m.getCanvas().style.cursor = 'pointer'; });
     m.on('mouseleave', 'regions-fill', () => { m.getCanvas().style.cursor = ''; });

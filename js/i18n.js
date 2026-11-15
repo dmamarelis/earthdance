@@ -14,6 +14,8 @@ export const STR = {
   'listen.stop': { el: 'Στοπ', en: 'Stop' },
   'unknowns.title': { el: 'Τι δεν μπορούμε να πούμε', en: 'What we cannot say' },
   'tl.compare': { el: 'Σύγκριση', en: 'Compare' },
+  'ui.hide': { el: 'Μάζεμα', en: 'Collapse' },
+  'ui.show': { el: 'Άνοιγμα', en: 'Expand' },
   'tl.frame': { el: 'Λήψη', en: 'Acquisition' },
   'tl.of': { el: 'από', en: 'of' },
   'tile.total': { el: 'Συνολική μετατόπιση', en: 'Total displacement' },

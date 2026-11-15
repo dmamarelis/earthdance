@@ -69,8 +69,30 @@ const fmtNum = (v, d = 0) => `${v > 0 ? '+' : ''}${v.toFixed(d)}`.replace('-', '
 const isMobile = () => innerWidth <= 820;
 
 function pad() {
-  if (isMobile()) return { top: 66, bottom: 140, left: 10, right: 10 };
-  return { top: 76, bottom: 150, left: state.mode === 'explore' ? 348 : 432, right: state.pointId || state.regionId ? 408 : 16 };
+  if (isMobile()) return { top: 66, bottom: ui.tl ? 80 : 140, left: 10, right: 10 };
+  return {
+    top: 76, bottom: ui.tl ? 90 : 150,
+    left: ui.left ? 16 : state.mode === 'explore' ? 348 : 432,
+    right: state.pointId || state.regionId ? 408 : 16,
+  };
+}
+
+// Collapsible panels: the left panel (layers / briefing / story card) and the timeline fold away with a button and
+// come back from a small pill. Remembered per browser.
+const ui = (() => {
+  try { return { left: localStorage.getItem('ed.ui.left') === '1', tl: localStorage.getItem('ed.ui.tl') === '1' }; } catch { return { left: false, tl: false }; }
+})();
+function applyCollapse(ease = false) {
+  app.classList.toggle('left-collapsed', ui.left);
+  app.classList.toggle('tl-collapsed', ui.tl);
+  $('#leftPill').hidden = !ui.left;
+  const label = state.mode === 'story' ? $('#storyTitle').textContent : t(state.mode === 'status' ? 'brief.kicker' : 'layers.title');
+  $('#leftPillLabel').textContent = label;
+  $('#leftPill').title = t('ui.show');
+  $('#tlCollapse').title = t(ui.tl ? 'ui.show' : 'ui.hide');
+  $('#leftCollapse').title = t('ui.hide');
+  try { localStorage.setItem('ed.ui.left', ui.left ? '1' : '0'); localStorage.setItem('ed.ui.tl', ui.tl ? '1' : '0'); } catch { /* ignore */ }
+  if (ease && mapA?.loaded()) mapA.easeTo({ padding: pad(), duration: 500 });
 }
 
 const overlayOpacity = (map) => (state.sensor === 'radar' && !map?.__ovEmpty ? RADAR_OPACITY : 0);
@@ -569,6 +591,7 @@ function renderStory() {
     `<button data-story="${i}" class="${i < state.storyIdx ? 'done' : i === state.storyIdx ? 'now' : ''}" aria-label="${i + 1}"></button>`).join('');
   $('#storyKicker').textContent = L(ch.kicker);
   $('#storyTitle').textContent = L(ch.title);
+  applyCollapse();
   $('#storyBody').textContent = L(ch.body);
   $('#storyNextLabel').textContent = t(state.storyIdx === 0 ? 'story.start' : state.storyIdx === n - 1 ? 'story.finish' : 'story.next');
   $('#storyPrev').disabled = state.storyIdx === 0;
@@ -609,6 +632,7 @@ function setMode(mode) {
   app.classList.remove('drawer');
   $$('.mode').forEach((b) => b.classList.toggle('is-active', b.dataset.mode === mode));
   status.setVisible(mode === 'status');
+  applyCollapse();
   if (mode === 'story') return goStory(0);
   if (mode === 'status') {
     closePoint(false);
@@ -673,6 +697,7 @@ function renderAbout() {
 // ───────────────────────────────────────────────────────── render everything (also on language change)
 function renderAll() {
   document.documentElement.lang = state.lang;
+  applyCollapse();
   $$('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   $('#btnLang').classList.toggle('en', state.lang === 'en');
   $('#siteName').textContent = `${L(M.site.name)} · ${L(M.site.country)}`;
@@ -750,6 +775,9 @@ function bindUI() {
     state.tilt = false; $('#btnTilt').classList.remove('is-on');
     mapA.easeTo({ center: M.site.center, zoom: M.site.zoom, pitch: 0, bearing: 0, padding: pad(), duration: 1200 });
   });
+  $('#leftCollapse').addEventListener('click', () => { ui.left = true; applyCollapse(true); });
+  $('#leftPill').addEventListener('click', () => { ui.left = false; applyCollapse(true); });
+  $('#tlCollapse').addEventListener('click', () => { ui.tl = !ui.tl; applyCollapse(true); });
   // the lake alert opens only when asked for: the warning button in the map tools (Status, real data)
   $('#btnAlert').addEventListener('click', () => {
     const lake = status.lakeId();

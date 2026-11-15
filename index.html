@@ -76,6 +76,7 @@
 
   <!-- ───────── Left: layers (explore) / daily briefing (status) ───────── -->
   <aside id="left" class="panel">
+    <button class="collapse-btn" id="leftCollapse" data-i18n-title="ui.hide"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
     <div class="status-only">
       <div id="brief"></div>
       <section id="ask" hidden></section>
@@ -164,6 +165,9 @@
     <button id="btnAlert" hidden aria-label="Lake alert"><svg viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.01"/></svg><i></i></button>
   </div>
 
+  <!-- collapsed left panel: a small pill that brings it back -->
+  <button class="panel left-pill" id="leftPill" hidden><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg><span id="leftPillLabel"></span></button>
+
   <!-- ───────── Timeline ───────── -->
   <footer id="timeline" class="panel">
     <div class="tl-row">
@@ -178,6 +182,7 @@
           <svg viewBox="0 0 24 24"><path d="M12 3v18M4 6h5v12H4zM15 6h5v12h-5z"/></svg><span data-i18n="tl.compare"></span>
         </button>
       </div>
+      <button class="collapse-btn" id="tlCollapse" data-i18n-title="ui.hide"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
     </div>
     <div class="track" id="track">
       <div class="track-rail"><div class="track-fill" id="trackFill"></div></div>

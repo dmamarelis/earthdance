@@ -347,8 +347,16 @@ def cloud_image(k: int, cover: float) -> np.ndarray:
     """RGBA clouds covering roughly `cover` % of the frame."""
     n = fbm(300 + k, 3.8)
     thr = np.quantile(n, 1 - cover / 100) if cover > 0 else n.max() + 1
+    # towards the frame the cloud field breaks up into scattered puffs and then nothing, so no rectangle shows:
+    # r = distance from the centre in an ellipse (1 at the middle of each edge), bent by slow noise
+    ex = (PX - (W - 1) / 2) / (W / 2)
+    ey = (PY - (H - 1) / 2) / (H / 2)
+    r0 = np.sqrt(ex ** 2 + ey ** 2)
+    # the edge of the cloud deck is ragged: a rough noise field pushes it in and out, so it ends in tufts and gaps
+    ragged = r0 + 0.22 * np.tanh(fbm(700 + k, 2.4))
     a = smoothstep((n - thr) / 0.3) * 0.97
-    a *= smoothstep(np.minimum.reduce([PX, W - 1 - PX, PY, H - 1 - PY]) / 40.0)  # soft frame edge
+    a *= 1 - smoothstep((ragged - 0.45) / 0.3)
+    a *= 1 - smoothstep((r0 - 0.72) / 0.18)                    # and always clear near the frame
     shade = 228 + 24 * smoothstep((n - thr) / 2.2)
     rgba = np.zeros((H, W, 4), np.uint8)
     rgba[..., 0] = rgba[..., 1] = np.clip(shade, 0, 255).astype(np.uint8)
