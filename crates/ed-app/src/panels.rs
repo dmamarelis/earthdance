@@ -162,6 +162,7 @@ fn show_menu(app: &mut App, ui: &mut egui::Ui) {
         ui.radio_value(&mut s.basemap, v, if el { a } else { b });
     }
     ui.checkbox(&mut s.labels, if el { "Τοπωνύμια" } else { "Place names" });
+    ui.checkbox(&mut s.clouds, if el { "Σύννεφα (επίδειξη)" } else { "Clouds (demo)" });
     ui.horizontal(|ui| {
         ui.label(if el { "Διαφάνεια επιπέδων" } else { "Layer opacity" });
         ui.add(egui::Slider::new(&mut s.opacity, 0.2..=1.0).show_value(false));
@@ -494,6 +495,9 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         match app.st.sensor {
             // demo clouds: generated over the whole view, a new sky for each date, as cloudy as the date says
             Sensor::Optical if ds.demo => {
+                if !app.st.show.clouds {
+                    return;
+                }
                 let Some(i) = optical_for(app, &ds, frame) else { return };
                 let o = &ds.optical[i];
                 let seed = { use std::hash::{Hash, Hasher}; let mut h = std::hash::DefaultHasher::new(); o.date.hash(&mut h); h.finish() };

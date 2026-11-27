@@ -35,7 +35,7 @@ cargo run --release -p ed-app -- --place "Lake Volvi,23.48,40.68,10"   # any pla
 
 Inside the app, **Source ▾ → Anywhere…** finds any lake by name (in any language; the lake's size sets
 the area, and seasons come from its own climate); **Show ▾** picks the basemap
-(satellite imagery or Sentinel-2 cloudless), place names, layer opacity and what is drawn. Keys: `←` `→` step through dates
+(satellite imagery or Sentinel-2 cloudless), place names, demo clouds on/off, layer opacity and what is drawn. Keys: `←` `→` step through dates
 (or Story chapters), `R` switches optical / radar, `Esc` closes dialogs.
 
 No accounts or API keys are needed. The app downloads only what it needs and caches it in

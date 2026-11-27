@@ -98,11 +98,13 @@ pub struct ShowOpts {
     pub legend: bool,
     pub grid: bool,
     pub estimates: bool,
+    /// The made-up clouds over the whole map (demo set, optical view).
+    pub clouds: bool,
 }
 
 impl Default for ShowOpts {
     fn default() -> Self {
-        Self { basemap: 0, opacity: 0.7, labels: true, areas: false, area_labels: true, points: true, point_labels: false, shoreline: true, legend: true, grid: false, estimates: true }
+        Self { basemap: 0, opacity: 0.7, labels: true, areas: false, area_labels: true, points: true, point_labels: false, shoreline: true, legend: true, grid: false, estimates: true, clouds: true }
     }
 }
 
