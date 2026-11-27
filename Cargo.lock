@@ -563,6 +563,7 @@ dependencies = [
  "ed-sources",
  "eframe",
  "egui_plot",
+ "image",
  "rodio",
  "serde",
 ]
