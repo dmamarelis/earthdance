@@ -127,7 +127,8 @@ fn utm_coords(epsg: u32, g: &SiteGrid) -> Option<std::sync::Arc<Vec<(f64, f64)>>
     use std::collections::HashMap;
     use std::sync::{Arc, Mutex, OnceLock};
     type Key = (u32, [u64; 4], usize, usize);
-    static CACHE: OnceLock<Mutex<HashMap<Key, Arc<Vec<(f64, f64)>>>>> = OnceLock::new();
+    type Coords = Arc<Vec<(f64, f64)>>;
+    static CACHE: OnceLock<Mutex<HashMap<Key, Coords>>> = OnceLock::new();
     let zone = Zone::from_epsg(epsg)?;
     let b = g.bounds.0;
     let key = (epsg, [b[0].to_bits(), b[1].to_bits(), b[2].to_bits(), b[3].to_bits()], g.w, g.h);
