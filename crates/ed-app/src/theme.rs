@@ -24,9 +24,6 @@ pub fn level(l: Level) -> Color32 {
     }
 }
 
-/// Overlay imagery is drawn slightly faded so the map stays calm.
-pub const IMAGERY_ALPHA: u8 = 215;
-
 /// Marker colour per point kind.
 pub fn kind(k: &str) -> Color32 {
     match k {

@@ -144,12 +144,29 @@ AMD Ryzen 7 5825U:
 
 ## The map (Google-Earth style)
 
-Satellite basemap tiles (`crates/ed-sources/src/tiles.rs`, `crates/ed-app/src/basemap.rs`) stream in on
-background workers (newest request first, separate pools for imagery and place names), are cached on disk
-forever, and stand in for each other while loading: a scaled-up ancestor is drawn until the sharp tile
-arrives. At most 6 tile textures are uploaded per frame, so panning (with momentum) never stutters. Data
-overlays fade into the imagery; for live places the dated Sentinel-2 picture covers only the lake and
-~1.5 km around it, in colours tone-mapped to the basemap. Basemap choice and place names are in Show ▾.
+Satellite basemap tiles (`crates/ed-sources/src/tiles.rs`, `crates/ed-app/src/basemap.rs`):
+
+* **Warm-up**: as soon as a data source is chosen the map moves to that site and the loading screen
+  already fetches and shows (dimmed) the basemap, so the map is ready when the data is.
+* **Priorities and cancellation**: tiles on screen first, the zoom level above prefetched (it is the
+  stand-in when zooming in), the level below prefetched once the screen is complete; requests not repeated
+  for 30 frames (views already left) are dropped instead of fetched. Separate worker pools for imagery and
+  place names.
+* **Stand-ins while loading**: a scaled-up ancestor when zooming in, the sharper children when zooming out,
+  so there are no holes. At most 8 tile textures are uploaded per frame, so motion never stutters.
+* **Measured** (this machine, warm connection): zoom in by two levels to tiles never fetched before,
+  complete in 1.6 s; zoom out by two levels, 0.4 s. Tiles are cached on disk forever.
+* **Overlays** sit on the imagery at a chosen opacity (Show ▾ → Layer opacity, default 70 %) with a wide
+  soft edge; live places show the dated Sentinel-2 picture only around the lake, tone-mapped to the basemap.
+
+## Threads
+
+The UI runs on its own thread and never waits. The raster pipeline is data-parallel with rayon (0.59 s on
+16 threads vs 1.73 s on one); tiles have 13 background workers; live downloads use up to 16 parallel
+connections; data loading, weather and place search run on background threads. An async runtime (tokio)
+was considered and not adopted: concurrency is at most ~30 requests, the main archives (Esri, AWS S3)
+speak HTTP/1.1 only so there is no HTTP/2 multiplexing to gain, and the CPU-heavy work already uses all
+cores.
 
 ## Still open
 

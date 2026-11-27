@@ -9,6 +9,7 @@
 //!   EARTHDANCE_SHOT_WHATIF rain,irrigation (%)
 //!   EARTHDANCE_SHOT_COMPARE compare-frame index (turns on the swipe)
 //!   EARTHDANCE_SHOT_SHEET  validation | about
+//!   EARTHDANCE_SHOT_ZOOM   zoom change after the data is shown (reports how long the tiles took)
 
 use eframe::egui;
 
@@ -20,6 +21,7 @@ pub struct Shot {
     configured: bool,
     requested: bool,
     done: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    zoomed: Option<std::time::Instant>,
 }
 
 fn var(k: &str) -> Option<String> {
@@ -56,6 +58,10 @@ impl App {
                     self.st.what_if = ed_core::insights::WhatIf { rain: v[0], irrigation: v[1] };
                 }
             }
+            if let Some(dz) = var("EARTHDANCE_SHOT_ZOOM").and_then(|v| v.parse::<f64>().ok()) {
+                self.map.zoom_by(dz);
+                self.shot.zoomed = Some(std::time::Instant::now());
+            }
             if let Some(c) = var("EARTHDANCE_SHOT_COMPARE").and_then(|v| v.parse().ok()) {
                 self.st.compare = true;
                 self.st.compare_frame = c;
@@ -74,6 +80,13 @@ impl App {
             return;
         }
         // let flights and story animations settle
+        if let Some(t0) = self.shot.zoomed
+            && self.basemaps.loading() == 0
+            && t0.elapsed().as_secs_f32() > 0.4
+        {
+            eprintln!("tiles complete {:.2} s after the zoom", t0.elapsed().as_secs_f64());
+            self.shot.zoomed = None;
+        }
         // let flights and story animations settle, and the basemap tiles arrive (at most ~60 s)
         if self.shot.frames >= 150 && (self.basemaps.loading() == 0 || self.shot.frames > 3600) && !self.shot.requested {
             self.shot.requested = true;

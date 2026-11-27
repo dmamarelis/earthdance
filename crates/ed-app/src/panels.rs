@@ -17,6 +17,12 @@ pub fn loader(app: &mut App, ui: &mut egui::Ui) {
     egui::CentralPanel::no_frame().show(ui, |ui| {
         let r = ui.max_rect();
         ui.painter().rect_filled(r, 0, theme::BG);
+        // warm-up: the basemap of the coming view loads (and shows, dimmed) behind the loader
+        if let Some(b) = app.basemap() {
+            let ctx = ui.ctx().clone();
+            app.basemaps.warm(&app.map, r, b, app.st.show.labels);
+            app.basemaps.draw(&ctx, ui.painter(), &app.map, r, b, Color32::from_gray(60));
+        }
         let c = r.center();
         let time = ui.input(|i| i.time) as f32;
         for k in 0..3 {
@@ -156,6 +162,10 @@ fn show_menu(app: &mut App, ui: &mut egui::Ui) {
         ui.radio_value(&mut s.basemap, v, if el { a } else { b });
     }
     ui.checkbox(&mut s.labels, if el { "Τοπωνύμια" } else { "Place names" });
+    ui.horizontal(|ui| {
+        ui.label(if el { "Διαφάνεια επιπέδων" } else { "Layer opacity" });
+        ui.add(egui::Slider::new(&mut s.opacity, 0.2..=1.0).show_value(false));
+    });
     ui.separator();
     ui.checkbox(&mut s.legend, if el { "Υπόμνημα" } else { "Legend" });
     ui.checkbox(&mut s.points, if el { "Σημεία" } else { "Points" });
@@ -463,11 +473,7 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
     let painter = ui.painter_at(rect);
     painter.rect_filled(rect, 0, theme::BG);
     // the satellite basemap (slightly dimmed so the data on top reads clearly)
-    let base = match app.st.show.basemap {
-        0 => Some(ed_sources::tiles::Basemap::EsriImagery),
-        1 => Some(ed_sources::tiles::Basemap::S2Cloudless),
-        _ => None,
-    };
+    let base = app.basemap();
     if let Some(b) = base {
         app.basemaps.draw(&ctx, &painter, &app.map, rect, b, Color32::from_gray(205));
     }
@@ -491,7 +497,9 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         if let Some(img) = img {
             let tex = app.texture(&ctx, &img);
             let r = app.map.bounds_rect(rect, img.bounds);
-            let tint = Color32::from_white_alpha(theme::IMAGERY_ALPHA);
+            // data layers sit on the imagery at the chosen opacity; the optical picture is shown as is
+            let a = if app.st.sensor == Sensor::Radar && base.is_some() { app.st.show.opacity } else { 1.0 };
+            let tint = Color32::from_white_alpha((a * 255.0) as u8);
             p.image(tex, r, Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0)), tint);
         }
     };

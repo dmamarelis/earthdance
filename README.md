@@ -32,11 +32,13 @@ cargo run --release -p ed-app -- --demo          # the demo set (all data made u
 cargo run --release -p ed-app -- --place "Lake Volvi,23.48,40.68,10"   # any place: name,lon,lat,radius_km
 ```
 
-Inside the app, **Source ▾ → Anywhere…** searches places by name. Keys: `←` `→` step through dates
+Inside the app, **Source ▾ → Anywhere…** searches places by name; **Show ▾** picks the basemap
+(satellite imagery or Sentinel-2 cloudless), place names, layer opacity and what is drawn. Keys: `←` `→` step through dates
 (or Story chapters), `R` switches optical / radar, `Esc` closes dialogs.
 
 No accounts or API keys are needed. The app downloads only what it needs and caches it in
-`~/.cache/earthdance`, so a place opens instantly the second time and works offline afterwards.
+`~/.cache/earthdance`, so a place opens instantly the second time and works offline afterwards. The map
+warms up while the data loads, and zooming streams in the needed tiles in about a second.
 
 ## The three data sets
 

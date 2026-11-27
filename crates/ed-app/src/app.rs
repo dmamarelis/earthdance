@@ -78,6 +78,8 @@ impl WxState {
 pub struct ShowOpts {
     /// 0 = Esri World Imagery, 1 = Sentinel-2 cloudless (EOX), 2 = none.
     pub basemap: u8,
+    /// Opacity of the data layers over the imagery (0..1).
+    pub opacity: f32,
     pub labels: bool,
     pub areas: bool,
     pub area_labels: bool,
@@ -91,7 +93,7 @@ pub struct ShowOpts {
 
 impl Default for ShowOpts {
     fn default() -> Self {
-        Self { basemap: 0, labels: true, areas: false, area_labels: true, points: true, point_labels: false, shoreline: true, legend: true, grid: false, estimates: true }
+        Self { basemap: 0, opacity: 0.7, labels: true, areas: false, area_labels: true, points: true, point_labels: false, shoreline: true, legend: true, grid: false, estimates: true }
     }
 }
 
@@ -249,6 +251,13 @@ impl App {
     /// Starts building a data set in the background.
     pub fn load(&mut self, source: Source, ctx: &egui::Context) {
         self.source = source.clone();
+        // go where the site will be at once, so the basemap warms up while the data loads
+        let v = match &source {
+            Source::Real => View { lon: 23.15, lat: 40.68, zoom: 11.1 },
+            Source::Demo => View { lon: 23.2, lat: 40.68, zoom: 10.6 },
+            Source::Live(p) => View { lon: p.lon, lat: p.lat, zoom: ed_sources::live::zoom_for(p.lat, p.half_km) },
+        };
+        self.map.fly_to(v, 0.0);
         self.data = None;
         self.error = None;
         self.textures.clear();
@@ -405,7 +414,7 @@ impl App {
             .entry(key)
             .or_insert_with(|| {
                 // feathered edges: overlays fade into the basemap instead of ending in a hard square
-                let bw = (0.04 * img.w.min(img.h) as f32).max(3.0);
+                let bw = (0.10 * img.w.min(img.h) as f32).max(3.0);
                 let flat: Vec<u8> = img
                     .px
                     .iter()
@@ -735,6 +744,15 @@ impl App {
 
     pub fn weather_pending(&self) -> bool {
         self.wx_rx.is_some() || self.rx.is_some()
+    }
+
+    /// The basemap layer chosen in Show ▾, if any.
+    pub fn basemap(&self) -> Option<ed_sources::tiles::Basemap> {
+        match self.st.show.basemap {
+            0 => Some(ed_sources::tiles::Basemap::EsriImagery),
+            1 => Some(ed_sources::tiles::Basemap::S2Cloudless),
+            _ => None,
+        }
     }
 
     pub fn toggle_lang(&mut self) {

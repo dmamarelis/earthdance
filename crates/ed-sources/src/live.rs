@@ -185,7 +185,7 @@ fn ndwi_layer(threshold: f32) -> LayerInfo {
 }
 
 /// Zoom that shows a square of `2·half_km` in about 800 px.
-fn zoom_for(lat: f64, half_km: f64) -> f64 {
+pub fn zoom_for(lat: f64, half_km: f64) -> f64 {
     (40_075.0 * lat.to_radians().cos() * 800.0 / (2.0 * half_km * 512.0)).log2().clamp(4.0, 16.0)
 }
 
