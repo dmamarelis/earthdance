@@ -180,7 +180,8 @@ Satellite basemap tiles (`crates/ed-sources/src/tiles.rs`, `crates/ed-app/src/ba
   basemap. In the demo set (all made up) the clouds are generated over the whole view from fractal Perlin
   noise at map coordinates (`crates/ed-app/src/clouds.rs`): anchored to the ground, never repeating, finer
   detail fading in as you zoom, a new sky for each date, with the threshold set so the lake's area is as
-  cloudy as the date's cloud cover says; thin cloud is translucent and clouds cast a soft shadow. Show ▾ → Clouds turns them off.
+  cloudy as the date's cloud cover says; thin cloud is translucent and clouds cast a soft shadow. Show ▾ → Clouds turns them off. In Compare each side has its own cloud field (sharing one made the two
+  dates evict each other every frame, which flickered).
   The field is computed on a worker thread for twice the view in each direction at a half-level zoom
   (11–24 ms per field on this machine; the large octaves on a coarse grid, gradients from a table), and
   panning or zooming only moves and scales that texture until a new field is needed. Earlier versions

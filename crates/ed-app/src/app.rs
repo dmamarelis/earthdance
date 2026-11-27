@@ -185,7 +185,10 @@ pub struct App {
     /// The "Anywhere…" window.
     pub places: crate::places::Places,
     pub basemaps: crate::basemap::Basemaps,
+    /// The sky of the shown date, and of the compared date (one each, or the two evict each other
+    /// every frame and flicker).
     pub clouds: crate::clouds::Clouds,
+    pub clouds_compare: crate::clouds::Clouds,
     pub script: crate::script::Script,
     pub tour: crate::tour::Tour,
 }
@@ -253,6 +256,7 @@ impl App {
             places: Default::default(),
             basemaps: crate::basemap::Basemaps::new(&cc.egui_ctx),
             clouds: Default::default(),
+            clouds_compare: Default::default(),
             script: crate::script::Script::from_env(),
             tour: crate::tour::Tour::from_env(),
         };

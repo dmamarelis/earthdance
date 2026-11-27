@@ -492,7 +492,7 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
     // ── imagery: the current frame, and with compare the other frame left of the swipe line
     let layer = ds.layers.get(app.st.layer);
     let swipe_x = rect.left() + rect.width() * app.st.swipe;
-    let draw = |app: &mut App, frame: &Frame, clip: Rect| {
+    let draw = |app: &mut App, frame: &Frame, clip: Rect, compared: bool| {
         let p = painter.with_clip_rect(clip);
         let full = Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0));
         match app.st.sensor {
@@ -506,7 +506,8 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
                 let seed = { use std::hash::{Hash, Hasher}; let mut h = std::hash::DefaultHasher::new(); o.date.hash(&mut h); h.finish() };
                 let b = ds.site.bounds;
                 let ((x0, y0), (x1, y1)) = (crate::map::merc(b.west(), b.north()), crate::map::merc(b.east(), b.south()));
-                app.clouds.draw(&ctx, &p, &app.map, rect, crate::clouds::Sky { seed, cover: o.cover.unwrap_or(50.0), site: [x0, y0, x1, y1] });
+                let clouds = if compared { &mut app.clouds_compare } else { &mut app.clouds };
+                clouds.draw(&ctx, &p, &app.map, rect, crate::clouds::Sky { seed, cover: o.cover.unwrap_or(50.0), site: [x0, y0, x1, y1] });
             }
             Sensor::Optical => {
                 let Some(i) = optical_for(app, &ds, frame) else { return };
@@ -535,12 +536,12 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         if app.st.compare {
             let right = Rect::from_min_max(Pos2::new(swipe_x, rect.top()), rect.max);
             let left = Rect::from_min_max(rect.min, Pos2::new(swipe_x, rect.bottom()));
-            draw(app, f, right);
+            draw(app, f, right, false);
             if let Some(cf) = ly.frames.get(app.st.compare_frame) {
-                draw(app, cf, left);
+                draw(app, cf, left, true);
             }
         } else {
-            draw(app, f, rect);
+            draw(app, f, rect, false);
         }
     }
 
