@@ -620,36 +620,41 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
         });
     });
 
-    let tools = Rect::from_min_size(Pos2::new(rect.right() - 52.0, rect.top() + 90.0), Vec2::new(44.0, 220.0));
-    ui.scope_builder(UiBuilder::new().max_rect(tools), |ui| {
-        ui.vertical(|ui| {
-            let b = |ui: &mut egui::Ui, s: &str| ui.add_sized([40.0, 32.0], egui::Button::new(RichText::new(s).size(16.0)).fill(Color32::from_rgba_unmultiplied(13, 18, 27, 235)));
-            if b(ui, "+").clicked() {
-                app.map.zoom_by(1.0);
+    // map tools, painted by hand so they stay readable over any imagery
+    let mut y = rect.top() + 90.0;
+    let mut tool = |ui: &mut egui::Ui, id: &str, glyph: &str, color: Color32, on: bool, hint: &str| -> bool {
+        let r = Rect::from_min_size(Pos2::new(rect.right() - 52.0, y), Vec2::new(40.0, 34.0));
+        y += 40.0;
+        let resp = ui.interact(r, ui.scope_id().with(id), Sense::click()).on_hover_text(hint);
+        let fill = if on { theme::ACCENT.gamma_multiply(0.35) } else if resp.hovered() { Color32::from_rgb(30, 38, 52) } else { Color32::from_rgba_unmultiplied(13, 18, 27, 240) };
+        ui.painter().rect_filled(r, 10, fill);
+        ui.painter().rect_stroke(r, 10, Stroke::new(1.0, Color32::from_white_alpha(30)), egui::StrokeKind::Inside);
+        ui.painter().text(r.center(), Align2::CENTER_CENTER, glyph, FontId::proportional(17.0), color);
+        resp.clicked()
+    };
+    if tool(ui, "zin", "+", theme::TEXT, false, "Zoom in") {
+        app.map.zoom_by(1.0);
+    }
+    if tool(ui, "zout", "−", theme::TEXT, false, "Zoom out") {
+        app.map.zoom_by(-1.0);
+    }
+    if tool(ui, "home", "⌂", theme::TEXT, false, "Home") {
+        app.home();
+    }
+    // the lake alert opens only when asked for (Status, with a lake forecast)
+    if app.st.mode == Mode::Status
+        && let Some(lake) = status.lake_id(ds.forecast.as_ref())
+    {
+        let lv = ed_core::status::lake_level(status, ds.forecast.as_ref()).unwrap_or(Level::Watch);
+        let on = app.st.region.as_deref() == Some(&lake);
+        if tool(ui, "alert", "⚠", theme::level(lv), on, t("al.open", l)) {
+            if on {
+                app.close_right();
+            } else {
+                app.select_region(&lake, true);
             }
-            if b(ui, "−").clicked() {
-                app.map.zoom_by(-1.0);
-            }
-            if b(ui, "⌂").on_hover_text("Home").clicked() {
-                app.home();
-            }
-            // the lake alert opens only when asked for (Status, with a lake forecast)
-            if app.st.mode == Mode::Status
-                && let Some(lake) = status.lake_id(ds.forecast.as_ref())
-            {
-                let lv = ed_core::status::lake_level(status, ds.forecast.as_ref()).unwrap_or(Level::Watch);
-                let on = app.st.region.as_deref() == Some(&lake);
-                let resp = ui.add_sized([40.0, 32.0], egui::Button::new(RichText::new("⚠").color(theme::level(lv))).selected(on)).on_hover_text(t("al.open", l));
-                if resp.clicked() {
-                    if on {
-                        app.close_right();
-                    } else {
-                        app.select_region(&lake, true);
-                    }
-                }
-            }
-        });
-    });
+        }
+    }
 
     // collapsed panels come back from small pills
     if !app.st.left_open {
