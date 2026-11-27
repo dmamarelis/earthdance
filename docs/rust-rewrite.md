@@ -47,7 +47,9 @@ Open-Meteo daily ──► WeatherSet ──► ed-core::status::compute ──�
 
 `EARTHDANCE_SHOT=out.png` makes the app open a view (see `crates/ed-app/src/shot.rs`), screenshot it and
 quit, which is how the UI was checked. Screenshot runs use the default settings and leave the user's saved
-preferences alone.
+preferences alone. `EARTHDANCE_TOUR` walks every view (116 states on the demo set, 46 on
+the real one) and measures every side panel for overflow; `EARTHDANCE_SCRIPT` presses buttons and menus
+with real input events.
 
 ## The weather behind the lake forecast
 

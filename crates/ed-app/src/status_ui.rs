@@ -82,20 +82,22 @@ pub fn brief(app: &mut App, ui: &mut egui::Ui) {
         }
     });
     ui.add_space(4.0);
-    egui::Grid::new("fresh").num_columns(2).spacing([10.0, 4.0]).show(ui, |ui| {
-        ui.label(RichText::new(t("brief.radar", l)).small().color(theme::MUTED));
-        let radar = last_pass.map_or(String::new(), |lp| tf("brief.radarText", l, &[("d", &fd(Some(lp), l)), ("n", &today.since(lp).to_string())]));
-        ui.label(RichText::new(format!("{}{}", strip_tags(&radar), if ds.demo { format!(" · {}", t("demo.short", l)) } else { String::new() })).small());
-        ui.end_row();
-        ui.label(RichText::new(t("brief.wx", l)).small().color(theme::MUTED));
-        let wxl = if wx_state == WxState::Snapshot {
-            tf("brief.wx.snapshot", l, &[("d", &fd(wx.as_ref().and_then(|w| w.saved), l))])
-        } else {
-            t(&format!("brief.wx.{}", wx_state.key()), l).to_string()
-        };
-        ui.label(RichText::new(strip_tags(&wxl)).small());
-        ui.end_row();
-    });
+    // key / value rows whose value wraps inside the panel (a grid cell does not wrap: in Greek the radar
+    // line ran past the panel edge)
+    let row = |ui: &mut egui::Ui, key: &str, value: String| {
+        ui.horizontal_top(|ui| {
+            ui.add_sized([46.0, 12.0], egui::Label::new(RichText::new(key).small().color(theme::MUTED)));
+            ui.vertical(|ui| ui.add(egui::Label::new(RichText::new(value).small()).wrap()));
+        });
+    };
+    let radar = last_pass.map_or(String::new(), |lp| tf("brief.radarText", l, &[("d", &fd(Some(lp), l)), ("n", &today.since(lp).to_string())]));
+    row(ui, t("brief.radar", l), format!("{}{}", strip_tags(&radar), if ds.demo { format!(" · {}", t("demo.short", l)) } else { String::new() }));
+    let wxl = if wx_state == WxState::Snapshot {
+        tf("brief.wx.snapshot", l, &[("d", &fd(wx.as_ref().and_then(|w| w.saved), l))])
+    } else {
+        t(&format!("brief.wx.{}", wx_state.key()), l).to_string()
+    };
+    row(ui, t("brief.wx", l), strip_tags(&wxl));
 
     egui::CollapsingHeader::new(RichText::new(t("brief.todo", l)).strong()).default_open(true).show(ui, |ui| {        let mut todo: Vec<(&ed_core::model::Region, &Finding)> = Vec::new();
         for r in st.sorted(&ds.regions) {
@@ -377,30 +379,31 @@ pub fn region(app: &mut App, ui: &mut egui::Ui) {
         }
     }
 
-    ui.horizontal_wrapped(|ui| {
-        if let Some(s) = &a.soil {
-            crate::app::tile(ui, t("rg.tile.soil", l), &to_fixed(s.now, 0), "%", (s.finding.level != Level::Ok).then_some(theme::WATCH));
-        }
-        if let Some(w) = &a.wetland {
-            crate::app::tile(ui, t("rg.tile.cleared", l), &to_fixed(w.ha, 0), "ha", (w.level != Level::Ok).then_some(theme::ALERT));
-        }
-        if let (Some(rs), Some(res)) = (&a.reservoir, &r.reservoir) {
-            let (v, u) = res.area_km2.as_ref().and_then(|x| x.last()).map_or((rs.now, res.unit.as_str()), |v| (*v, "km²"));
-            crate::app::tile(ui, t("rg.tile.lake", l), &to_fixed(v, 0), u, (rs.level != Level::Ok).then_some(theme::ALERT));
-        }
-        if let Some(rate) = a.ground.rate {
-            crate::app::tile(ui, t("rg.tile.rate", l), &signed(rate, 0), t("unit.mmyr", l), (a.ground.level != Level::Ok).then_some(theme::ALERT));
-            let rf = &a.reference;
-            crate::app::tile(
-                ui,
-                &strip_tags(&tf("rg.tile.egms", l, &[("ref", ds.reference_name())])),
-                &rf.as_ref().map_or("–".into(), |x| signed(x.diff, 1)),
-                t("unit.mmyr", l),
-                rf.as_ref().filter(|x| !x.agrees).map(|_| theme::WATCH),
-            );
-        }
-        crate::app::tile(ui, t("rg.tile.rain", l), &a.weather.as_ref().map_or("–".into(), |w| to_fixed(w.rain30, 0)), "mm", None);
-    });
+    // the figures, three to a row (a wrapped row of framed tiles does not wrap: it pushed the drawer
+    // off-screen)
+    let mut tiles: Vec<(String, String, String, Option<Color32>)> = Vec::new();
+    if let Some(s) = &a.soil {
+        tiles.push((t("rg.tile.soil", l).into(), to_fixed(s.now, 0), "%".into(), (s.finding.level != Level::Ok).then_some(theme::WATCH)));
+    }
+    if let Some(w) = &a.wetland {
+        tiles.push((t("rg.tile.cleared", l).into(), to_fixed(w.ha, 0), "ha".into(), (w.level != Level::Ok).then_some(theme::ALERT)));
+    }
+    if let (Some(rs), Some(res)) = (&a.reservoir, &r.reservoir) {
+        let (v, u) = res.area_km2.as_ref().and_then(|x| x.last()).map_or((rs.now, res.unit.as_str()), |v| (*v, "km²"));
+        tiles.push((t("rg.tile.lake", l).into(), to_fixed(v, 0), u.into(), (rs.level != Level::Ok).then_some(theme::ALERT)));
+    }
+    if let Some(rate) = a.ground.rate {
+        tiles.push((t("rg.tile.rate", l).into(), signed(rate, 0), t("unit.mmyr", l).into(), (a.ground.level != Level::Ok).then_some(theme::ALERT)));
+        let rf = &a.reference;
+        tiles.push((
+            strip_tags(&tf("rg.tile.egms", l, &[("ref", ds.reference_name())])),
+            rf.as_ref().map_or("–".into(), |x| signed(x.diff, 1)),
+            t("unit.mmyr", l).into(),
+            rf.as_ref().filter(|x| !x.agrees).map(|_| theme::WATCH),
+        ));
+    }
+    tiles.push((t("rg.tile.rain", l).into(), a.weather.as_ref().map_or("–".into(), |w| to_fixed(w.rain30, 0)), "mm".into(), None));
+    tile_rows(ui, &tiles);
 
     section(ui, t("rg.findings", l));
     for f in a.findings.iter().filter(|f| !(lead && f.key == "reservoir")) {
@@ -466,4 +469,16 @@ pub fn region(app: &mut App, ui: &mut egui::Ui) {
             ui.label(RichText::new(t("how.demo", l)).color(theme::WATCH));
         }
     });
+}
+
+/// Figure tiles in rows of three equal columns.
+pub fn tile_rows(ui: &mut egui::Ui, tiles: &[(String, String, String, Option<Color32>)]) {
+    for row in tiles.chunks(3) {
+        ui.columns(3, |cols| {
+            for (c, (label, value, unit, color)) in cols.iter_mut().zip(row) {
+                crate::app::tile(c, label, value, unit, *color);
+            }
+        });
+        ui.add_space(4.0);
+    }
 }

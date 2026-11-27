@@ -38,7 +38,9 @@ For any UI or map change:
 3. **Read the PNGs** and check several zoom levels (`EARTHDANCE_SHOT_ZOOM`, e.g. -4, -2, 0, 1.5), both
    data sets, and both languages when text changed. Look for repetition, seams, rectangles, overlapping
    labels, unreadable text, legends that do not match what is shown.
-4. Only then commit, and say what you looked at.
+4. For anything that touches panels, layouts or text, run the tour (`EARTHDANCE_TOUR`, see AGENTS.md)
+   on both data sets: it must report `0 problem(s)`. Use the click script for menus and popups.
+5. Only then commit, and say what you looked at.
 
 To show the user the app: `setsid nohup target/release/earthdance --demo >/dev/null 2>&1 &`
 (stop an older instance first with `pkill -x earthdance`).

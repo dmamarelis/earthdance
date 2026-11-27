@@ -28,9 +28,9 @@ fn var(k: &str) -> Option<String> {
     std::env::var(k).ok().filter(|v| !v.is_empty())
 }
 
-/// A screenshot run (the app then leaves the saved preferences alone).
+/// A screenshot or scripted run (the app then leaves the saved preferences alone).
 pub fn active() -> bool {
-    var("EARTHDANCE_SHOT").is_some()
+    var("EARTHDANCE_SHOT").is_some() || var("EARTHDANCE_SCRIPT").is_some() || var("EARTHDANCE_TOUR").is_some()
 }
 
 impl App {

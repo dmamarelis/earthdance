@@ -186,6 +186,8 @@ pub struct App {
     pub places: crate::places::Places,
     pub basemaps: crate::basemap::Basemaps,
     pub clouds: crate::clouds::Clouds,
+    pub script: crate::script::Script,
+    pub tour: crate::tour::Tour,
 }
 
 impl App {
@@ -251,6 +253,8 @@ impl App {
             places: Default::default(),
             basemaps: crate::basemap::Basemaps::new(&cc.egui_ctx),
             clouds: Default::default(),
+            script: crate::script::Script::from_env(),
+            tour: crate::tour::Tour::from_env(),
         };
         app.load(source, &cc.egui_ctx);
         app
@@ -661,7 +665,6 @@ pub fn card<R>(ui: &mut egui::Ui, accent: Option<Color32>, add: impl FnOnce(&mut
 
 pub fn tile(ui: &mut egui::Ui, label: &str, value: &str, unit: &str, color: Option<Color32>) {
     egui::Frame::new().fill(theme::CARD).corner_radius(10).inner_margin(egui::Margin::symmetric(10, 8)).show(ui, |ui| {
-        ui.set_min_width(96.0);
         ui.vertical(|ui| {
             ui.label(RichText::new(label).small().color(theme::MUTED));
             ui.horizontal(|ui| {
@@ -674,12 +677,18 @@ pub fn tile(ui: &mut egui::Ui, label: &str, value: &str, unit: &str, color: Opti
 }
 
 impl eframe::App for App {
+    fn raw_input_hook(&mut self, _ctx: &egui::Context, raw: &mut egui::RawInput) {
+        self.script.inject(raw);
+    }
+
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let ctx = ui.ctx().clone();
         self.map_ctx = Some(ctx.clone());
         self.poll(&ctx);
         self.basemaps.begin_frame();
         self.shot(&ctx);
+        self.script_tick(&ctx);
+        self.tour_tick(&ctx);
         for i in self.sound.tick() {
             if let (Some(ds), Some(pid)) = (self.ds(), self.st.point.clone())
                 && let Some(p) = ds.point(&pid)
@@ -704,9 +713,12 @@ impl eframe::App for App {
         if self.st.mode != Mode::Explore {
             let mut open = self.st.left_open;
             egui::Panel::left("left").resizable(false).exact_size(330.0).show_collapsible(ui, &mut open, |ui| {
-                egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| match self.st.mode {
-                    Mode::Story => crate::panels::story_left(self, ui),
-                    _ => crate::status_ui::brief(self, ui),
+                egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
+                    match self.st.mode {
+                        Mode::Story => crate::panels::story_left(self, ui),
+                        _ => crate::status_ui::brief(self, ui),
+                    }
+                    crate::tour::check("left", ui);
                 });
             });
             if open != self.st.left_open {
@@ -714,18 +726,19 @@ impl eframe::App for App {
                 self.save_prefs();
             }
         }
-        let mut right = self.st.point.is_some() || self.st.region.is_some();
-        egui::Panel::right("right").resizable(false).exact_size(380.0).show_collapsible(ui, &mut right, |ui| {
-            egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
-                if self.st.region.is_some() {
-                    crate::status_ui::region(self, ui);
-                } else {
-                    crate::panels::inspector(self, ui);
-                }
+        // the selection drawer on the right: shown plainly when something is selected (egui's slide-in
+        // animation stalled a few pixels open in Status and left the drawer off-screen)
+        if self.st.point.is_some() || self.st.region.is_some() {
+            egui::Panel::right("right").resizable(false).exact_size(380.0).show(ui, |ui| {
+                egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
+                    if self.st.region.is_some() {
+                        crate::status_ui::region(self, ui);
+                    } else {
+                        crate::panels::inspector(self, ui);
+                    }
+                    crate::tour::check("right", ui);
+                });
             });
-        });
-        if !right && (self.st.point.is_some() || self.st.region.is_some()) {
-            self.close_right();
         }
         egui::CentralPanel::no_frame().show(ui, |ui| crate::panels::map_view(self, ui));
         crate::sheets::show(self, &ctx);

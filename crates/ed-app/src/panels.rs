@@ -7,7 +7,7 @@ use ed_core::stats::{max, min, slope_per_year};
 use ed_core::text::{fill, fmt_date, fmt_num, t, tf, to_fixed, DateStyle};
 use ed_core::Level;
 
-use crate::app::{card, chip, nearest, short, tile, App, Mode, PointTab, Sensor, Source};
+use crate::app::{card, chip, nearest, short, App, Mode, PointTab, Sensor, Source};
 use crate::map::{dashed, ring, star_fill};
 use crate::theme;
 
@@ -400,11 +400,14 @@ pub fn inspector(app: &mut App, ui: &mut egui::Ui) {
     let total = s.disp_mm[s.disp_mm.len() - 1] - s.disp_mm[0];
     let rate = slope_per_year(&s.dates, &s.disp_mm);
     let hv_range = max(&s.hv_db) - min(&s.hv_db);
-    ui.horizontal_wrapped(|ui| {
-        tile(ui, t("tile.total", l), &fmt_num(total, 0), "mm", (total < -10.0).then_some(theme::ALERT));
-        tile(ui, t("tile.rate", l), &fmt_num(rate, 0), t("unit.mmyr", l), (rate < -10.0).then_some(theme::ALERT));
-        tile(ui, t("tile.hv", l), &to_fixed(hv_range, 1), "dB", None);
-    });
+    crate::status_ui::tile_rows(
+        ui,
+        &[
+            (t("tile.total", l).into(), fmt_num(total, 0), "mm".into(), (total < -10.0).then_some(theme::ALERT)),
+            (t("tile.rate", l).into(), fmt_num(rate, 0), t("unit.mmyr", l).into(), (rate < -10.0).then_some(theme::ALERT)),
+            (t("tile.hv", l).into(), to_fixed(hv_range, 1), "dB".into(), None),
+        ],
+    );
     // does the independent reference tell the same story here?
     if let Some(r) = &s.ref_mm {
         let diff = rate - slope_per_year(&s.dates, r);
@@ -662,7 +665,8 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         if let Some(ly) = layer {
             let tag = |x: f32, s: String, a: Align2| {
                 let g = painter.layout_no_wrap(s, FontId::proportional(12.0), theme::TEXT);
-                let r = a.anchor_size(Pos2::new(x, rect.top() + 60.0), g.size() + Vec2::new(14.0, 6.0));
+                // below the sensor switch and its note
+                let r = a.anchor_size(Pos2::new(x, rect.top() + 84.0), g.size() + Vec2::new(14.0, 6.0));
                 painter.rect_filled(r, 8, Color32::from_rgba_unmultiplied(13, 18, 27, 220));
                 painter.galley(r.center() - g.size() / 2.0, g, theme::TEXT);
             };
@@ -719,7 +723,8 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
     ui.scope_builder(UiBuilder::new().max_rect(bar), |ui| {
         ui.vertical_centered(|ui| {
             egui::Frame::new().fill(Color32::from_rgba_unmultiplied(13, 18, 27, 235)).corner_radius(18).inner_margin(egui::Margin::symmetric(6, 4)).show(ui, |ui| {
-                ui.horizontal(|ui| {
+                // sized to its two buttons (`horizontal` takes the full width and left the pill half empty)
+                ui.allocate_ui_with_layout(Vec2::ZERO, egui::Layout::left_to_right(egui::Align::Center), |ui| {
                     // the second switch is the radar on NISAR data, the water index on optical-only (live) data
                     let radar = ds.layers.get(app.st.layer).is_none_or(|ly| ly.info.band == "L" || ly.info.band == "C");
                     let second = if radar { t("sensor.radar", l).to_string() } else { ds.layers.get(app.st.layer).map_or(String::new(), |ly| ly.info.name.get(l).to_string()) };
@@ -817,7 +822,8 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
     }
     if !app.st.timeline_open && app.st.mode != Mode::Status {
         let pill = Rect::from_center_size(Pos2::new(rect.center().x, rect.bottom() - 24.0), Vec2::new(140.0, 28.0));
-        if ui.put(pill, egui::Button::new(format!("▴ {}", app.frame_date().map_or(String::new(), |d| short(d, l))))).clicked() {
+        let button = egui::Button::new(RichText::new(format!("▴ {}", app.frame_date().map_or(String::new(), |d| short(d, l)))).color(theme::TEXT)).fill(theme::PANEL).stroke(Stroke::new(1.0, Color32::from_white_alpha(28))).corner_radius(14);
+        if ui.put(pill, button).clicked() {
             app.toggle_timeline();
         }
     } else if app.st.mode == Mode::Explore && app.st.show.points && !ds.points.is_empty() && app.st.point.is_none() && !app.st.show.legend {

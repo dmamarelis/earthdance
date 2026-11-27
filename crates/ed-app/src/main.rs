@@ -11,11 +11,13 @@ mod map;
 mod panels;
 mod places;
 mod report;
+mod script;
 mod sheets;
 mod shot;
 mod sound;
 mod status_ui;
 mod theme;
+mod tour;
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {

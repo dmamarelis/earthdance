@@ -61,6 +61,16 @@ The app can render itself to a PNG without user input: set `EARTHDANCE_SHOT=out.
 language, zoom, …). Use it to look at visual changes before committing them. Screenshot runs start from the
 default settings and never read or write the user's saved preferences.
 
+Two more tools for checking the whole UI:
+
+* `EARTHDANCE_TOUR=dir target/release/earthdance --demo` (or `--real`) walks the app through every view
+  (modes, layers, points, areas, tabs, story chapters, sheets, closed panels, both languages), saves a
+  screenshot of each, and prints `OVERFLOW <state> <panel> +N px` for any panel whose contents are wider
+  than the panel. It must end with `0 problem(s)` (`crates/ed-app/src/tour.rs`).
+* `EARTHDANCE_SCRIPT=steps.txt EARTHDANCE_SCRIPT_OUT=dir` drives the app with real clicks, keys, drags
+  and scrolls and takes screenshots, for menus and popups (`crates/ed-app/src/script.rs` lists the
+  steps; negative coordinates count from the right/bottom edge, since the window manager picks the size).
+
 ## Conventions
 
 * Work on the `rust-rewrite` branch and push often. Never commit `target/`.

@@ -59,7 +59,6 @@ fn base(id: &str, l: Lang, height: f32, with_year: bool) -> Plot<'static> {
         .height(height)
         .x_grid_spacer(month_marks)
         .x_axis_formatter(date_axis(l, with_year))
-        .legend(Legend::default().position(egui_plot::Corner::LeftTop).background_alpha(0.6))
         .allow_scroll(false)
         .allow_zoom(false)
         .allow_drag(false)
@@ -109,6 +108,23 @@ fn estimated(dates: &[Date], v: &[f64]) -> PlotPoints<'static> {
 #[allow(clippy::too_many_arguments)]
 pub fn point_chart(ui: &mut egui::Ui, p: &Point, tab: PointTab, cursor: Option<Date>, ref_name: &str, show_estimates: bool, l: Lang) -> Option<Date> {
     let s = &p.series;
+    let ref_label = format!("{ref_name} (mm)");
+    match tab {
+        PointTab::Ground => {
+            let mut items = vec![(t("chart.disp", l), theme::ALERT)];
+            if s.ref_mm.is_some() {
+                items.push((ref_label.as_str(), theme::GREY));
+            }
+            legend_row(ui, &items);
+        }
+        PointTab::Radar => {
+            let mut items = vec![("HH · L (dB)", theme::TEXT), ("HV · L (dB)", theme::OK)];
+            if s.vv_db.is_some() {
+                items.push(("VV · C (dB)", theme::VIOLET));
+            }
+            legend_row(ui, &items);
+        }
+    }
     let resp = base(&format!("pt-{}", p.id), l, 220.0, false).show(ui, |pu| {
         match tab {
             PointTab::Ground => {
@@ -163,6 +179,7 @@ pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&We
                 bars.push(Bar::new(x(w.time[i]) + 3.5, rain).width(5.5).fill(if future { theme::WATER.gamma_multiply(0.3) } else { theme::WATER.gamma_multiply(0.85) }));
                 bal.push([x(w.time[i]) + 3.5, acc]);
             }
+            legend_row(ui, &[(t("rc.rainWeek", l), theme::WATER), (t("rc.balance", l), theme::WATCH), (t("rc.today", l), Color32::from_white_alpha(170))]);
             base(&id, l, 220.0, false).show(ui, |pu| {
                 pu.bar_chart(BarChart::new(t("rc.rainWeek", l), bars).color(theme::WATER));
                 pu.line(Line::new(t("rc.balance", l), PlotPoints::from(bal)).color(theme::WATCH).width(2.0));
@@ -172,6 +189,11 @@ pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&We
         }
         RegionTab::Fx => {
             let hh = s.hh_db.clone().unwrap_or_default();
+            let mut items = vec![("HH · NISAR (dB)", theme::TEXT)];
+            if s.vv_db.is_some() {
+                items.push(("VV · Sentinel-1 (dB)", theme::VIOLET));
+            }
+            legend_row(ui, &items);
             base(&id, l, 180.0, false).show(ui, |pu| {
                 for piece in pieces(&s.dates, &hh) {
                     pu.line(Line::new("HH · NISAR (dB)", PlotPoints::from(piece.clone())).color(theme::TEXT).width(2.0));
@@ -183,6 +205,7 @@ pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&We
             });
             if let Some(e) = &a.effects {
                 let bars = e.passes.iter().map(|p| Bar::new(x(p.date), p.rain).width(4.0)).collect();
+                legend_row(ui, &[(t("rc.rainPass", l), theme::WATER.gamma_multiply(0.7))]);
                 base(&format!("{id}-rain"), l, 90.0, false).show(ui, |pu| {
                     pu.bar_chart(BarChart::new(t("rc.rainPass", l), bars).color(theme::WATER.gamma_multiply(0.7)));
                 });
@@ -229,6 +252,14 @@ pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&We
             }
             (Some(res), None) => {
                 let proj = a.reservoir.as_ref().and_then(|x| x.cross_date);
+                let vol = format!("{} ({})", t("rc.volume", l), res.unit);
+                let lim = format!("{} ({})", t("rc.limit", l), res.unit);
+                let mut items = vec![(vol.as_str(), theme::WATER)];
+                if proj.is_some() {
+                    items.push((t("rc.projection", l), theme::WATER));
+                }
+                items.push((lim.as_str(), theme::ALERT));
+                legend_row(ui, &items);
                 base(&id, l, 220.0, false).include_y(0.0).show(ui, |pu| {
                     pu.line(Line::new(format!("{} ({})", t("rc.volume", l), res.unit), series(&res.dates, &res.volume)).color(theme::WATER).width(2.0).fill(0.0).fill_alpha(0.16));
                     if let (Some(p), Some(last), Some(v)) = (proj, res.dates.last(), res.volume.last()) {
@@ -239,6 +270,14 @@ pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&We
                 t("rnote.h2o.res", l).to_string()
             }
             (None, _) => {
+                let mut items = Vec::new();
+                if s.vol_loss_hm3.is_some() {
+                    items.push((t("rc.loss", l), theme::ALERT));
+                }
+                if s.water_km2.as_ref().is_some_and(|w| w.iter().any(|v| *v > 0.0)) {
+                    items.push((t("rc.water", l), theme::WATER.gamma_multiply(0.55)));
+                }
+                legend_row(ui, &items);
                 base(&id, l, 220.0, false).include_y(0.0).show(ui, |pu| {
                     if let Some(v) = &s.vol_loss_hm3 {
                         pu.line(Line::new(t("rc.loss", l), series(&s.dates, v)).color(theme::ALERT).width(2.0).fill(0.0).fill_alpha(0.16));
