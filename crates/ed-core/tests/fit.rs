@@ -14,7 +14,7 @@ fn refit_matches_python() {
     let regions: Regions = serde_json::from_str(&fs::read_to_string(format!("{root}data/real/regions.json")).unwrap()).unwrap();
     let lake = regions.regions.iter().find(|r| r.id == fc.region).unwrap();
     let wx = weather_from_climate(&fc.climate);
-    let cfg = FitConfig { climate_from: 2015, backtest_cutoff: Some(Date::ymd(2026, 8, 17)), refill_from: Some(Date::ymd(2025, 10, 1)) };
+    let cfg = FitConfig { climate_from: 2015, backtest_cutoff: Some(Date::ymd(2026, 8, 17)), refill_from: Some(Date::ymd(2025, 10, 1)), generator: false, generator_years: None };
     let t = std::time::Instant::now();
     let got = fit(&lake.id, lake.reservoir.as_ref().unwrap(), &wx, fc.climate.until, &cfg);
     println!("fit in {:?}", t.elapsed());

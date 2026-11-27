@@ -27,6 +27,9 @@ use crate::Date;
 
 pub const RAIN_FACTORS: [f64; 3] = [0.5, 1.0, 1.5];
 
+/// How many simulated years the weather generator supplies (× the 3 rain factors = members).
+pub const SYNTHETIC_YEARS: usize = 150;
+
 /// November to March: rain also runs off the catchment into the lake.
 pub fn is_wet(d: Date) -> bool {
     let m = d.month();
@@ -150,33 +153,71 @@ pub fn run(fc: &ForecastModel, res: &Reservoir, wx: Option<&Weather>, today: Dat
         }
     }
 
-    // a scenario year y gives Oct–Dec from y and Jan–Sep from y+1 (one hydrological year)
-    let years: Vec<i32> = fc.climate.years.iter().copied().filter(|&y| fc.climate.year(y + 1).is_some()).collect();
     let days: Vec<Date> = (start.days() + 1..=end.days()).map(Date::from_days).collect();
     let fr = 1.0 + opt.rain / 100.0;
     let fi = 1.0 + opt.irrigation / 100.0;
-    let empty = ClimateYear::default();
+    let real = |d: Date| last_known.filter(|&lk| d <= lk).and_then(|_| known.get(&d).copied());
 
-    // the weather each day, per scenario year (shared by the three rain factors)
-    let members: Vec<Vec<f64>> = years
+    // the futures: one weather sequence per scenario (real weather first, then the scenario's)
+    let scenarios: Vec<Vec<(f64, f64)>> = match &fc.generator {
+        Some(g) => {
+            // simulated years from the Markov-chain generator, from the day after the last real weather
+            let from = days.iter().position(|d| real(*d).is_none()).unwrap_or(days.len());
+            let wet = last_known.and_then(|d| known.get(&d)).is_some_and(|w| w.0 >= g.threshold);
+            // the regime the simulation starts from: the month under way, judged on its real rain so far
+            // (or the previous month when the simulation starts on the 1st)
+            let regime = days.get(from).map_or(1, |&d0| {
+                let probe = if d0.day() == 1 { d0.add_days(-1) } else { d0 };
+                let first = Date::ymd(probe.year(), probe.month(), 1);
+                let seen: Vec<f64> = (first.days()..d0.days()).filter_map(|n| known.get(&Date::from_days(n)).map(|w| w.0)).collect();
+                g.regime_of(probe.month(), seen.iter().sum(), seen.len() as u32, crate::date::days_in_month(probe.year(), probe.month()))
+            });
+            (0..SYNTHETIC_YEARS)
+                .map(|k| {
+                    let mut rng = crate::weathergen::Rng::new(0x5EED_0000 + k as u64);
+                    let sim = days.get(from).map_or_else(Vec::new, |&d0| g.simulate(d0, days.len() - from, wet, regime, &mut rng));
+                    days[..from].iter().map(|d| real(*d).unwrap_or((0.0, 0.0))).chain(sim).collect()
+                })
+                .collect()
+        }
+        None => {
+            // a scenario year y gives Oct–Dec from y and Jan–Sep from y+1 (one hydrological year)
+            let empty = ClimateYear::default();
+            fc.climate
+                .years
+                .iter()
+                .copied()
+                .filter(|&y| fc.climate.year(y + 1).is_some())
+                .map(|y| {
+                    days.iter()
+                        .map(|&d| {
+                            real(d).unwrap_or_else(|| {
+                                let yy = if d.month() >= 10 { y } else { y + 1 };
+                                let c = fc.climate.year(yy).or_else(|| fc.climate.year(y)).unwrap_or(&empty);
+                                let i = d.climate_slot();
+                                (c.rain.get(i).copied().flatten().unwrap_or(0.0), c.et0.get(i).copied().flatten().unwrap_or(0.0))
+                            })
+                        })
+                        .collect()
+                })
+                .collect()
+        }
+    };
+
+    let members: Vec<Vec<f64>> = scenarios
         .iter()
-        .flat_map(|&y| RAIN_FACTORS.iter().map(move |&af| (y, af)))
-        .map(|(y, af)| {
+        .flat_map(|w| RAIN_FACTORS.iter().map(move |&af| (w, af)))
+        .map(|(w, af)| {
             let mut s = level_of(area0, &p);
             days.iter()
-                .map(|&d| {
-                    let w = last_known.filter(|&lk| d <= lk).and_then(|_| known.get(&d).copied()).unwrap_or_else(|| {
-                        let yy = if d.month() >= 10 { y } else { y + 1 };
-                        let c = fc.climate.year(yy).or_else(|| fc.climate.year(y)).unwrap_or(&empty);
-                        let i = d.climate_slot();
-                        (c.rain.get(i).copied().flatten().unwrap_or(0.0), c.et0.get(i).copied().flatten().unwrap_or(0.0))
-                    });
+                .zip(w)
+                .map(|(&d, &(rain, et0))| {
                     let future = d >= today; // the what-if changes apply from today on
-                    let r = w.0 * if future { fr } else { 1.0 };
+                    let r = rain * if future { fr } else { 1.0 };
                     // the fitted loss k·ET0 is taken as 30 % evaporation + 70 % irrigation in the irrigation
                     // season; only the what-if uses that split (with no change the factor is 1)
                     let kf = if future && is_irrigation(d) { 0.3 + 0.7 * fi } else { 1.0 };
-                    s = step(s, &p, d, r, w.1, af, kf);
+                    s = step(s, &p, d, r, et0, af, kf);
                     area_of(s, &p)
                 })
                 .collect()
@@ -292,11 +333,23 @@ pub struct FitConfig {
     pub backtest_cutoff: Option<Date>,
     /// Day the winter refill assumption starts; `None` = 1 October before the first measurement.
     pub refill_from: Option<Date>,
+    /// Fit a Markov-chain weather generator and run the forecast on simulated years.
+    pub generator: bool,
+    /// Fit the generator to the last this-many years of `wx` only (the climate is shifting);
+    /// `None` = all of it.
+    pub generator_years: Option<i32>,
 }
+
+/// Window the generator is fitted on (years before the end), chosen by the held-out evaluation in
+/// `crates/ed-sources/examples/weathergen_eval.rs`.
+pub const GENERATOR_YEARS: Option<i32> = Some(30);
+
+/// Wet-day threshold for the generator (mm): reanalysis drizzle below this is not a rain day.
+pub const WET_DAY_MM: f64 = 1.0;
 
 impl Default for FitConfig {
     fn default() -> Self {
-        Self { climate_from: 2015, backtest_cutoff: None, refill_from: None }
+        Self { climate_from: 2015, backtest_cutoff: None, refill_from: None, generator: true, generator_years: GENERATOR_YEARS }
     }
 }
 
@@ -430,7 +483,15 @@ pub fn fit(region_id: &str, res: &Reservoir, wx: &DailyWeather, end: Date, cfg: 
         fit: FitSeries { dates: dates.clone(), measured: area.iter().map(|&v| round_to(v, 2)).collect(), model: full.fitted.iter().map(|&v| round_to(v, 2)).collect() },
         backtest,
         climate: Climate { years, until: end, days },
+        generator: cfg.generator.then(|| fit_generator(wx, end, cfg.generator_years)).flatten(),
     }
+}
+
+/// The weather generator for the lake: monthly regimes on, fitted to the last `years` years up to `end`.
+pub fn fit_generator(wx: &DailyWeather, end: Date, years: Option<i32>) -> Option<crate::weathergen::WeatherGen> {
+    let from = years.map(|y| Date::ymd(end.year() - y, end.month(), 1));
+    let window: DailyWeather = wx.iter().filter(|(d, _)| from.is_none_or(|f| **d >= f) && **d <= end).map(|(d, v)| (*d, *v)).collect();
+    crate::weathergen::WeatherGen::fit(&window, WET_DAY_MM, true)
 }
 
 /// The daily weather a fitted model's climate block holds (rounded to 0.1 mm / 0.01 mm): enough to refit

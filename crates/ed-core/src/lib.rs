@@ -10,6 +10,7 @@ pub mod model;
 pub mod stats;
 pub mod status;
 pub mod text;
+pub mod weathergen;
 
 pub use date::Date;
 pub use grid::{Bounds, Grid, Rgba};

@@ -394,6 +394,9 @@ pub struct ForecastModel {
     pub fit: FitSeries,
     pub backtest: Option<Backtest>,
     pub climate: Climate,
+    /// The fitted weather generator; without it the forecast replays the climate years.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub generator: Option<crate::weathergen::WeatherGen>,
 }
 
 // ───────────────────────────────────────────────────────── validation + content

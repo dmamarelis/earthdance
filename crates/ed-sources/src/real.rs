@@ -76,8 +76,9 @@ pub fn load(root: &Path, progress: &dyn Fn(&str)) -> Result<(Dataset, Option<Wea
             .map_or(FitWeather::Given(DailyWeather::new()), |f| FitWeather::Given(forecast::weather_from_climate(&f.climate)))
     };
     let today = crate::today_local();
-    let ds = build(&LocalDirs::in_repo(root), FitWeather::OpenMeteo, today, progress).or_else(|e| match e {
-        Error::Http(_) => build(&LocalDirs::in_repo(root), fallback(), today, progress),
+    let cfg = FitConfig::default();
+    let ds = build(&LocalDirs::in_repo(root), FitWeather::OpenMeteo, &cfg, today, progress).or_else(|e| match e {
+        Error::Http(_) => build(&LocalDirs::in_repo(root), fallback(), &cfg, today, progress),
         e => Err(e),
     })?;
     let snapshot: Option<WeatherSet> = std::fs::read_to_string(root.join("data/real/weather.json")).ok().and_then(|s| serde_json::from_str(&s).ok());
@@ -85,7 +86,7 @@ pub fn load(root: &Path, progress: &dyn Fn(&str)) -> Result<(Dataset, Option<Wea
 }
 
 /// The whole real data set from any acquisition source.
-pub fn build(src: &dyn AcquisitionSource, fit_weather: FitWeather, today: Date, progress: &dyn Fn(&str)) -> Result<Dataset> {
+pub fn build(src: &dyn AcquisitionSource, fit_weather: FitWeather, fit_cfg: &FitConfig, today: Date, progress: &dyn Fn(&str)) -> Result<Dataset> {
     let cfg = SiteConfig::koronia();
     let catalog = bundled_catalog();
     let info = |id: &str| catalog.layers.iter().find(|l| l.id == id).cloned().ok_or_else(|| Error::Data(format!("layer {id} missing from the catalogue")));
@@ -172,14 +173,17 @@ pub fn build(src: &dyn AcquisitionSource, fit_weather: FitWeather, today: Date, 
         Some(lake) => {
             progress("ERA5 → lake model fit …");
             let end = today.add_days(-2);
-            let fit_cfg = FitConfig::default();
             let wx = match fit_weather {
                 FitWeather::Given(w) => w,
-                FitWeather::OpenMeteo => crate::weather::daily_rain_et0(lake.center[0], lake.center[1], Date::ymd(fit_cfg.climate_from, 1, 1), end)?,
+                FitWeather::OpenMeteo => {
+                    // the climate scenarios start in climate_from; the weather generator needs its window too
+                    let from = fit_cfg.generator_years.map_or(fit_cfg.climate_from, |y| (end.year() - y - 1).min(fit_cfg.climate_from));
+                    crate::weather::daily_rain_et0(lake.center[0], lake.center[1], Date::ymd(from, 1, 1), end)?
+                }
             };
             (!wx.is_empty()).then(|| {
                 let end = wx.keys().max().copied().unwrap_or(end).min(end);
-                forecast::fit(&lake.id, lake.reservoir.as_ref().expect("lake"), &wx, end, &fit_cfg)
+                forecast::fit(&lake.id, lake.reservoir.as_ref().expect("lake"), &wx, end, fit_cfg)
             })
         }
         None => None,

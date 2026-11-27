@@ -3,7 +3,7 @@
 
 use std::fs;
 
-use ed_core::forecast::weather_from_climate;
+use ed_core::forecast::{weather_from_climate, FitConfig};
 use ed_core::model::{ForecastModel, Regions, WeatherSet};
 use ed_core::status::compute;
 use ed_core::Date;
@@ -22,7 +22,9 @@ fn real_set_reproduces_the_legacy_pipeline() {
     // the legacy fit ran with end = its run day − 2 = climate.until
     let today = legacy_fc.climate.until.add_days(2);
     let t = std::time::Instant::now();
-    let ds = build(&LocalDirs::in_repo(&root), FitWeather::Given(weather_from_climate(&legacy_fc.climate)), today, &|s| println!("{s}")).unwrap();
+    // legacy parity: replayed climate years, as the Python + JS did
+    let legacy_cfg = FitConfig { generator: false, ..FitConfig::default() };
+    let ds = build(&LocalDirs::in_repo(&root), FitWeather::Given(weather_from_climate(&legacy_fc.climate)), &legacy_cfg, today, &|s| println!("{s}")).unwrap();
     println!("built in {:?}", t.elapsed());
 
     assert_eq!(ds.layers.len(), 2);
@@ -49,6 +51,17 @@ fn real_set_reproduces_the_legacy_pipeline() {
         let got = serde_json::to_value(&st.get(id).findings).unwrap();
         assert_eq!(got, drop_nulls(a["findings"].clone()), "findings of {id}");
     }
+
+    // the same data with the Markov-chain weather generator: a sane, wider forecast
+    let ds = build(&LocalDirs::in_repo(&root), FitWeather::Given(weather_from_climate(&legacy_fc.climate)), &FitConfig::default(), today, &|_| {}).unwrap();
+    let fc = ds.forecast.as_ref().unwrap();
+    assert!(fc.generator.is_some());
+    let lake = ds.region(&fc.region).unwrap();
+    let run = ed_core::forecast::run(fc, lake.reservoir.as_ref().unwrap(), Some(&wx.by_region[&lake.id]), Date::ymd(2026, 11, 14), ed_core::forecast::Options::what_if(0.0, 0.0));
+    assert_eq!(run.members, ed_core::forecast::SYNTHETIC_YEARS * 3);
+    let next = run.next.expect("a next fall below the limit");
+    println!("generator: next fall {} ({} – {}), {} days below", next.mid, next.early, next.late, run.days_below_next);
+    assert!(next.mid > Date::ymd(2027, 3, 1) && next.mid < Date::ymd(2027, 10, 1));
 }
 
 fn drop_nulls(v: serde_json::Value) -> serde_json::Value {

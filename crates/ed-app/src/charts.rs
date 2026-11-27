@@ -190,7 +190,17 @@ pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&We
                     pu.vline(VLine::new("", x(today)).color(Color32::from_white_alpha(180)).style(LineStyle::Dotted { spacing: 4.0 }));
                 });
                 legend_row(ui, &[(t("rc.measured", l), Color32::WHITE), (t("rc.forecast", l), theme::WATER), (t("rc.band", l), theme::WATER.gamma_multiply(0.5)), (t("rc.limit", l), theme::ALERT), (t("rc.today", l), Color32::from_white_alpha(180))]);
-                t("rnote.h2o.fc", l).to_string()
+                match b.generator {
+                    Some((g0, g1)) => {
+                        let (n, m) = (ed_core::forecast::SYNTHETIC_YEARS, f.members);
+                        if l == Lang::El {
+                            format!("Τελείες: μετρημένη έκταση. Διακεκομμένη: η πρόβλεψη του μοντέλου ισοζυγίου νερού. Σκίαση: εύρος 10–90 % από {m} σενάρια ({n} προσομοιωμένες χρονιές καιρού από αλυσίδες Markov, ERA5 {g0}–{g1}, × 3 τιμές του συντελεστή βροχής) και το σφάλμα του μοντέλου.")
+                        } else {
+                            format!("Dots: measured water extent. Dashed: the water-balance model forecast. Shading: 10–90 % range of {m} runs ({n} simulated years of weather from Markov chains fitted to ERA5 {g0}–{g1}, × 3 rain coefficients) plus the model error.")
+                        }
+                    }
+                    None => t("rnote.h2o.fc", l).to_string(),
+                }
             }
             (Some(res), None) => {
                 let proj = a.reservoir.as_ref().and_then(|x| x.cross_date);

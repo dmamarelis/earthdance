@@ -101,8 +101,10 @@ pub struct Brief {
     pub passes: usize,
     pub rmse: f64,
     pub bt: Option<Backtest>,
-    /// First and last complete scenario year.
+    /// First and last complete scenario year (replayed years).
     pub years: (i32, i32),
+    /// With a weather generator: the ERA5 years it was fitted to.
+    pub generator: Option<(i32, i32)>,
 }
 
 pub fn brief(fc: &ForecastModel, res: &Reservoir, wx: Option<&Weather>, today: Date, lake_name: &Text) -> Brief {
@@ -125,6 +127,7 @@ pub fn brief(fc: &ForecastModel, res: &Reservoir, wx: Option<&Weather>, today: D
         rmse: fc.rmse,
         bt: fc.backtest.clone(),
         years: (ys[0], ys[ys.len().saturating_sub(2)]),
+        generator: fc.generator.as_ref().map(|g| g.years),
     }
 }
 
@@ -213,7 +216,14 @@ pub fn lines(b: &Brief, l: Lang) -> [String; 3] {
         let (y0, y1) = b.years;
         let (mid, early, late) = (fd(Some(n.mid), l), fd(Some(n.early), l), fd(Some(n.late), l));
         let d = f.days_below_next;
-        coming += &if el {
+        coming += &if let Some((g0, g1)) = b.generator {
+            let ny = crate::forecast::SYNTHETIC_YEARS;
+            if el {
+                format!("Σε {ny} προσομοιωμένες χρονιές καιρού (αλυσίδα Markov από το ERA5 {g0}–{g1}), ξαναπέφτει κάτω από το όριο γύρω στις {mid} (πιθανότερα {early} – {late}) και μένει από κάτω ~{d} ημέρες.")
+            } else {
+                format!("Over {ny} simulated years of weather (a Markov chain fitted to ERA5 {g0}–{g1}), it falls below the limit again around {mid} (most likely {early} – {late}) and stays below for ~{d} days.")
+            }
+        } else if el {
             format!("Με καιρό σαν των ετών {y0}–{y1}, ξαναπέφτει κάτω από το όριο γύρω στις {mid} (πιθανότερα {early} – {late}) και μένει από κάτω ~{d} ημέρες.")
         } else {
             format!("With weather like {y0}–{y1}, it falls below the limit again around {mid} (most likely {early} – {late}) and stays below for ~{d} days.")
@@ -279,10 +289,11 @@ pub fn answer(q: Question, b: &Brief, l: Lang) -> Answer {
     let src = if el { "Πηγές" } else { "Sources" };
     let (y0, y1) = b.years;
     let s_nisar = format!("NISAR L2 GCOV · {} {}", b.passes, if el { "μετρήσεις" } else { "measurements" });
-    let s_wx = if el {
-        format!("Open-Meteo: καιρός ως {} και {y0}–{y1}", fd(f.weather_until, l))
-    } else {
-        format!("Open-Meteo: weather up to {} and {y0}–{y1}", fd(f.weather_until, l))
+    let s_wx = match (b.generator, el) {
+        (Some((g0, g1)), true) => format!("Open-Meteo: καιρός ως {} · ERA5 {g0}–{g1} για τη γεννήτρια καιρού", fd(f.weather_until, l)),
+        (Some((g0, g1)), false) => format!("Open-Meteo: weather up to {} · ERA5 {g0}–{g1} for the weather generator", fd(f.weather_until, l)),
+        (None, true) => format!("Open-Meteo: καιρός ως {} και {y0}–{y1}", fd(f.weather_until, l)),
+        (None, false) => format!("Open-Meteo: weather up to {} and {y0}–{y1}", fd(f.weather_until, l)),
     };
     let s_model = if el { "μοντέλο ισοζυγίου νερού (tools/fit_forecast.py)" } else { "water-balance model (tools/fit_forecast.py)" }.to_string();
     let out = |text: Vec<String>, sources: &[&String]| Answer {
@@ -319,10 +330,17 @@ pub fn answer(q: Question, b: &Brief, l: Lang) -> Answer {
             let (mid, early, late, lim) = (fd(Some(n.mid), l), fd(Some(n.early), l), fd(Some(n.late), l), n1(Some(b.limit), l));
             let (members, d, yr) = (f.members, f.days_below_next, n.mid.year());
             let mut text = vec![
-                if el {
-                    format!("Έτρεξα το μοντέλο με τον καιρό καθενός από τα έτη {y0}–{y1}, τρεις φορές το καθένα ({members} σενάρια).")
-                } else {
-                    format!("I ran the model with the weather of each year {y0}–{y1}, three times each ({members} scenarios).")
+                match (b.generator, el) {
+                    (Some((g0, g1)), true) => format!(
+                        "Έτρεξα το μοντέλο σε {} προσομοιωμένες χρονιές καιρού, τρεις φορές την καθεμία ({members} σενάρια). Τον καιρό τον παράγει μια αλυσίδα Markov: μία για το αν κάθε μέρα βρέχει, και μία πιο αργή για το αν ο μήνας είναι ξερός, κανονικός ή βροχερός, προσαρμοσμένες στο ERA5 {g0}–{g1}.",
+                        crate::forecast::SYNTHETIC_YEARS
+                    ),
+                    (Some((g0, g1)), false) => format!(
+                        "I ran the model on {} simulated years of weather, three times each ({members} scenarios). The weather comes from Markov chains: one for whether each day is wet, and a slower one for whether a month is dry, normal or wet, fitted to ERA5 {g0}–{g1}.",
+                        crate::forecast::SYNTHETIC_YEARS
+                    ),
+                    (None, true) => format!("Έτρεξα το μοντέλο με τον καιρό καθενός από τα έτη {y0}–{y1}, τρεις φορές το καθένα ({members} σενάρια)."),
+                    (None, false) => format!("I ran the model with the weather of each year {y0}–{y1}, three times each ({members} scenarios)."),
                 },
                 if el {
                     format!("Μεσαίο σενάριο: η λίμνη πέφτει κάτω από το όριο ({lim} km²) γύρω στις {mid}. Στα μισά σενάρια αυτό γίνεται από {early} έως {late}.")

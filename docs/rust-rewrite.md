@@ -48,6 +48,42 @@ Open-Meteo daily ──► WeatherSet ──► ed-core::status::compute ──�
 `EARTHDANCE_SHOT=out.png` makes the app open a view (see `crates/ed-app/src/shot.rs`), screenshot it and
 quit, which is how the UI was checked.
 
+## The weather behind the lake forecast
+
+Beyond the 7-day forecast (Open-Meteo), the lake model needs plausible future weather. The legacy app
+replayed 2015–2025. Now a **stochastic weather generator built from two Markov chains** supplies 150
+simulated years (× 3 rain coefficients = 450 runs) (`crates/ed-core/src/weathergen.rs`):
+
+* a **monthly regime chain**: each month is dry / normal / wet (terciles of its rain total), with
+  month-to-month transition probabilities, so dry months can follow dry months (a dry winter);
+* a **daily occurrence chain** per (month, regime): `P(wet | dry yesterday)`, `P(wet | wet yesterday)`;
+* rain amounts from a **gamma** distribution (maximum likelihood, Thom), ET0 normal per wet/dry state with
+  an AR(1) memory;
+* fitted to the **last 30 years of ERA5** at the lake (the climate is drifting: since 2015 July is drier and
+  ET0 higher than in 1950–2014).
+
+It was chosen on held-out data, not on looks
+(`cargo run --release -p ed-sources --example weathergen_eval`). For each hydrological year 2005–2026,
+each method is fitted only on what came before and forecasts winter rain (the refill) and the
+April–September water deficit (the drain):
+
+| method | CRPS winter | CRPS deficit | in 10–90 % band, winter | deficit |
+|---|---|---|---|---|
+| replay of the last 11 years (legacy) | 50.2 | 58.6 | 73 % | 55 % |
+| daily chain, all years | 48.8 | 59.1 | 64 % | 64 % |
+| daily + regime chains, all years | 48.1 | 57.0 | 95 % | 86 % |
+| daily chain, last 30 years | 49.9 | 55.4 | 55 % | 64 % |
+| **daily + regime chains, last 30 years** | 48.9 | **54.4** | 91 % | **82 %** |
+
+A daily chain alone is no better than replay: it underestimates year-to-year variance (simulated
+winter-rain s.d. 67 mm vs 81 mm observed), so its bands are too narrow. The regime chain fixes that and
+slightly overshoots (99 mm), which makes the winter band conservative. The chosen variant forecasts the
+summer deficit 7 % better than replay and is well calibrated for it (82 % for an ideal 80 %). With 22
+held-out years, read these as modest, consistent gains rather than a large improvement.
+
+What the generator does not fix: the lake model's winter refill rate is still unidentified (no winter
+radar pass yet). Lake areas from the Sentinel-2 archive back to 2017 would constrain it; that needs D1.
+
 ## Still open
 
 | | Decision | Now |

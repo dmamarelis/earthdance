@@ -21,7 +21,7 @@ const ARCHIVE: &str = "https://archive-api.open-meteo.com/v1/archive";
 const FORECAST: &str = "https://api.open-meteo.com/v1/forecast";
 
 fn agent() -> ureq::Agent {
-    ureq::Agent::config_builder().timeout_global(Some(Duration::from_secs(30))).user_agent("earthdance/0.1").build().into()
+    ureq::Agent::config_builder().timeout_global(Some(Duration::from_secs(120))).user_agent("earthdance/0.1").build().into()
 }
 
 #[derive(Deserialize)]
@@ -136,6 +136,55 @@ fn load_live(regions: &[Region], start: Date, today: Date) -> Result<BTreeMap<St
     Ok(regions.iter().enumerate().map(|(i, r)| (r.id.clone(), merge(&[&fc[i], &hist[i]]))).collect())
 }
 
+/// The archive in decade-long requests (long ones time out). Finished decades are cached on their own, so
+/// a rate limit (HTTP 429) part-way loses nothing; 429s are retried with a growing pause.
+fn fetch_chunked(lon: f64, lat: f64, from: Date, to: Date) -> Result<Vec<Place>> {
+    let mut out = Vec::new();
+    let mut a = from;
+    while a <= to {
+        let b = Date::ymd(a.year() + 9, 12, 31).min(to);
+        let key = format!("era5chunk-{lat:.3}-{lon:.3}-{a}-{b}");
+        let rows: Vec<(Date, f64, f64)> = match cache::get(&key) {
+            Some(r) => r,
+            None => {
+                let q = [("start_date", a.iso()), ("end_date", b.iso())];
+                let mut tries = 0;
+                let part = loop {
+                    match call(ARCHIVE, &[[lon, lat]], &q) {
+                        Ok(p) => break p,
+                        Err(Error::Http(e)) if tries < 5 => {
+                            tries += 1;
+                            let wait = if e.contains("429") { 20 * tries } else { 3 };
+                            eprintln!("Open-Meteo: {e}; retrying in {wait} s");
+                            std::thread::sleep(Duration::from_secs(wait));
+                        }
+                        Err(e) => return Err(e),
+                    }
+                };
+                let w = merge(&part.iter().collect::<Vec<_>>());
+                let rows: Vec<(Date, f64, f64)> = w.time.iter().enumerate().filter_map(|(i, d)| Some((*d, w.rain[i]?, w.et0[i]?))).collect();
+                // a decade that is over never changes: cache it
+                if b < to {
+                    cache::put(&key, &rows);
+                }
+                rows
+            }
+        };
+        out.push(Place {
+            daily: Some(Daily {
+                time: rows.iter().map(|r| r.0).collect(),
+                precipitation_sum: rows.iter().map(|r| Some(r.1)).collect(),
+                et0_fao_evapotranspiration: rows.iter().map(|r| Some(r.2)).collect(),
+                temperature_2m_max: Vec::new(),
+                temperature_2m_min: Vec::new(),
+                wind_speed_10m_max: Vec::new(),
+            }),
+        });
+        a = b.add_days(1);
+    }
+    Ok(out)
+}
+
 /// Daily rain + ET0 at one place over `[from, to]` (reanalysis), for fitting the lake model.
 /// Cached per (place, to); offline the newest cached copy is used.
 pub fn daily_rain_et0(lon: f64, lat: f64, from: Date, to: Date) -> Result<DailyWeather> {
@@ -143,7 +192,7 @@ pub fn daily_rain_et0(lon: f64, lat: f64, from: Date, to: Date) -> Result<DailyW
     let key = format!("{prefix}-{to}");
     let rows: Vec<(Date, f64, f64)> = match cache::get(&key) {
         Some(r) => r,
-        None => match call(ARCHIVE, &[[lon, lat]], &[("start_date", from.iso()), ("end_date", to.iso())]) {
+        None => match fetch_chunked(lon, lat, from, to) {
             Ok(places) => {
                 let w = merge(&places.iter().collect::<Vec<_>>());
                 let rows: Vec<(Date, f64, f64)> =
