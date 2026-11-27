@@ -214,7 +214,24 @@ fn assemble(place: &Place, grid: &SiteGrid, a: &SiteAnalysis, model: Option<ed_c
             Frame { date: s.date, empty: false, source: s.source.clone(), url: String::new(), values: Some(Arc::new(vals)), image: Some(Arc::new(image)) }
         })
         .collect();
-    let optical = a.scenes.iter().map(|s| OpticalFrame { date: s.date, cover: Some(((1.0 - s.clear) * 100.0).round()), source: s.source.clone(), image: Arc::new(s.image.clone()) }).collect();
+    // the dated picture only around the lake (~1.5 km), fading softly into the basemap
+    let soft = {
+        let px_km = grid.px_km2().sqrt();
+        let wide = ed_raster::filters::dilate_cross(&a.zone, ((1.5 / px_km).round() as usize).clamp(2, 200));
+        let sigma = (0.5 / px_km).clamp(1.0, 40.0);
+        ed_raster::filters::gaussian(&wide.map(|v| if *v { 1.0 } else { 0.0 }), sigma)
+    };
+    let optical = a
+        .scenes
+        .iter()
+        .map(|s| {
+            let mut img = s.image.clone();
+            for (px, f) in img.px.iter_mut().zip(&soft.data) {
+                px[3] = (f64::from(px[3]) * f.clamp(0.0, 1.0)) as u8;
+            }
+            OpticalFrame { date: s.date, cover: Some(((1.0 - s.clear) * 100.0).round()), source: s.source.clone(), image: Arc::new(img) }
+        })
+        .collect();
     let used: Vec<&ed_raster::site::SceneResult> = a.scenes.iter().filter(|s| s.water_km2.is_some()).collect();
     let dates: Vec<Date> = used.iter().map(|s| s.date).collect();
     let area: Vec<f64> = used.iter().map(|s| (s.water_km2.unwrap_or(0.0) * 100.0).round() / 100.0).collect();

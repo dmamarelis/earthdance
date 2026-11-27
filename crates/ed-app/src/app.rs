@@ -74,7 +74,11 @@ impl WxState {
 
 /// What is drawn on the map (the "Show" menu).
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(default)]
 pub struct ShowOpts {
+    /// 0 = Esri World Imagery, 1 = Sentinel-2 cloudless (EOX), 2 = none.
+    pub basemap: u8,
+    pub labels: bool,
     pub areas: bool,
     pub area_labels: bool,
     pub points: bool,
@@ -87,7 +91,7 @@ pub struct ShowOpts {
 
 impl Default for ShowOpts {
     fn default() -> Self {
-        Self { areas: false, area_labels: true, points: true, point_labels: false, shoreline: true, legend: true, grid: true, estimates: true }
+        Self { basemap: 0, labels: true, areas: false, area_labels: true, points: true, point_labels: false, shoreline: true, legend: true, grid: false, estimates: true }
     }
 }
 
@@ -167,6 +171,7 @@ pub struct App {
     pub streaming: bool,
     /// The "Anywhere…" window.
     pub places: crate::places::Places,
+    pub basemaps: crate::basemap::Basemaps,
 }
 
 impl App {
@@ -229,6 +234,7 @@ impl App {
             shot: Default::default(),
             streaming: false,
             places: Default::default(),
+            basemaps: crate::basemap::Basemaps::new(&cc.egui_ctx),
         };
         app.load(source, &cc.egui_ctx);
         app
@@ -398,7 +404,20 @@ impl App {
         self.textures
             .entry(key)
             .or_insert_with(|| {
-                let flat: Vec<u8> = img.px.iter().flatten().copied().collect();
+                // feathered edges: overlays fade into the basemap instead of ending in a hard square
+                let bw = (0.04 * img.w.min(img.h) as f32).max(3.0);
+                let flat: Vec<u8> = img
+                    .px
+                    .iter()
+                    .enumerate()
+                    .flat_map(|(i, p)| {
+                        let (x, y) = ((i % img.w) as f32, (i / img.w) as f32);
+                        let d = x.min(y).min(img.w as f32 - 1.0 - x).min(img.h as f32 - 1.0 - y);
+                        let t = (d / bw).clamp(0.0, 1.0);
+                        let f = t * t * (3.0 - 2.0 * t);
+                        [p[0], p[1], p[2], (f32::from(p[3]) * f) as u8]
+                    })
+                    .collect();
                 let ci = egui::ColorImage::from_rgba_unmultiplied([img.w, img.h], &flat);
                 ctx.load_texture(format!("img{key}"), ci, egui::TextureOptions::LINEAR)
             })
@@ -620,6 +639,7 @@ impl eframe::App for App {
         let ctx = ui.ctx().clone();
         self.map_ctx = Some(ctx.clone());
         self.poll(&ctx);
+        self.basemaps.begin_frame();
         self.shot(&ctx);
         for i in self.sound.tick() {
             if let (Some(ds), Some(pid)) = (self.ds(), self.st.point.clone())

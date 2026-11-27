@@ -89,6 +89,23 @@ impl Fetcher {
         Ok(bytes)
     }
 
+    /// A whole (small) file, cached on disk forever (for immutable resources such as map tiles).
+    pub fn get_cached(&self, url: &str) -> Result<Vec<u8>> {
+        let path = self.dir.join(format!("{:016x}.get", fnv(url)));
+        if let Ok(b) = std::fs::read(&path) {
+            self.cached.fetch_add(b.len(), Ordering::Relaxed);
+            return Ok(b);
+        }
+        let bytes = retry(|| self.agent.get(url).call()?.body_mut().with_config().limit(16 << 20).read_to_vec())?;
+        self.fetched.fetch_add(bytes.len(), Ordering::Relaxed);
+        let _ = std::fs::create_dir_all(&self.dir);
+        let tmp = path.with_extension("tmp");
+        if std::fs::write(&tmp, &bytes).is_ok() {
+            let _ = std::fs::rename(tmp, &path);
+        }
+        Ok(bytes)
+    }
+
     pub fn get_json(&self, url: &str) -> Result<serde_json::Value> {
         retry(|| self.agent.get(url).call()?.body_mut().read_json())
     }

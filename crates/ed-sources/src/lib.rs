@@ -11,6 +11,7 @@ pub mod cache;
 pub mod http;
 pub mod live;
 pub mod stac;
+pub mod tiles;
 pub mod demo;
 pub mod real;
 pub mod weather;

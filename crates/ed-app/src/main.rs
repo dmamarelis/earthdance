@@ -4,6 +4,7 @@
 //!     cargo run --release -p ed-app -- --demo  (the synthetic demo set)
 
 mod app;
+mod basemap;
 mod charts;
 mod map;
 mod panels;

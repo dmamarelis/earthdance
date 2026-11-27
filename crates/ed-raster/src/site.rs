@@ -144,24 +144,31 @@ pub struct SiteAnalysis {
     pub outline: Vec<[f64; 2]>,
 }
 
+/// The "Optical" picture of a date, from green + NIR only (no red/blue fetched: fewer bytes). Colours are
+/// tone-mapped to sit naturally on a satellite basemap: soil tan, vegetation olive, water dark blue-grey
+/// tinted by its turbidity, clouds white.
 fn image(s: &OpticalScene) -> Rgba {
-    // red, green and NIR only (no blue band fetched): blue ≈ green, vegetation shows through green + NIR
-    let px = (0..s.red.data.len())
+    let lerp = |a: [f32; 3], b: [f32; 3], t: f32| [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+    let px = (0..s.green.data.len())
         .map(|i| {
-            let (r, g, n, c) = (s.red.data[i], s.green.data[i], s.nir.data[i], s.scl.data[i]);
-            if !(r.is_finite() && g.is_finite() && n.is_finite()) || c as i32 == 0 {
+            let (g, n, c) = (s.green.data[i], s.nir.data[i], s.scl.data[i]);
+            if !(g.is_finite() && n.is_finite()) || c as i32 == 0 {
                 return [0, 0, 0, 0];
             }
             if scl_cloud(c) {
-                return [235, 238, 242, 235];
+                return [232, 236, 240, 235];
             }
-            // from green + NIR (+ red when it differs): water dark blue-grey, vegetation green, bare soil tan
-            let f = |v: f32, k: f32| ((v / k).clamp(0.0, 1.0).powf(0.8) * 255.0) as u8;
-            let red = if r == g { 0.55 * g + 0.35 * n * 0.5 } else { r };
-            [f(red, 2200.0), f(0.6 * g + 0.25 * n, 2300.0), f(0.95 * g, 2200.0), 255]
+            let v = (n - g) / (n + g).max(1.0); // > 0 land (more so with vegetation), < 0 water
+            let bright = (g / 1400.0).clamp(0.0, 1.4).powf(0.9);
+            let land = lerp([138.0, 118.0, 92.0], [72.0, 94.0, 54.0], (v * 1.6).clamp(0.0, 1.0));
+            let land = land.map(|x| x * (0.55 + 0.6 * bright));
+            let water = lerp([22.0, 36.0, 50.0], [70.0, 88.0, 82.0], (g / 1300.0).clamp(0.0, 1.0));
+            let t = ((v + 0.06) / 0.12).clamp(0.0, 1.0); // soft shoreline
+            let c = lerp(water, land, t);
+            [c[0].min(255.0) as u8, c[1].min(255.0) as u8, c[2].min(255.0) as u8, 255]
         })
         .collect();
-    Rgba { w: s.red.w, h: s.red.h, bounds: s.red.bounds, px }
+    Rgba { w: s.green.w, h: s.green.h, bounds: s.green.bounds, px }
 }
 
 fn largest(mask: &Grid<bool>) -> Grid<bool> {

@@ -74,7 +74,8 @@ impl App {
             return;
         }
         // let flights and story animations settle
-        if self.shot.frames == 150 && !self.shot.requested {
+        // let flights and story animations settle, and the basemap tiles arrive (at most ~60 s)
+        if self.shot.frames >= 150 && (self.basemaps.loading() == 0 || self.shot.frames > 3600) && !self.shot.requested {
             self.shot.requested = true;
             let done = self.shot.done.clone();
             let ctx2 = ctx.clone();

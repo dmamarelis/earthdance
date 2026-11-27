@@ -35,6 +35,8 @@ pub fn unmerc(x: f64, y: f64) -> (f64, f64) {
 pub struct Map {
     pub view: View,
     flight: Option<(View, View, Instant, Duration)>,
+    /// Pan momentum (screen px per frame), decaying after a drag is released.
+    vel: Vec2,
 }
 
 fn ease(t: f64) -> f64 {
@@ -44,7 +46,7 @@ fn ease(t: f64) -> f64 {
 
 impl Map {
     pub fn new(view: View) -> Self {
-        Self { view, flight: None }
+        Self { view, flight: None, vel: Vec2::ZERO }
     }
 
     fn world(&self) -> f64 {
@@ -84,7 +86,7 @@ impl Map {
     }
 
     pub fn zoom_by(&mut self, dz: f64) {
-        let to = View { zoom: (self.view.zoom + dz).clamp(3.0, 18.0), ..self.view };
+        let to = View { zoom: (self.view.zoom + dz).clamp(2.0, 18.0), ..self.view };
         self.fly_to(to, 0.3);
     }
 
@@ -106,11 +108,16 @@ impl Map {
         if resp.dragged() {
             self.flight = None;
             let d = resp.drag_delta();
-            let (cx, cy) = merc(self.view.lon, self.view.lat);
-            let w = self.world();
-            let (lon, lat) = unmerc(cx - f64::from(d.x) / w, cy - f64::from(d.y) / w);
-            self.view.lon = lon;
-            self.view.lat = lat.clamp(-80.0, 80.0);
+            self.pan(d);
+            self.vel = d;
+        } else if self.vel.length() > 0.3 {
+            // momentum: keep gliding after the release, slowing down
+            let d = self.vel;
+            self.pan(d);
+            self.vel *= 0.9;
+            ui.ctx().request_repaint();
+        } else {
+            self.vel = Vec2::ZERO;
         }
         if resp.hovered() {
             let scroll = ui.input(|i| i.smooth_scroll_delta.y);
@@ -118,13 +125,22 @@ impl Map {
                 self.flight = None;
                 let pointer = ui.input(|i| i.pointer.hover_pos()).unwrap_or(rect.center());
                 let before = self.to_geo(rect, pointer);
-                self.view.zoom = (self.view.zoom + f64::from(scroll) / 240.0).clamp(3.0, 18.0);
+                self.vel = Vec2::ZERO;
+                self.view.zoom = (self.view.zoom + f64::from(scroll) / 240.0).clamp(2.0, 18.0);
                 // keep the point under the cursor where it was
                 let after = self.to_geo(rect, pointer);
                 self.view.lon += before.0 - after.0;
                 self.view.lat += before.1 - after.1;
             }
         }
+    }
+
+    fn pan(&mut self, d: Vec2) {
+        let (cx, cy) = merc(self.view.lon, self.view.lat);
+        let w = self.world();
+        let (lon, lat) = unmerc(cx - f64::from(d.x) / w, cy - f64::from(d.y) / w);
+        self.view.lon = (lon + 540.0).rem_euclid(360.0) - 180.0;
+        self.view.lat = lat.clamp(-80.0, 80.0);
     }
 
     /// A light graticule, so the empty map still reads as a map until a basemap exists (D2).

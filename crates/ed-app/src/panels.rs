@@ -151,6 +151,12 @@ fn show_menu(app: &mut App, ui: &mut egui::Ui) {
     let el = app.st.lang == ed_core::Lang::El;
     let s = &mut app.st.show;
     let before = format!("{s:?}");
+    ui.label(RichText::new(if el { "Υπόβαθρο" } else { "Basemap" }).small().color(theme::MUTED));
+    for (v, a, b) in [(0u8, "Δορυφορική εικόνα (Esri)", "Satellite imagery (Esri)"), (1, "Sentinel-2 χωρίς σύννεφα (EOX)", "Sentinel-2 cloudless (EOX)"), (2, "Κανένα", "None")] {
+        ui.radio_value(&mut s.basemap, v, if el { a } else { b });
+    }
+    ui.checkbox(&mut s.labels, if el { "Τοπωνύμια" } else { "Place names" });
+    ui.separator();
     ui.checkbox(&mut s.legend, if el { "Υπόμνημα" } else { "Legend" });
     ui.checkbox(&mut s.points, if el { "Σημεία" } else { "Points" });
     ui.checkbox(&mut s.point_labels, if el { "Ονόματα σημείων" } else { "Point names" });
@@ -456,11 +462,22 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
     let ctx = ui.ctx().clone();
     let painter = ui.painter_at(rect);
     painter.rect_filled(rect, 0, theme::BG);
-    if app.st.show.grid {
+    // the satellite basemap (slightly dimmed so the data on top reads clearly)
+    let base = match app.st.show.basemap {
+        0 => Some(ed_sources::tiles::Basemap::EsriImagery),
+        1 => Some(ed_sources::tiles::Basemap::S2Cloudless),
+        _ => None,
+    };
+    if let Some(b) = base {
+        app.basemaps.draw(&ctx, &painter, &app.map, rect, b, Color32::from_gray(205));
+    }
+    if app.st.show.grid || base.is_none() {
         app.map.graticule(&painter, rect);
     }
-    let site = app.map.bounds_rect(rect, ds.site.bounds);
-    painter.rect_stroke(site, 0, Stroke::new(1.0, Color32::from_white_alpha(18)), egui::StrokeKind::Middle);
+    if base.is_none() {
+        let site = app.map.bounds_rect(rect, ds.site.bounds);
+        painter.rect_stroke(site, 0, Stroke::new(1.0, Color32::from_white_alpha(18)), egui::StrokeKind::Middle);
+    }
 
     // ── imagery: the current frame, and with compare the other frame left of the swipe line
     let layer = ds.layers.get(app.st.layer);
@@ -491,6 +508,11 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         } else {
             draw(app, f, rect);
         }
+    }
+
+    // ── place names over the imagery
+    if app.st.show.labels && base.is_some() {
+        app.basemaps.draw(&ctx, &painter, &app.map, rect, ed_sources::tiles::Basemap::EsriLabels, Color32::from_white_alpha(225));
     }
 
     // ── Status: areas (drawn on the demo set; on the real set the lake picture is enough) and the what-if shoreline
@@ -628,6 +650,20 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         }
     }
 
+    if let Some(b) = base {
+        let mut text = b.attribution().to_string();
+        if app.st.show.labels {
+            text.push_str(" · Labels © Esri");
+        }
+        let loading = app.basemaps.loading();
+        if loading > 0 {
+            text = format!("⟳ {loading} · {text}");
+        }
+        let g = painter.layout_no_wrap(text, FontId::proportional(9.5), Color32::from_white_alpha(170));
+        let r = Rect::from_min_size(rect.right_bottom() - g.size() - Vec2::new(12.0, 6.0), g.size() + Vec2::new(8.0, 4.0));
+        painter.rect_filled(r, 3, Color32::from_rgba_unmultiplied(11, 14, 19, 170));
+        painter.galley(r.min + Vec2::new(4.0, 2.0), g, Color32::WHITE);
+    }
     overlays(app, ui, rect, &ds, &status);
 }
 
