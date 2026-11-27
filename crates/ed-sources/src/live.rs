@@ -61,6 +61,27 @@ impl Default for LiveConfig {
 
 // ───────────────────────────────────────────────────────── reading one band of one scene
 
+/// Stage timers (nanoseconds, summed over threads), printed by the `live_place` example.
+pub mod timing {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    pub static READ: AtomicU64 = AtomicU64::new(0);
+    pub static WARP: AtomicU64 = AtomicU64::new(0);
+    pub static NEAREST: AtomicU64 = AtomicU64::new(0);
+    pub static ANALYSE: AtomicU64 = AtomicU64::new(0);
+    pub static ASSEMBLE: AtomicU64 = AtomicU64::new(0);
+    pub static FIT: AtomicU64 = AtomicU64::new(0);
+    pub fn add(c: &AtomicU64, t: std::time::Instant) {
+        c.fetch_add(t.elapsed().as_nanos() as u64, Ordering::Relaxed);
+    }
+    pub fn report() -> String {
+        let s = |c: &AtomicU64| c.load(Ordering::Relaxed) as f64 / 1e9;
+        format!(
+            "read+decode {:.2}s · warp bilinear {:.2}s · warp nearest {:.2}s · analyse {:.2}s · assemble {:.2}s · fit {:.2}s",
+            s(&READ), s(&WARP), s(&NEAREST), s(&ANALYSE), s(&ASSEMBLE), s(&FIT)
+        )
+    }
+}
+
 thread_local! {
     static SLACK: std::cell::Cell<f64> = const { std::cell::Cell::new(1.5) };
 }
@@ -99,14 +120,40 @@ fn read_window(url: &str, bounds: Bounds, res_m: f64) -> Result<Option<SourceRas
     Ok(Some(cog.assemble(&plan, &tiles).map_err(|e| Error::Data(e.to_string()))?))
 }
 
+/// For every pixel of the site grid, its position in a UTM zone. Identical for every scene and band of a
+/// build, so it is computed once per (zone, grid) and shared: the per-pixel trigonometry of the projection
+/// was the most expensive step of reopening a place.
+fn utm_coords(epsg: u32, g: &SiteGrid) -> Option<std::sync::Arc<Vec<(f64, f64)>>> {
+    use std::collections::HashMap;
+    use std::sync::{Arc, Mutex, OnceLock};
+    type Key = (u32, [u64; 4], usize, usize);
+    static CACHE: OnceLock<Mutex<HashMap<Key, Arc<Vec<(f64, f64)>>>>> = OnceLock::new();
+    let zone = Zone::from_epsg(epsg)?;
+    let b = g.bounds.0;
+    let key = (epsg, [b[0].to_bits(), b[1].to_bits(), b[2].to_bits(), b[3].to_bits()], g.w, g.h);
+    let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));
+    if let Some(v) = cache.lock().expect("utm cache").get(&key) {
+        return Some(v.clone());
+    }
+    let probe = Grid::filled(g.w, g.h, g.bounds, 0u8);
+    use rayon::prelude::*;
+    let v: Vec<(f64, f64)> = (0..g.w * g.h).into_par_iter().map(|i| utm::forward(zone, probe.lon(i % g.w), probe.lat(i / g.w))).collect();
+    let v = Arc::new(v);
+    let mut c = cache.lock().expect("utm cache");
+    if c.len() > 16 {
+        c.clear();
+    }
+    c.insert(key, v.clone());
+    Some(v)
+}
+
 /// Nearest-neighbour resampling (for class bands such as SCL, where averaging classes is meaningless).
 fn warp_nearest(src: &SourceRaster, g: &SiteGrid) -> Grid<f32> {
-    let Some(zone) = Zone::from_epsg(src.epsg) else { return Grid::filled(g.w, g.h, g.bounds, f32::NAN) };
-    let out = Grid::filled(g.w, g.h, g.bounds, f32::NAN);
+    let Some(en) = utm_coords(src.epsg, g) else { return Grid::filled(g.w, g.h, g.bounds, f32::NAN) };
     let gt = src.geotransform;
-    let data = (0..g.w * g.h)
-        .map(|i| {
-            let (e, n) = utm::forward(zone, out.lon(i % g.w), out.lat(i / g.w));
+    let data = en
+        .iter()
+        .map(|&(e, n)| {
             let c = ((e - gt[0]) / gt[1]).floor();
             let r = ((n - gt[3]) / gt[5]).floor();
             if c >= 0.0 && r >= 0.0 && (c as usize) < src.width && (r as usize) < src.height { src.data[r as usize * src.width + c as usize] } else { f32::NAN }
@@ -134,8 +181,13 @@ fn band(items: &[&Item], key: &str, g: &SiteGrid, nearest: bool) -> Result<Optio
     let mut out = None;
     for it in items {
         let Some(url) = it.assets.get(key) else { continue };
-        if let Some(src) = read_window(url, g.bounds, g.res_m())? {
+        let t = std::time::Instant::now();
+        let src = read_window(url, g.bounds, g.res_m())?;
+        timing::add(&timing::READ, t);
+        if let Some(src) = src {
+            let t = std::time::Instant::now();
             let gr = if nearest { warp_nearest(&src, g) } else { ed_raster::warp_bilinear(&src, g.bounds, g.w, g.h).map_err(|e| Error::Data(format!("{e:?}")))? };
+            timing::add(if nearest { &timing::NEAREST } else { &timing::WARP }, t);
             out = Some(mosaic(out, gr));
         }
     }
@@ -192,9 +244,10 @@ pub fn zoom_for(lat: f64, half_km: f64) -> f64 {
 fn assemble(place: &Place, grid: &SiteGrid, a: &SiteAnalysis, model: Option<ed_core::model::ForecastModel>, content: &Content) -> Dataset {
     let info = ndwi_layer(a.threshold);
     let stops = info.legend.rgb_stops();
+    use rayon::prelude::*;
     let frames = a
         .scenes
-        .iter()
+        .par_iter()
         .map(|s| {
             let alpha = Grid::from_vec(grid.w, grid.h, grid.bounds, s.ndwi.data.iter().map(|v| if v.is_finite() { 0.85 } else { 0.0 }).collect());
             // clouds are not data: blank them in the index layer
@@ -223,7 +276,7 @@ fn assemble(place: &Place, grid: &SiteGrid, a: &SiteAnalysis, model: Option<ed_c
     };
     let optical = a
         .scenes
-        .iter()
+        .par_iter()
         .map(|s| {
             let mut img = s.image.clone();
             for (px, f) in img.px.iter_mut().zip(&soft.data) {
@@ -367,10 +420,18 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
             let n = ((k + 1) * cfg.batch).min(total);
             let mb = http::fetcher().fetched.load(std::sync::atomic::Ordering::Relaxed) as f64 / 1e6;
             progress(&format!("Sentinel-2 {label}: {n}/{total} dates · {} clear in all · {mb:.0} MB downloaded", scenes.len()));
-            if scenes.len() >= 2
-                && let Some(a) = analyse(&grid, scenes)
-            {
+            // partial results: after the first batch (the first map), then every third batch; the analysis
+            // runs over all scenes so far, so doing it after every batch would cost O(n²)
+            if !(k == 0 || (k % 3 == 2 && n < total)) {
+                continue;
+            }
+            let t = std::time::Instant::now();
+            let an = if scenes.len() >= 2 { analyse(&grid, scenes) } else { None };
+            timing::add(&timing::ANALYSE, t);
+            if let Some(a) = an {
+                let t = std::time::Instant::now();
                 partial(assemble(place, &grid, &a, None, &content));
+                timing::add(&timing::ASSEMBLE, t);
             }
         }
     };
@@ -387,7 +448,9 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
     if scenes.is_empty() {
         return Err(Error::Data("no clear Sentinel-2 scene over this place".into()));
     }
+    let t = std::time::Instant::now();
     let a = analyse(&grid, &scenes).ok_or_else(|| Error::Data("no water body found in the clear scenes".into()))?;
+    timing::add(&timing::ANALYSE, t);
 
     // the lake model, fitted on the measured areas with ERA5 at the lake
     let used: Vec<_> = a.scenes.iter().filter(|s| s.water_km2.is_some()).collect();
@@ -399,7 +462,10 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
         match crate::weather::daily_rain_et0(a.center[0], a.center[1], from, end) {
             Ok(wx) => {
                 let ds = assemble(place, &grid, &a, None, &content);
-                ds.regions.regions[0].reservoir.as_ref().map(|res| forecast::fit("lake", res, &wx, end, &fit_cfg)).and_then(|m| match forecast::fit_quality(&m) {
+                let t = std::time::Instant::now();
+                let m = ds.regions.regions[0].reservoir.as_ref().map(|res| forecast::fit("lake", res, &wx, end, &fit_cfg));
+                timing::add(&timing::FIT, t);
+                m.and_then(|m| match forecast::fit_quality(&m) {
                     Ok(r2) => {
                         progress(&format!("lake model fitted (R² {r2:.2})"));
                         Some(m)

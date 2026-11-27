@@ -120,8 +120,12 @@ with d = 2. Synthetic data is never mixed into the real set: the demo set stays 
   No per-site constants. The lake model is fitted only if it passes a quality gate (R² ≥ 0.5, no
   parameter on a bound).
 * **Measured on this machine's link (~70 KB/s)**: Lake Koronia, 18 months, 43 dates: first map after
-  57 s, complete after 12 min, 39 MB. Reopened: 7.6 s including the app's start. On a 50 Mbit/s line the
-  first build is a matter of seconds.
+  57 s, complete after 12 min, 39 MB. On a 50 Mbit/s line the first build is a matter of seconds.
+* **Reopening a place** (everything from the disk cache) builds in **1.0 s** (first map after 0.1 s), down
+  from 5.0 s: the UTM position of every grid pixel is computed once per build instead of once per scene
+  and band (nearest-neighbour warp 3.2 → 0.2 s CPU), partial results are analysed after the first batch
+  and then every third instead of after every batch (analysis 1.9 → 0.3 s, assembly 1.0 → 0.1 s), and the
+  per-scene work runs on all cores (rayon).
 
 **For the team to look at**: for Koronia, Sentinel-2 sees ~26–31 km² of water all through 2025–26, while
 the NISAR radar (legacy method, HH ≤ −18 dB) saw the lake fall to ~9 km² in September 2026. Radar counts

@@ -12,3 +12,4 @@ serde_json.workspace = true
 ureq = { version = "3", features = ["json"] }
 image = { version = "0.25", default-features = false, features = ["webp", "jpeg", "png"] }
 jiff = "0.2"
+rayon = "1.10"

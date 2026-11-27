@@ -31,6 +31,7 @@ fn main() {
         f.fetched.load(std::sync::atomic::Ordering::Relaxed) as f64 / 1e6,
         f.cached.load(std::sync::atomic::Ordering::Relaxed) as f64 / 1e6
     );
+    println!("stages (CPU, summed over threads): {}", ed_sources::live::timing::report());
     let r = &ds.regions.regions[0];
     println!("frames {} · optical {} · lake centre {:.3},{:.3} r={:.1} km", ds.layers[0].frames.len(), ds.optical.len(), r.center[0], r.center[1], r.radius_km);
     if let Some(res) = &r.reservoir {

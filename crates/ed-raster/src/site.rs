@@ -12,6 +12,8 @@
 
 use ed_core::{Bounds, Grid, Rgba};
 
+use rayon::prelude::*;
+
 use crate::filters::{dilate_cross, label4};
 
 /// The target grid: a lat/lon raster around a place.
@@ -215,7 +217,7 @@ pub fn analyse(grid: &SiteGrid, scenes: &[OpticalScene]) -> Option<SiteAnalysis>
     let px_km2 = grid.px_km2();
     let n = grid.w * grid.h;
     let clear_of = |s: &OpticalScene| -> Vec<bool> { (0..n).map(|i| scl_clear(s.scl.data[i]) && s.green.data[i].is_finite() && s.nir.data[i].is_finite()).collect() };
-    let clears: Vec<Vec<bool>> = scenes.iter().map(clear_of).collect();
+    let clears: Vec<Vec<bool>> = scenes.par_iter().map(clear_of).collect();
     let share = |c: &[bool]| c.iter().filter(|v| **v).count() as f64 / n as f64;
 
     // one threshold for the site, from the clearest scenes pooled
@@ -231,8 +233,8 @@ pub fn analyse(grid: &SiteGrid, scenes: &[OpticalScene]) -> Option<SiteAnalysis>
     .unwrap_or(0.0)
     .clamp(-0.3, 0.4);
 
-    let ndwis: Vec<Grid<f32>> = scenes.iter().map(|s| Grid::from_vec(grid.w, grid.h, grid.bounds, (0..n).map(|i| ndwi(s.green.data[i], s.nir.data[i])).collect())).collect();
-    let waters: Vec<Grid<bool>> = ndwis.iter().zip(&clears).map(|(g, c)| Grid::from_vec(grid.w, grid.h, grid.bounds, (0..n).map(|i| c[i] && g.data[i] > threshold).collect())).collect();
+    let ndwis: Vec<Grid<f32>> = scenes.par_iter().map(|s| Grid::from_vec(grid.w, grid.h, grid.bounds, (0..n).map(|i| ndwi(s.green.data[i], s.nir.data[i])).collect())).collect();
+    let waters: Vec<Grid<bool>> = ndwis.par_iter().zip(&clears).map(|(g, c)| Grid::from_vec(grid.w, grid.h, grid.bounds, (0..n).map(|i| c[i] && g.data[i] > threshold).collect())).collect();
 
     // maximum extent over the clear scenes → the largest connected water body = the lake
     let mut max_ext = Grid::filled(grid.w, grid.h, grid.bounds, false);
@@ -257,7 +259,7 @@ pub fn analyse(grid: &SiteGrid, scenes: &[OpticalScene]) -> Option<SiteAnalysis>
     let center = [pts.iter().map(|p| p.0).sum::<f64>() / pts.len() as f64, pts.iter().map(|p| p.1).sum::<f64>() / pts.len() as f64];
 
     let mut results: Vec<SceneResult> = scenes
-        .iter()
+        .par_iter()
         .enumerate()
         .map(|(i, s)| {
             let zc = zone_idx.iter().filter(|&&k| clears[i][k]).count() as f64 / zone_idx.len().max(1) as f64;
