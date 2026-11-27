@@ -1,0 +1,496 @@
+{
+ "site": {
+  "name": {
+   "el": "Λίμνη Κορώνεια",
+   "en": "Lake Koronia"
+  },
+  "country": {
+   "el": "Ελλάδα",
+   "en": "Greece"
+  },
+  "bounds": [
+   22.85,
+   40.5,
+   23.65,
+   40.86
+  ],
+  "center": [
+   23.2,
+   40.68
+  ],
+  "zoom": 10.6
+ },
+ "reference": {
+  "name": "EGMS",
+  "label": {
+   "el": "EGMS (Ευρωπαϊκή Υπηρεσία Κίνησης Εδάφους)",
+   "en": "EGMS (European Ground Motion Service)"
+  }
+ },
+ "layers": [
+  {
+   "id": "hh",
+   "band": "L",
+   "sensor": "NISAR",
+   "product": "L2 GCOV",
+   "unit": "dB",
+   "name": {
+    "el": "Οπισθοσκέδαση HH",
+    "en": "Backscatter HH"
+   },
+   "short": {
+    "el": "Υφή εδάφους & νερό",
+    "en": "Surface texture & water"
+   },
+   "description": {
+    "el": "Πόση ενέργεια ραντάρ επιστρέφει στον δορυφόρο. Σκούρο = λείο (νερό). Φωτεινό = τραχύ (πόλεις, βουνά).",
+    "en": "How much radar energy returns to the satellite. Dark = smooth (water). Bright = rough (cities, mountains)."
+   },
+   "legend": {
+    "stops": [
+     [
+      -26,
+      "#05070d"
+     ],
+     [
+      -18,
+      "#2a3550"
+     ],
+     [
+      -11,
+      "#8a97ad"
+     ],
+     [
+      -4,
+      "#eef2f7"
+     ]
+    ],
+    "low": {
+     "el": "λείο / νερό",
+     "en": "smooth / water"
+    },
+    "high": {
+     "el": "τραχύ",
+     "en": "rough"
+    }
+   },
+   "classes": [
+    [
+     -19,
+     {
+      "el": "Ήρεμο νερό: λεία επιφάνεια, το σήμα ανακλάται μακριά σαν από καθρέφτη",
+      "en": "Calm water: a smooth surface reflects the signal away like a mirror"
+     }
+    ],
+    [
+     -14,
+     {
+      "el": "Λείο ή γυμνό έδαφος: λίγη τραχύτητα, λίγο σήμα επιστρέφει",
+      "en": "Smooth or bare soil: little roughness, little signal returns"
+     }
+    ],
+    [
+     -9,
+     {
+      "el": "Χωράφι ή υγρό έδαφος: τραχύτητα και νερό (υψηλή διηλεκτρική σταθερά) δυναμώνουν την επιστροφή",
+      "en": "Field or wet soil: roughness and water (high dielectric constant) strengthen the return"
+     }
+    ],
+    [
+     -3,
+     {
+      "el": "Καλαμιώνας ή βλάστηση μέσα σε νερό: διπλή ανάκλαση νερό → μίσχος → δορυφόρος",
+      "en": "Reeds or vegetation standing in water: double bounce water → stem → satellite"
+     }
+    ],
+    [
+     99,
+     {
+      "el": "Κτίρια ή κατασκευές: γωνίες που στέλνουν το σήμα πίσω (διπλή ανάκλαση)",
+      "en": "Buildings or structures: corners send the signal straight back (double bounce)"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "hv",
+   "band": "L",
+   "sensor": "NISAR",
+   "product": "L2 GCOV",
+   "unit": "dB",
+   "name": {
+    "el": "Οπισθοσκέδαση HV",
+    "en": "Backscatter HV"
+   },
+   "short": {
+    "el": "Βλάστηση & καλλιέργειες",
+    "en": "Vegetation & crops"
+   },
+   "description": {
+    "el": "Η διασταυρούμενη πόλωση «ανάβει» όπου υπάρχει όγκος βλάστησης: δάση και ώριμες καλλιέργειες.",
+    "en": "Cross-polarisation lights up where there is vegetation volume: forests and mature crops."
+   },
+   "legend": {
+    "stops": [
+     [
+      -32,
+      "#04070a"
+     ],
+     [
+      -25,
+      "#0f3d3a"
+     ],
+     [
+      -19,
+      "#2f9e6e"
+     ],
+     [
+      -12,
+      "#e9f26b"
+     ]
+    ],
+    "low": {
+     "el": "γυμνό / νερό",
+     "en": "bare / water"
+    },
+    "high": {
+     "el": "πυκνή βλάστηση",
+     "en": "dense vegetation"
+    }
+   },
+   "classes": [
+    [
+     -27,
+     {
+      "el": "Νερό: σχεδόν καμία αποπόλωση",
+      "en": "Water: almost no depolarisation"
+     }
+    ],
+    [
+     -21,
+     {
+      "el": "Γυμνό ή οργωμένο έδαφος: λίγος όγκος βλάστησης",
+      "en": "Bare or ploughed soil: little vegetation volume"
+     }
+    ],
+    [
+     -16,
+     {
+      "el": "Καλλιέργεια σε ανάπτυξη: ο όγκος των φυτών αποπολώνει το σήμα",
+      "en": "Growing crop: plant volume depolarises the signal"
+     }
+    ],
+    [
+     99,
+     {
+      "el": "Πυκνή βλάστηση, καλαμιώνας ή δάσος: πολλαπλές σκεδάσεις μέσα στον όγκο",
+      "en": "Dense vegetation, reeds or forest: multiple scattering inside the volume"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "change",
+   "band": "L",
+   "sensor": "NISAR",
+   "product": "L2 GCOV (Δ)",
+   "unit": "dB",
+   "name": {
+    "el": "Αλλαγή από την αρχή",
+    "en": "Change since start"
+   },
+   "short": {
+    "el": "Τι άλλαξε, πού",
+    "en": "What changed, where"
+   },
+   "description": {
+    "el": "Διαφορά HH από την πρώτη ημερομηνία. Μπλε = πιο σκούρο (συνήθως νερό/πλημμύρα). Πορτοκαλί = πιο φωτεινό (ανάπτυξη, υγρασία).",
+    "en": "HH difference from the first date. Blue = darker (usually water/flooding). Orange = brighter (growth, moisture)."
+   },
+   "legend": {
+    "stops": [
+     [
+      -8,
+      "#2f6df6"
+     ],
+     [
+      -3,
+      "#7fb2ff"
+     ],
+     [
+      0,
+      "#e8e6df"
+     ],
+     [
+      3,
+      "#ffb454"
+     ],
+     [
+      8,
+      "#f2622e"
+     ]
+    ],
+    "low": {
+     "el": "πιο σκούρο",
+     "en": "darker"
+    },
+    "high": {
+     "el": "πιο φωτεινό",
+     "en": "brighter"
+    }
+   },
+   "classes": [
+    [
+     -3,
+     {
+      "el": "Πιο σκούρο από την αρχή: συνήθως νερό που ήρθε ή βλάστηση που χάθηκε",
+      "en": "Darker than at the start: usually new water or lost vegetation"
+     }
+    ],
+    [
+     3,
+     {
+      "el": "Μικρή ή καμία αλλαγή",
+      "en": "Little or no change"
+     }
+    ],
+    [
+     99,
+     {
+      "el": "Πιο φωτεινό: ανάπτυξη, όργωμα (τραχύτητα) ή υγρασία",
+      "en": "Brighter: growth, ploughing (roughness) or moisture"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "disp",
+   "band": "L",
+   "sensor": "NISAR",
+   "product": "L2 GUNW",
+   "unit": "mm",
+   "name": {
+    "el": "Μετατόπιση εδάφους",
+    "en": "Ground displacement"
+   },
+   "short": {
+    "el": "Πού βυθίζεται η γη",
+    "en": "Where the land sinks"
+   },
+   "description": {
+    "el": "Σωρευτική κίνηση του εδάφους στη γραμμή όρασης του δορυφόρου. Κόκκινο = το έδαφος απομακρύνεται (βυθίζεται).",
+    "en": "Cumulative ground motion along the satellite line of sight. Red = ground moving away (sinking)."
+   },
+   "legend": {
+    "stops": [
+     [
+      -90,
+      "#7a1663"
+     ],
+     [
+      -60,
+      "#e5383b"
+     ],
+     [
+      -30,
+      "#f9a03f"
+     ],
+     [
+      -8,
+      "#f6e7a9"
+     ],
+     [
+      0,
+      "#e9eef2"
+     ],
+     [
+      15,
+      "#3d8bfd"
+     ]
+    ],
+    "low": {
+     "el": "βύθιση",
+     "en": "sinking"
+    },
+    "high": {
+     "el": "ανύψωση",
+     "en": "uplift"
+    }
+   },
+   "classes": [
+    [
+     -40,
+     {
+      "el": "Έντονη βύθιση: συμπίεση υδροφορέα από άντληση",
+      "en": "Strong sinking: aquifer compaction from pumping"
+     }
+    ],
+    [
+     -10,
+     {
+      "el": "Βύθιση",
+      "en": "Sinking"
+     }
+    ],
+    [
+     10,
+     {
+      "el": "Σταθερό, μέσα στον θόρυβο της μέτρησης",
+      "en": "Stable, within measurement noise"
+     }
+    ],
+    [
+     99,
+     {
+      "el": "Ανύψωση",
+      "en": "Uplift"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "s1vv",
+   "band": "C",
+   "sensor": "Sentinel-1",
+   "product": "RTC",
+   "unit": "dB",
+   "name": {
+    "el": "Sentinel-1 VV (C-band)",
+    "en": "Sentinel-1 VV (C-band)"
+   },
+   "short": {
+    "el": "Το ίδιο τοπίο, μικρότερο μήκος κύματος",
+    "en": "Same landscape, shorter wavelength"
+   },
+   "description": {
+    "el": "Για σύγκριση: το C-band (5,6 cm) σκεδάζεται στην κορυφή της βλάστησης, ενώ το L-band του NISAR (24 cm) τη διαπερνά.",
+    "en": "For comparison: C-band (5.6 cm) scatters at the top of vegetation, while NISAR's L-band (24 cm) penetrates it."
+   },
+   "legend": {
+    "stops": [
+     [
+      -24,
+      "#05070d"
+     ],
+     [
+      -16,
+      "#3a3350"
+     ],
+     [
+      -10,
+      "#a898ad"
+     ],
+     [
+      -3,
+      "#f7eef2"
+     ]
+    ],
+    "low": {
+     "el": "λείο / νερό",
+     "en": "smooth / water"
+    },
+    "high": {
+     "el": "τραχύ",
+     "en": "rough"
+    }
+   },
+   "classes": [
+    [
+     -17,
+     {
+      "el": "Νερό (C-band)",
+      "en": "Water (C-band)"
+     }
+    ],
+    [
+     -10,
+     {
+      "el": "Έδαφος ή χαμηλή βλάστηση: το C-band σκεδάζεται στην κορυφή των φυτών",
+      "en": "Soil or low vegetation: C-band scatters at the top of the plants"
+     }
+    ],
+    [
+     99,
+     {
+      "el": "Τραχιά επιφάνεια ή κτίρια",
+      "en": "Rough surface or buildings"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "sm",
+   "band": "L",
+   "sensor": "NISAR",
+   "product": "L3 Soil Moisture",
+   "unit": "%",
+   "name": {
+    "el": "Υγρασία εδάφους",
+    "en": "Soil moisture"
+   },
+   "short": {
+    "el": "Πόσο νερό κρατά το χώμα",
+    "en": "How much water the soil holds"
+   },
+   "description": {
+    "el": "Το νερό έχει πολύ μεγαλύτερη διηλεκτρική σταθερά από το ξερό χώμα, άρα το υγρό έδαφος επιστρέφει περισσότερο σήμα. Από αυτή τη διαφορά εκτιμάται η υγρασία (όγκος νερού / όγκος εδάφους).",
+    "en": "Water has a far higher dielectric constant than dry soil, so wet ground returns more signal. Moisture (water volume / soil volume) is estimated from that difference."
+   },
+   "legend": {
+    "stops": [
+     [
+      4,
+      "#7a4b1e"
+     ],
+     [
+      14,
+      "#c9a46a"
+     ],
+     [
+      24,
+      "#ece6cf"
+     ],
+     [
+      34,
+      "#5fb3d9"
+     ],
+     [
+      45,
+      "#1d4e89"
+     ]
+    ],
+    "low": {
+     "el": "ξερό",
+     "en": "dry"
+    },
+    "high": {
+     "el": "κορεσμένο",
+     "en": "saturated"
+    }
+   },
+   "classes": [
+    [
+     12,
+     {
+      "el": "Ξερό έδαφος: χαμηλή διηλεκτρική σταθερά",
+      "en": "Dry soil: low dielectric constant"
+     }
+    ],
+    [
+     25,
+     {
+      "el": "Μέτρια υγρασία",
+      "en": "Moderate moisture"
+     }
+    ],
+    [
+     99,
+     {
+      "el": "Υγρό έδαφος ή αρδευόμενο χωράφι",
+      "en": "Wet soil or irrigated field"
+     }
+    ]
+   ]
+  }
+ ]
+}

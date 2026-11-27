@@ -1,0 +1,21 @@
+[workspace]
+resolver = "3"
+members = ["crates/ed-core", "crates/ed-raster", "crates/ed-sources", "crates/ed-app"]
+
+[workspace.package]
+edition = "2024"
+version = "0.1.0"
+license = "MIT"
+
+[workspace.dependencies]
+ed-core = { path = "crates/ed-core" }
+ed-raster = { path = "crates/ed-raster" }
+ed-sources = { path = "crates/ed-sources" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.release]
+debug = 1

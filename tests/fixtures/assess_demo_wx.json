@@ -1,0 +1,1943 @@
+{
+ "today": "2026-11-14",
+ "A": {
+  "south": {
+   "id": "south",
+   "lastPass": "2026-10-10",
+   "ground": {
+    "rate": -64.74886363636364,
+    "total": -56.1,
+    "level": "alert",
+    "ratio": 5.184,
+    "finding": {
+     "key": "ground",
+     "level": "alert",
+     "title": {
+      "el": "Έντονη καθίζηση",
+      "en": "Strong subsidence"
+     },
+     "text": {
+      "el": "Υποχωρεί με −65 mm/έτος (σύνολο −56 mm από 20 Νοε 2025). Την αρδευτική περίοδο (Μάιος–Σεπτέμβριος) βυθίζεται 5.2× πιο γρήγορα: ένδειξη ότι φταίει η άντληση υπόγειου νερού.",
+      "en": "Sinking at −65 mm/yr (−56 mm in total since 20 Nov 2025). During the irrigation season (May–September) it sinks 5.2× faster: a sign that groundwater pumping is the cause."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     },
+     "action": {
+      "el": "Έλεγχος αδειών και μετρητών στις γεωτρήσεις της ζώνης, περιορισμός αντλήσεων· σταθμός GNSS για επιβεβαίωση.",
+      "en": "Check borehole permits and meters in the zone, limit pumping; a GNSS station to confirm."
+     }
+    }
+   },
+   "reference": {
+    "refRate": -57.69597222222221,
+    "diff": -7.052891414141428,
+    "rmse": 3.1296964709057646,
+    "agrees": true,
+    "finding": {
+     "key": "egms",
+     "level": "ok",
+     "title": {
+      "el": "Συμφωνεί με EGMS",
+      "en": "Agrees with EGMS"
+     },
+     "text": {
+      "el": "NISAR −65 έναντι EGMS −58 mm/έτος (διαφορά −7.1, RMSE 3.1 mm). Δύο ανεξάρτητα συστήματα δίνουν την ίδια εικόνα.",
+      "en": "NISAR −65 vs EGMS −58 mm/yr (difference −7.1, RMSE 3.1 mm). Two independent systems give the same picture."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     }
+    }
+   },
+   "sensors": {
+    "r": 0.832684574210665,
+    "hvRange": 1.9499999999999993,
+    "finding": {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.83.",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.83."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   },
+   "flood": null,
+   "reservoir": {
+    "now": 32.3,
+    "pct": 26.916666666666668,
+    "perDay": -0.21111111111111114,
+    "daysLeft": 10.894736842105248,
+    "crossDate": "2026-10-21",
+    "overdue": true,
+    "warnedOn": "2026-09-04",
+    "below": false,
+    "level": "alert",
+    "rainSince": 226.60000000000002,
+    "finding": {
+     "key": "reservoir",
+     "level": "alert",
+     "title": {
+      "el": "Το νερό ίσως πέρασε ήδη το όριο",
+      "en": "Water may already be past the limit"
+     },
+     "text": {
+      "el": "Λίμνη Κορώνεια: 32 hm³ (27% της χωρητικότητας), όριο 30 hm³. Στην τελευταία λήψη έχανε 0.21 hm³ την ημέρα· με αυτόν τον ρυθμό πέρασε το όριο γύρω στις 21 Οκτ 2026. Από τότε έχουν πέσει 227 mm βροχής· μόνο η επόμενη λήψη θα δείξει αν ανέκοψαν την πτώση.",
+      "en": "Lake Koronia: 32 hm³ (27% of capacity), limit 30 hm³. At the last pass it was losing 0.21 hm³ a day; at that pace it crossed the limit around 21 Oct 2026. 227 mm of rain have fallen since; only the next pass will show whether that stopped the drop."
+     },
+     "basis": {
+      "el": "Έκταση νερού από το ραντάρ × καμπύλη στάθμης–όγκου της λίμνης.",
+      "en": "Radar water extent × the lake's level–volume curve."
+     },
+     "action": {
+      "el": "Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ· σταδιακός περιορισμός των αρδευτικών απολήψεων από τη λίμνη πριν από το όριο, όχι μετά.",
+      "en": "Notify the Water Directorate and irrigation boards; reduce irrigation withdrawals from the lake gradually before the limit, not after."
+     }
+    }
+   },
+   "aquifer": {
+    "loss": 1.07,
+    "finding": {
+     "key": "aquifer",
+     "level": "ok",
+     "title": {
+      "el": "Χάνεται υπόγειο νερό",
+      "en": "Groundwater is being lost"
+     },
+     "text": {
+      "el": "Η καθίζηση αντιστοιχεί σε όγκο συμπίεσης 1.1 hm³ από 20 Νοε 2025: τόσο νερό, τουλάχιστον, βγήκε από τα στρώματα που συμπιέστηκαν και δεν αναπληρώθηκε.",
+      "en": "The subsidence amounts to a compaction volume of 1.1 hm³ since 20 Nov 2025: at least that much water left the compacted layers and was not replaced."
+     },
+     "basis": {
+      "el": "Βύθιση × έκταση. Κατώτατη ένδειξη, όχι μέτρηση στάθμης γεώτρησης.",
+      "en": "Subsidence × area. A lower bound, not a borehole level measurement."
+     }
+    }
+   },
+   "soil": {
+    "now": 21.6,
+    "avg": 17.48,
+    "drop": -23.569794050343255,
+    "finding": {
+     "key": "soil",
+     "level": "ok",
+     "title": {
+      "el": "Υγρασία εδάφους κανονική",
+      "en": "Soil moisture normal"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 22% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (εδώ πιο υγρό).",
+      "en": "Soil moisture 22% at the last pass; the average of all areas that day is 17% (wetter here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     }
+    }
+   },
+   "wetland": {
+    "loss": 0,
+    "ha": 0,
+    "level": "ok",
+    "finding": {
+     "key": "wetland",
+     "level": "ok",
+     "title": {
+      "el": "Καλαμιώνες σταθεροί",
+      "en": "Reed beds stable"
+     },
+     "text": {
+      "el": "Καλαμιώνες 2.0 km², χωρίς αξιόλογη αλλαγή.",
+      "en": "Reed beds 2.0 km², no notable change."
+     },
+     "basis": {
+      "el": "NISAR HV (όγκος βλάστησης) + HH (τραχύτητα, διπλή ανάκλαση)",
+      "en": "NISAR HV (vegetation volume) + HH (roughness, double bounce)"
+     }
+    }
+   },
+   "weather": {
+    "rain7": 5.6,
+    "rain30": 162.40000000000003,
+    "balance90": 10.860000000000127,
+    "forecast": 1.4,
+    "dry": 0,
+    "tmax": 21.6,
+    "rainToday": 1.8,
+    "level": "ok",
+    "finding": {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 22°C, βροχή 1.8 mm. Τελευταίες 30 ημέρες: 162 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): +11 mm. Πρόγνωση 7 ημερών: 1 mm.",
+      "en": "Today up to 22°C, rain 1.8 mm. Last 30 days: 162 mm. 90-day balance (rain − evapotranspiration): +11 mm. 7-day forecast: 1 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    }
+   },
+   "effects": {
+    "passes": [
+     {
+      "date": "2025-11-20",
+      "rain": 77.30000000000001,
+      "rain10": 10.399999999999999
+     },
+     {
+      "date": "2025-12-26",
+      "rain": 156.79999999999993,
+      "rain10": 19.099999999999998
+     },
+     {
+      "date": "2026-01-31",
+      "rain": 72.80000000000001,
+      "rain10": 50.9
+     },
+     {
+      "date": "2026-03-08",
+      "rain": 89.80000000000001,
+      "rain10": 6.1
+     },
+     {
+      "date": "2026-04-13",
+      "rain": 75,
+      "rain10": 10.6
+     },
+     {
+      "date": "2026-05-19",
+      "rain": 94.89999999999998,
+      "rain10": 21.5
+     },
+     {
+      "date": "2026-06-24",
+      "rain": 105.2,
+      "rain10": 39.900000000000006
+     },
+     {
+      "date": "2026-07-30",
+      "rain": 40.300000000000004,
+      "rain10": 20.200000000000003
+     },
+     {
+      "date": "2026-09-04",
+      "rain": 47.3,
+      "rain10": 23.6
+     },
+     {
+      "date": "2026-10-10",
+      "rain": 16.8,
+      "rain10": 0
+     }
+    ],
+    "r": -0.26332057955125154,
+    "deficit": 479.9599999999998,
+    "events": [
+     {
+      "type": "rain",
+      "date": "2025-12-05",
+      "value": 42.9,
+      "pass": "2025-12-26",
+      "dHH": -0.15000000000000036,
+      "dWater": 1.5999999999999996,
+      "dDisp": -0.7
+     }
+    ],
+    "finding": {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = -0.26 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 480 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = -0.26 over 10 passes. May–September: a 480 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    }
+   },
+   "findings": [
+    {
+     "key": "reservoir",
+     "level": "alert",
+     "title": {
+      "el": "Το νερό ίσως πέρασε ήδη το όριο",
+      "en": "Water may already be past the limit"
+     },
+     "text": {
+      "el": "Λίμνη Κορώνεια: 32 hm³ (27% της χωρητικότητας), όριο 30 hm³. Στην τελευταία λήψη έχανε 0.21 hm³ την ημέρα· με αυτόν τον ρυθμό πέρασε το όριο γύρω στις 21 Οκτ 2026. Από τότε έχουν πέσει 227 mm βροχής· μόνο η επόμενη λήψη θα δείξει αν ανέκοψαν την πτώση.",
+      "en": "Lake Koronia: 32 hm³ (27% of capacity), limit 30 hm³. At the last pass it was losing 0.21 hm³ a day; at that pace it crossed the limit around 21 Oct 2026. 227 mm of rain have fallen since; only the next pass will show whether that stopped the drop."
+     },
+     "basis": {
+      "el": "Έκταση νερού από το ραντάρ × καμπύλη στάθμης–όγκου της λίμνης.",
+      "en": "Radar water extent × the lake's level–volume curve."
+     },
+     "action": {
+      "el": "Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ· σταδιακός περιορισμός των αρδευτικών απολήψεων από τη λίμνη πριν από το όριο, όχι μετά.",
+      "en": "Notify the Water Directorate and irrigation boards; reduce irrigation withdrawals from the lake gradually before the limit, not after."
+     }
+    },
+    {
+     "key": "ground",
+     "level": "alert",
+     "title": {
+      "el": "Έντονη καθίζηση",
+      "en": "Strong subsidence"
+     },
+     "text": {
+      "el": "Υποχωρεί με −65 mm/έτος (σύνολο −56 mm από 20 Νοε 2025). Την αρδευτική περίοδο (Μάιος–Σεπτέμβριος) βυθίζεται 5.2× πιο γρήγορα: ένδειξη ότι φταίει η άντληση υπόγειου νερού.",
+      "en": "Sinking at −65 mm/yr (−56 mm in total since 20 Nov 2025). During the irrigation season (May–September) it sinks 5.2× faster: a sign that groundwater pumping is the cause."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     },
+     "action": {
+      "el": "Έλεγχος αδειών και μετρητών στις γεωτρήσεις της ζώνης, περιορισμός αντλήσεων· σταθμός GNSS για επιβεβαίωση.",
+      "en": "Check borehole permits and meters in the zone, limit pumping; a GNSS station to confirm."
+     }
+    },
+    {
+     "key": "wetland",
+     "level": "ok",
+     "title": {
+      "el": "Καλαμιώνες σταθεροί",
+      "en": "Reed beds stable"
+     },
+     "text": {
+      "el": "Καλαμιώνες 2.0 km², χωρίς αξιόλογη αλλαγή.",
+      "en": "Reed beds 2.0 km², no notable change."
+     },
+     "basis": {
+      "el": "NISAR HV (όγκος βλάστησης) + HH (τραχύτητα, διπλή ανάκλαση)",
+      "en": "NISAR HV (vegetation volume) + HH (roughness, double bounce)"
+     }
+    },
+    {
+     "key": "soil",
+     "level": "ok",
+     "title": {
+      "el": "Υγρασία εδάφους κανονική",
+      "en": "Soil moisture normal"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 22% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (εδώ πιο υγρό).",
+      "en": "Soil moisture 22% at the last pass; the average of all areas that day is 17% (wetter here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     }
+    },
+    {
+     "key": "aquifer",
+     "level": "ok",
+     "title": {
+      "el": "Χάνεται υπόγειο νερό",
+      "en": "Groundwater is being lost"
+     },
+     "text": {
+      "el": "Η καθίζηση αντιστοιχεί σε όγκο συμπίεσης 1.1 hm³ από 20 Νοε 2025: τόσο νερό, τουλάχιστον, βγήκε από τα στρώματα που συμπιέστηκαν και δεν αναπληρώθηκε.",
+      "en": "The subsidence amounts to a compaction volume of 1.1 hm³ since 20 Nov 2025: at least that much water left the compacted layers and was not replaced."
+     },
+     "basis": {
+      "el": "Βύθιση × έκταση. Κατώτατη ένδειξη, όχι μέτρηση στάθμης γεώτρησης.",
+      "en": "Subsidence × area. A lower bound, not a borehole level measurement."
+     }
+    },
+    {
+     "key": "egms",
+     "level": "ok",
+     "title": {
+      "el": "Συμφωνεί με EGMS",
+      "en": "Agrees with EGMS"
+     },
+     "text": {
+      "el": "NISAR −65 έναντι EGMS −58 mm/έτος (διαφορά −7.1, RMSE 3.1 mm). Δύο ανεξάρτητα συστήματα δίνουν την ίδια εικόνα.",
+      "en": "NISAR −65 vs EGMS −58 mm/yr (difference −7.1, RMSE 3.1 mm). Two independent systems give the same picture."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     }
+    },
+    {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 22°C, βροχή 1.8 mm. Τελευταίες 30 ημέρες: 162 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): +11 mm. Πρόγνωση 7 ημερών: 1 mm.",
+      "en": "Today up to 22°C, rain 1.8 mm. Last 30 days: 162 mm. 90-day balance (rain − evapotranspiration): +11 mm. 7-day forecast: 1 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    },
+    {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = -0.26 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 480 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = -0.26 over 10 passes. May–September: a 480 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    },
+    {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.83.",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.83."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   ],
+   "status": "alert",
+   "headline": {
+    "key": "reservoir",
+    "level": "alert",
+    "title": {
+     "el": "Το νερό ίσως πέρασε ήδη το όριο",
+     "en": "Water may already be past the limit"
+    },
+    "text": {
+     "el": "Λίμνη Κορώνεια: 32 hm³ (27% της χωρητικότητας), όριο 30 hm³. Στην τελευταία λήψη έχανε 0.21 hm³ την ημέρα· με αυτόν τον ρυθμό πέρασε το όριο γύρω στις 21 Οκτ 2026. Από τότε έχουν πέσει 227 mm βροχής· μόνο η επόμενη λήψη θα δείξει αν ανέκοψαν την πτώση.",
+     "en": "Lake Koronia: 32 hm³ (27% of capacity), limit 30 hm³. At the last pass it was losing 0.21 hm³ a day; at that pace it crossed the limit around 21 Oct 2026. 227 mm of rain have fallen since; only the next pass will show whether that stopped the drop."
+    },
+    "basis": {
+     "el": "Έκταση νερού από το ραντάρ × καμπύλη στάθμης–όγκου της λίμνης.",
+     "en": "Radar water extent × the lake's level–volume curve."
+    },
+    "action": {
+     "el": "Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ· σταδιακός περιορισμός των αρδευτικών απολήψεων από τη λίμνη πριν από το όριο, όχι μετά.",
+     "en": "Notify the Water Directorate and irrigation boards; reduce irrigation withdrawals from the lake gradually before the limit, not after."
+    }
+   }
+  },
+  "east": {
+   "id": "east",
+   "lastPass": "2026-10-10",
+   "ground": {
+    "rate": -42.79082070707071,
+    "total": -38.2,
+    "level": "alert",
+    "ratio": 5.9911111111111115,
+    "finding": {
+     "key": "ground",
+     "level": "alert",
+     "title": {
+      "el": "Έντονη καθίζηση",
+      "en": "Strong subsidence"
+     },
+     "text": {
+      "el": "Υποχωρεί με −43 mm/έτος (σύνολο −38 mm από 20 Νοε 2025). Την αρδευτική περίοδο (Μάιος–Σεπτέμβριος) βυθίζεται 6.0× πιο γρήγορα: ένδειξη ότι φταίει η άντληση υπόγειου νερού.",
+      "en": "Sinking at −43 mm/yr (−38 mm in total since 20 Nov 2025). During the irrigation season (May–September) it sinks 6.0× faster: a sign that groundwater pumping is the cause."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     },
+     "action": {
+      "el": "Έλεγχος αδειών και μετρητών στις γεωτρήσεις της ζώνης, περιορισμός αντλήσεων· σταθμός GNSS για επιβεβαίωση.",
+      "en": "Check borehole permits and meters in the zone, limit pumping; a GNSS station to confirm."
+     }
+    }
+   },
+   "reference": {
+    "refRate": -21.44767676767676,
+    "diff": -21.343143939393947,
+    "rmse": 9.153523911587275,
+    "agrees": false,
+    "finding": {
+     "key": "egms",
+     "level": "watch",
+     "title": {
+      "el": "Απόκλιση από EGMS",
+      "en": "Differs from EGMS"
+     },
+     "text": {
+      "el": "NISAR −43 έναντι EGMS −21 mm/έτος (διαφορά −21.3, RMSE 9.2 mm). Ξεπερνά την ανοχή των ±8 mm/έτος: το συμπέρασμα για το έδαφος θέλει έλεγχο πριν χρησιμοποιηθεί.",
+      "en": "NISAR −43 vs EGMS −21 mm/yr (difference −21.3, RMSE 9.2 mm). Beyond the ±8 mm/yr tolerance: check the ground conclusion before acting on it."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     },
+     "action": {
+      "el": "Να μη ληφθεί απόφαση μόνο με αυτό: επιβεβαίωση με επόμενες λήψεις ή επιτόπια μέτρηση.",
+      "en": "Do not decide on this alone: confirm with the next passes or a field measurement."
+     }
+    }
+   },
+   "sensors": {
+    "r": 0.6792286896477109,
+    "hvRange": 3.740000000000002,
+    "finding": {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.68.",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.68."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   },
+   "flood": null,
+   "reservoir": null,
+   "aquifer": {
+    "loss": 0.73,
+    "finding": {
+     "key": "aquifer",
+     "level": "ok",
+     "title": {
+      "el": "Χάνεται υπόγειο νερό",
+      "en": "Groundwater is being lost"
+     },
+     "text": {
+      "el": "Η καθίζηση αντιστοιχεί σε όγκο συμπίεσης 0.7 hm³ από 20 Νοε 2025: τόσο νερό, τουλάχιστον, βγήκε από τα στρώματα που συμπιέστηκαν και δεν αναπληρώθηκε.",
+      "en": "The subsidence amounts to a compaction volume of 0.7 hm³ since 20 Nov 2025: at least that much water left the compacted layers and was not replaced."
+     },
+     "basis": {
+      "el": "Βύθιση × έκταση. Κατώτατη ένδειξη, όχι μέτρηση στάθμης γεώτρησης.",
+      "en": "Subsidence × area. A lower bound, not a borehole level measurement."
+     }
+    }
+   },
+   "soil": {
+    "now": 17.1,
+    "avg": 17.48,
+    "drop": 2.1739130434782554,
+    "finding": {
+     "key": "soil",
+     "level": "ok",
+     "title": {
+      "el": "Υγρασία εδάφους κανονική",
+      "en": "Soil moisture normal"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 17% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (2% πιο ξερό εδώ).",
+      "en": "Soil moisture 17% at the last pass; the average of all areas that day is 17% (2% drier here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     }
+    }
+   },
+   "wetland": null,
+   "weather": {
+    "rain7": 4.7,
+    "rain30": 135.59999999999997,
+    "balance90": -37.410000000000025,
+    "forecast": 2,
+    "dry": 0,
+    "tmax": 22.1,
+    "rainToday": 2.1,
+    "level": "ok",
+    "finding": {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 22°C, βροχή 2.1 mm. Τελευταίες 30 ημέρες: 136 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −37 mm. Πρόγνωση 7 ημερών: 2 mm.",
+      "en": "Today up to 22°C, rain 2.1 mm. Last 30 days: 136 mm. 90-day balance (rain − evapotranspiration): −37 mm. 7-day forecast: 2 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    }
+   },
+   "effects": {
+    "passes": [
+     {
+      "date": "2025-11-20",
+      "rain": 59.29999999999999,
+      "rain10": 14.6
+     },
+     {
+      "date": "2025-12-26",
+      "rain": 152.3,
+      "rain10": 28
+     },
+     {
+      "date": "2026-01-31",
+      "rain": 67.2,
+      "rain10": 47.3
+     },
+     {
+      "date": "2026-03-08",
+      "rain": 108.20000000000002,
+      "rain10": 1.6
+     },
+     {
+      "date": "2026-04-13",
+      "rain": 62,
+      "rain10": 13.799999999999999
+     },
+     {
+      "date": "2026-05-19",
+      "rain": 105.99999999999999,
+      "rain10": 12.900000000000002
+     },
+     {
+      "date": "2026-06-24",
+      "rain": 95.9,
+      "rain10": 33.400000000000006
+     },
+     {
+      "date": "2026-07-30",
+      "rain": 36.099999999999994,
+      "rain10": 15.7
+     },
+     {
+      "date": "2026-09-04",
+      "rain": 23.2,
+      "rain10": 17.3
+     },
+     {
+      "date": "2026-10-10",
+      "rain": 14.099999999999998,
+      "rain10": 0.1
+     }
+    ],
+    "r": 0.22578453529041861,
+    "deficit": 522.1600000000002,
+    "events": [],
+    "finding": {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.23 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 522 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.23 over 10 passes. May–September: a 522 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    }
+   },
+   "findings": [
+    {
+     "key": "ground",
+     "level": "alert",
+     "title": {
+      "el": "Έντονη καθίζηση",
+      "en": "Strong subsidence"
+     },
+     "text": {
+      "el": "Υποχωρεί με −43 mm/έτος (σύνολο −38 mm από 20 Νοε 2025). Την αρδευτική περίοδο (Μάιος–Σεπτέμβριος) βυθίζεται 6.0× πιο γρήγορα: ένδειξη ότι φταίει η άντληση υπόγειου νερού.",
+      "en": "Sinking at −43 mm/yr (−38 mm in total since 20 Nov 2025). During the irrigation season (May–September) it sinks 6.0× faster: a sign that groundwater pumping is the cause."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     },
+     "action": {
+      "el": "Έλεγχος αδειών και μετρητών στις γεωτρήσεις της ζώνης, περιορισμός αντλήσεων· σταθμός GNSS για επιβεβαίωση.",
+      "en": "Check borehole permits and meters in the zone, limit pumping; a GNSS station to confirm."
+     }
+    },
+    {
+     "key": "egms",
+     "level": "watch",
+     "title": {
+      "el": "Απόκλιση από EGMS",
+      "en": "Differs from EGMS"
+     },
+     "text": {
+      "el": "NISAR −43 έναντι EGMS −21 mm/έτος (διαφορά −21.3, RMSE 9.2 mm). Ξεπερνά την ανοχή των ±8 mm/έτος: το συμπέρασμα για το έδαφος θέλει έλεγχο πριν χρησιμοποιηθεί.",
+      "en": "NISAR −43 vs EGMS −21 mm/yr (difference −21.3, RMSE 9.2 mm). Beyond the ±8 mm/yr tolerance: check the ground conclusion before acting on it."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     },
+     "action": {
+      "el": "Να μη ληφθεί απόφαση μόνο με αυτό: επιβεβαίωση με επόμενες λήψεις ή επιτόπια μέτρηση.",
+      "en": "Do not decide on this alone: confirm with the next passes or a field measurement."
+     }
+    },
+    {
+     "key": "soil",
+     "level": "ok",
+     "title": {
+      "el": "Υγρασία εδάφους κανονική",
+      "en": "Soil moisture normal"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 17% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (2% πιο ξερό εδώ).",
+      "en": "Soil moisture 17% at the last pass; the average of all areas that day is 17% (2% drier here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     }
+    },
+    {
+     "key": "aquifer",
+     "level": "ok",
+     "title": {
+      "el": "Χάνεται υπόγειο νερό",
+      "en": "Groundwater is being lost"
+     },
+     "text": {
+      "el": "Η καθίζηση αντιστοιχεί σε όγκο συμπίεσης 0.7 hm³ από 20 Νοε 2025: τόσο νερό, τουλάχιστον, βγήκε από τα στρώματα που συμπιέστηκαν και δεν αναπληρώθηκε.",
+      "en": "The subsidence amounts to a compaction volume of 0.7 hm³ since 20 Nov 2025: at least that much water left the compacted layers and was not replaced."
+     },
+     "basis": {
+      "el": "Βύθιση × έκταση. Κατώτατη ένδειξη, όχι μέτρηση στάθμης γεώτρησης.",
+      "en": "Subsidence × area. A lower bound, not a borehole level measurement."
+     }
+    },
+    {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 22°C, βροχή 2.1 mm. Τελευταίες 30 ημέρες: 136 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −37 mm. Πρόγνωση 7 ημερών: 2 mm.",
+      "en": "Today up to 22°C, rain 2.1 mm. Last 30 days: 136 mm. 90-day balance (rain − evapotranspiration): −37 mm. 7-day forecast: 2 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    },
+    {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.23 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 522 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.23 over 10 passes. May–September: a 522 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    },
+    {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.68.",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.68."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   ],
+   "status": "alert",
+   "headline": {
+    "key": "ground",
+    "level": "alert",
+    "title": {
+     "el": "Έντονη καθίζηση",
+     "en": "Strong subsidence"
+    },
+    "text": {
+     "el": "Υποχωρεί με −43 mm/έτος (σύνολο −38 mm από 20 Νοε 2025). Την αρδευτική περίοδο (Μάιος–Σεπτέμβριος) βυθίζεται 6.0× πιο γρήγορα: ένδειξη ότι φταίει η άντληση υπόγειου νερού.",
+     "en": "Sinking at −43 mm/yr (−38 mm in total since 20 Nov 2025). During the irrigation season (May–September) it sinks 6.0× faster: a sign that groundwater pumping is the cause."
+    },
+    "basis": {
+     "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+     "en": "NISAR L2 GUNW · linear trend of the displacement series"
+    },
+    "action": {
+     "el": "Έλεγχος αδειών και μετρητών στις γεωτρήσεις της ζώνης, περιορισμός αντλήσεων· σταθμός GNSS για επιβεβαίωση.",
+     "en": "Check borehole permits and meters in the zone, limit pumping; a GNSS station to confirm."
+    }
+   }
+  },
+  "langadas": {
+   "id": "langadas",
+   "lastPass": "2026-10-10",
+   "ground": {
+    "rate": -22.222449494949494,
+    "total": -20.5,
+    "level": "watch",
+    "ratio": 5.507692307692307,
+    "finding": {
+     "key": "ground",
+     "level": "watch",
+     "title": {
+      "el": "Το έδαφος υποχωρεί",
+      "en": "The ground is sinking"
+     },
+     "text": {
+      "el": "Υποχωρεί με −22 mm/έτος (σύνολο −21 mm από 20 Νοε 2025). Την αρδευτική περίοδο (Μάιος–Σεπτέμβριος) βυθίζεται 5.5× πιο γρήγορα: ένδειξη ότι φταίει η άντληση υπόγειου νερού.",
+      "en": "Sinking at −22 mm/yr (−21 mm in total since 20 Nov 2025). During the irrigation season (May–September) it sinks 5.5× faster: a sign that groundwater pumping is the cause."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     },
+     "action": {
+      "el": "Έλεγχος αδειών και μετρητών στις γεωτρήσεις της ζώνης, περιορισμός αντλήσεων· σταθμός GNSS για επιβεβαίωση.",
+      "en": "Check borehole permits and meters in the zone, limit pumping; a GNSS station to confirm."
+     }
+    }
+   },
+   "reference": {
+    "refRate": -20.303964646464642,
+    "diff": -1.9184848484848516,
+    "rmse": 1.6093476939431077,
+    "agrees": true,
+    "finding": {
+     "key": "egms",
+     "level": "ok",
+     "title": {
+      "el": "Συμφωνεί με EGMS",
+      "en": "Agrees with EGMS"
+     },
+     "text": {
+      "el": "NISAR −22 έναντι EGMS −20 mm/έτος (διαφορά −1.9, RMSE 1.6 mm). Δύο ανεξάρτητα συστήματα δίνουν την ίδια εικόνα.",
+      "en": "NISAR −22 vs EGMS −20 mm/yr (difference −1.9, RMSE 1.6 mm). Two independent systems give the same picture."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     }
+    }
+   },
+   "sensors": {
+    "r": 0.7982334860367263,
+    "hvRange": 4.850000000000001,
+    "finding": {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.80. Ο κύκλος της καλλιέργειας φαίνεται στο HV: κορύφωση τον Μαΐου (εύρος 4.9 dB).",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.80. The crop cycle shows in HV: peak in May (range 4.9 dB)."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   },
+   "flood": {
+    "date": "2026-01-31",
+    "extra": 22.5,
+    "rain": 67.69999999999999,
+    "finding": {
+     "key": "flood",
+     "level": "ok",
+     "title": {
+      "el": "Καταγράφηκε πλημμύρα",
+      "en": "A flood was recorded"
+     },
+     "text": {
+      "el": "Στις 31 Ιαν 2026 το ραντάρ είδε 23 km² νερού (συνήθως 0). Τις 14 προηγούμενες ημέρες είχαν πέσει 68 mm βροχής. Στην επόμενη λήψη (8 Μαρ) είχαν μείνει 1 km².",
+      "en": "On 31 Jan 2026 the radar saw 23 km² of water (normally 0). 68 mm of rain had fallen in the 14 days before. By the next pass (8 Mar) 1 km² remained."
+     },
+     "basis": {
+      "el": "NISAR HH: το ήρεμο νερό είναι σκοτεινό στο ραντάρ, ακόμη και με σύννεφα",
+      "en": "NISAR HH: calm water is dark to radar, even through cloud"
+     }
+    }
+   },
+   "reservoir": null,
+   "aquifer": {
+    "loss": 0.72,
+    "finding": {
+     "key": "aquifer",
+     "level": "ok",
+     "title": {
+      "el": "Χάνεται υπόγειο νερό",
+      "en": "Groundwater is being lost"
+     },
+     "text": {
+      "el": "Η καθίζηση αντιστοιχεί σε όγκο συμπίεσης 0.7 hm³ από 20 Νοε 2025: τόσο νερό, τουλάχιστον, βγήκε από τα στρώματα που συμπιέστηκαν και δεν αναπληρώθηκε.",
+      "en": "The subsidence amounts to a compaction volume of 0.7 hm³ since 20 Nov 2025: at least that much water left the compacted layers and was not replaced."
+     },
+     "basis": {
+      "el": "Βύθιση × έκταση. Κατώτατη ένδειξη, όχι μέτρηση στάθμης γεώτρησης.",
+      "en": "Subsidence × area. A lower bound, not a borehole level measurement."
+     }
+    }
+   },
+   "soil": {
+    "now": 14.6,
+    "avg": 17.48,
+    "drop": 16.47597254004577,
+    "finding": {
+     "key": "soil",
+     "level": "watch",
+     "title": {
+      "el": "Το έδαφος ξεραίνεται",
+      "en": "The soil is drying out"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 15% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (16% πιο ξερό εδώ).",
+      "en": "Soil moisture 15% at the last pass; the average of all areas that day is 17% (16% drier here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     },
+     "action": {
+      "el": "Άρδευση με βάση τη μετρημένη υγρασία αντί για σταθερό ωράριο: λιγότερο νερό από λίμνη και γεωτρήσεις.",
+      "en": "Irrigate by measured moisture instead of a fixed schedule: less water from the lake and the boreholes."
+     }
+    }
+   },
+   "wetland": {
+    "loss": 0,
+    "ha": 0,
+    "level": "ok",
+    "finding": {
+     "key": "wetland",
+     "level": "ok",
+     "title": {
+      "el": "Καλαμιώνες σταθεροί",
+      "en": "Reed beds stable"
+     },
+     "text": {
+      "el": "Καλαμιώνες 0.2 km², χωρίς αξιόλογη αλλαγή.",
+      "en": "Reed beds 0.2 km², no notable change."
+     },
+     "basis": {
+      "el": "NISAR HV (όγκος βλάστησης) + HH (τραχύτητα, διπλή ανάκλαση)",
+      "en": "NISAR HV (vegetation volume) + HH (roughness, double bounce)"
+     }
+    }
+   },
+   "weather": {
+    "rain7": 5.1000000000000005,
+    "rain30": 152.1,
+    "balance90": -76.27000000000007,
+    "forecast": 2.8,
+    "dry": 0,
+    "tmax": 21.9,
+    "rainToday": 1.3,
+    "level": "ok",
+    "finding": {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 22°C, βροχή 1.3 mm. Τελευταίες 30 ημέρες: 152 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −76 mm. Πρόγνωση 7 ημερών: 3 mm.",
+      "en": "Today up to 22°C, rain 1.3 mm. Last 30 days: 152 mm. 90-day balance (rain − evapotranspiration): −76 mm. 7-day forecast: 3 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    }
+   },
+   "effects": {
+    "passes": [
+     {
+      "date": "2025-11-20",
+      "rain": 94.5,
+      "rain10": 10.899999999999999
+     },
+     {
+      "date": "2025-12-26",
+      "rain": 137.89999999999998,
+      "rain10": 19
+     },
+     {
+      "date": "2026-01-31",
+      "rain": 80.49999999999999,
+      "rain10": 56.4
+     },
+     {
+      "date": "2026-03-08",
+      "rain": 101.99999999999999,
+      "rain10": 0.6
+     },
+     {
+      "date": "2026-04-13",
+      "rain": 56.400000000000006,
+      "rain10": 3.6
+     },
+     {
+      "date": "2026-05-19",
+      "rain": 97.70000000000002,
+      "rain10": 19.6
+     },
+     {
+      "date": "2026-06-24",
+      "rain": 92.70000000000002,
+      "rain10": 44.89999999999999
+     },
+     {
+      "date": "2026-07-30",
+      "rain": 20.599999999999998,
+      "rain10": 11.799999999999999
+     },
+     {
+      "date": "2026-09-04",
+      "rain": 21.6,
+      "rain10": 10.2
+     },
+     {
+      "date": "2026-10-10",
+      "rain": 9.5,
+      "rain10": 0
+     }
+    ],
+    "r": -0.6655825797581334,
+    "deficit": 594.7499999999998,
+    "events": [],
+    "finding": {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Η βροχή φαίνεται στο ραντάρ",
+      "en": "Rain shows up in the radar"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = -0.67 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 595 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = -0.67 over 10 passes. May–September: a 595 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    }
+   },
+   "findings": [
+    {
+     "key": "ground",
+     "level": "watch",
+     "title": {
+      "el": "Το έδαφος υποχωρεί",
+      "en": "The ground is sinking"
+     },
+     "text": {
+      "el": "Υποχωρεί με −22 mm/έτος (σύνολο −21 mm από 20 Νοε 2025). Την αρδευτική περίοδο (Μάιος–Σεπτέμβριος) βυθίζεται 5.5× πιο γρήγορα: ένδειξη ότι φταίει η άντληση υπόγειου νερού.",
+      "en": "Sinking at −22 mm/yr (−21 mm in total since 20 Nov 2025). During the irrigation season (May–September) it sinks 5.5× faster: a sign that groundwater pumping is the cause."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     },
+     "action": {
+      "el": "Έλεγχος αδειών και μετρητών στις γεωτρήσεις της ζώνης, περιορισμός αντλήσεων· σταθμός GNSS για επιβεβαίωση.",
+      "en": "Check borehole permits and meters in the zone, limit pumping; a GNSS station to confirm."
+     }
+    },
+    {
+     "key": "soil",
+     "level": "watch",
+     "title": {
+      "el": "Το έδαφος ξεραίνεται",
+      "en": "The soil is drying out"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 15% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (16% πιο ξερό εδώ).",
+      "en": "Soil moisture 15% at the last pass; the average of all areas that day is 17% (16% drier here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     },
+     "action": {
+      "el": "Άρδευση με βάση τη μετρημένη υγρασία αντί για σταθερό ωράριο: λιγότερο νερό από λίμνη και γεωτρήσεις.",
+      "en": "Irrigate by measured moisture instead of a fixed schedule: less water from the lake and the boreholes."
+     }
+    },
+    {
+     "key": "wetland",
+     "level": "ok",
+     "title": {
+      "el": "Καλαμιώνες σταθεροί",
+      "en": "Reed beds stable"
+     },
+     "text": {
+      "el": "Καλαμιώνες 0.2 km², χωρίς αξιόλογη αλλαγή.",
+      "en": "Reed beds 0.2 km², no notable change."
+     },
+     "basis": {
+      "el": "NISAR HV (όγκος βλάστησης) + HH (τραχύτητα, διπλή ανάκλαση)",
+      "en": "NISAR HV (vegetation volume) + HH (roughness, double bounce)"
+     }
+    },
+    {
+     "key": "aquifer",
+     "level": "ok",
+     "title": {
+      "el": "Χάνεται υπόγειο νερό",
+      "en": "Groundwater is being lost"
+     },
+     "text": {
+      "el": "Η καθίζηση αντιστοιχεί σε όγκο συμπίεσης 0.7 hm³ από 20 Νοε 2025: τόσο νερό, τουλάχιστον, βγήκε από τα στρώματα που συμπιέστηκαν και δεν αναπληρώθηκε.",
+      "en": "The subsidence amounts to a compaction volume of 0.7 hm³ since 20 Nov 2025: at least that much water left the compacted layers and was not replaced."
+     },
+     "basis": {
+      "el": "Βύθιση × έκταση. Κατώτατη ένδειξη, όχι μέτρηση στάθμης γεώτρησης.",
+      "en": "Subsidence × area. A lower bound, not a borehole level measurement."
+     }
+    },
+    {
+     "key": "egms",
+     "level": "ok",
+     "title": {
+      "el": "Συμφωνεί με EGMS",
+      "en": "Agrees with EGMS"
+     },
+     "text": {
+      "el": "NISAR −22 έναντι EGMS −20 mm/έτος (διαφορά −1.9, RMSE 1.6 mm). Δύο ανεξάρτητα συστήματα δίνουν την ίδια εικόνα.",
+      "en": "NISAR −22 vs EGMS −20 mm/yr (difference −1.9, RMSE 1.6 mm). Two independent systems give the same picture."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     }
+    },
+    {
+     "key": "flood",
+     "level": "ok",
+     "title": {
+      "el": "Καταγράφηκε πλημμύρα",
+      "en": "A flood was recorded"
+     },
+     "text": {
+      "el": "Στις 31 Ιαν 2026 το ραντάρ είδε 23 km² νερού (συνήθως 0). Τις 14 προηγούμενες ημέρες είχαν πέσει 68 mm βροχής. Στην επόμενη λήψη (8 Μαρ) είχαν μείνει 1 km².",
+      "en": "On 31 Jan 2026 the radar saw 23 km² of water (normally 0). 68 mm of rain had fallen in the 14 days before. By the next pass (8 Mar) 1 km² remained."
+     },
+     "basis": {
+      "el": "NISAR HH: το ήρεμο νερό είναι σκοτεινό στο ραντάρ, ακόμη και με σύννεφα",
+      "en": "NISAR HH: calm water is dark to radar, even through cloud"
+     }
+    },
+    {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 22°C, βροχή 1.3 mm. Τελευταίες 30 ημέρες: 152 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −76 mm. Πρόγνωση 7 ημερών: 3 mm.",
+      "en": "Today up to 22°C, rain 1.3 mm. Last 30 days: 152 mm. 90-day balance (rain − evapotranspiration): −76 mm. 7-day forecast: 3 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    },
+    {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Η βροχή φαίνεται στο ραντάρ",
+      "en": "Rain shows up in the radar"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = -0.67 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 595 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = -0.67 over 10 passes. May–September: a 595 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    },
+    {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.80. Ο κύκλος της καλλιέργειας φαίνεται στο HV: κορύφωση τον Μαΐου (εύρος 4.9 dB).",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.80. The crop cycle shows in HV: peak in May (range 4.9 dB)."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   ],
+   "status": "watch",
+   "headline": {
+    "key": "ground",
+    "level": "watch",
+    "title": {
+     "el": "Το έδαφος υποχωρεί",
+     "en": "The ground is sinking"
+    },
+    "text": {
+     "el": "Υποχωρεί με −22 mm/έτος (σύνολο −21 mm από 20 Νοε 2025). Την αρδευτική περίοδο (Μάιος–Σεπτέμβριος) βυθίζεται 5.5× πιο γρήγορα: ένδειξη ότι φταίει η άντληση υπόγειου νερού.",
+     "en": "Sinking at −22 mm/yr (−21 mm in total since 20 Nov 2025). During the irrigation season (May–September) it sinks 5.5× faster: a sign that groundwater pumping is the cause."
+    },
+    "basis": {
+     "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+     "en": "NISAR L2 GUNW · linear trend of the displacement series"
+    },
+    "action": {
+     "el": "Έλεγχος αδειών και μετρητών στις γεωτρήσεις της ζώνης, περιορισμός αντλήσεων· σταθμός GNSS για επιβεβαίωση.",
+     "en": "Check borehole permits and meters in the zone, limit pumping; a GNSS station to confirm."
+    }
+   }
+  },
+  "north": {
+   "id": "north",
+   "lastPass": "2026-10-10",
+   "ground": {
+    "rate": -1.6602272727272727,
+    "total": -2.5,
+    "level": "ok",
+    "ratio": null,
+    "finding": {
+     "key": "ground",
+     "level": "ok",
+     "title": {
+      "el": "Έδαφος σταθερό",
+      "en": "Ground is stable"
+     },
+     "text": {
+      "el": "Καμία αξιόλογη μετακίνηση: −2 mm/έτος.",
+      "en": "No significant motion: −2 mm/yr."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     }
+    }
+   },
+   "reference": {
+    "refRate": 0.3504924242424244,
+    "diff": -2.010719696969697,
+    "rmse": 1.2645157175772865,
+    "agrees": true,
+    "finding": {
+     "key": "egms",
+     "level": "ok",
+     "title": {
+      "el": "Συμφωνεί με EGMS",
+      "en": "Agrees with EGMS"
+     },
+     "text": {
+      "el": "NISAR −2 έναντι EGMS 0 mm/έτος (διαφορά −2.0, RMSE 1.3 mm). Δύο ανεξάρτητα συστήματα δίνουν την ίδια εικόνα.",
+      "en": "NISAR −2 vs EGMS 0 mm/yr (difference −2.0, RMSE 1.3 mm). Two independent systems give the same picture."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     }
+    }
+   },
+   "sensors": {
+    "r": 0.610531916649718,
+    "hvRange": 3.3400000000000034,
+    "finding": {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.61.",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.61."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   },
+   "flood": null,
+   "reservoir": null,
+   "aquifer": null,
+   "soil": {
+    "now": 19.3,
+    "avg": 17.48,
+    "drop": -10.411899313501145,
+    "finding": {
+     "key": "soil",
+     "level": "ok",
+     "title": {
+      "el": "Υγρασία εδάφους κανονική",
+      "en": "Soil moisture normal"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 19% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (εδώ πιο υγρό).",
+      "en": "Soil moisture 19% at the last pass; the average of all areas that day is 17% (wetter here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     }
+    }
+   },
+   "wetland": {
+    "loss": 34.42622950819671,
+    "ha": 21.1,
+    "level": "watch",
+    "finding": {
+     "key": "wetland",
+     "level": "watch",
+     "title": {
+      "el": "Ο υγρότοπος γίνεται χωράφι",
+      "en": "Wetland is turning into fields"
+     },
+     "text": {
+      "el": "21 ha καλαμιώνα άλλαξαν σε γυμνό, οργωμένο έδαφος από 13 Απρ 2026 (−34% έκτασης). Το HV έπεσε (χάθηκε ο όγκος της βλάστησης) και το HH άλλαξε από διπλή ανάκλαση σε τραχιά επιφάνεια: η υπογραφή του οργώματος.",
+      "en": "21 ha of reeds turned into bare, ploughed ground since 13 Apr 2026 (−34% of the area). HV dropped (the vegetation volume is gone) and HH went from double bounce to a rough surface: the signature of ploughing."
+     },
+     "basis": {
+      "el": "NISAR HV (όγκος βλάστησης) + HH (τραχύτητα, διπλή ανάκλαση)",
+      "en": "NISAR HV (vegetation volume) + HH (roughness, double bounce)"
+     },
+     "action": {
+      "el": "Αυτοψία από τον Φορέα Διαχείρισης (ΟΦΥΠΕΚΑ) στα σημεία που άλλαξαν· έλεγχος χρήσεων γης στη ζώνη προστασίας.",
+      "en": "Field inspection by the protected-area authority at the changed spots; check land use inside the protection zone."
+     }
+    }
+   },
+   "weather": {
+    "rain7": 5.1,
+    "rain30": 119.00000000000003,
+    "balance90": -78.50000000000006,
+    "forecast": 3,
+    "dry": 0,
+    "tmax": 21.2,
+    "rainToday": 1.7,
+    "level": "ok",
+    "finding": {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 21°C, βροχή 1.7 mm. Τελευταίες 30 ημέρες: 119 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −79 mm. Πρόγνωση 7 ημερών: 3 mm.",
+      "en": "Today up to 21°C, rain 1.7 mm. Last 30 days: 119 mm. 90-day balance (rain − evapotranspiration): −79 mm. 7-day forecast: 3 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    }
+   },
+   "effects": {
+    "passes": [
+     {
+      "date": "2025-11-20",
+      "rain": 54.19999999999999,
+      "rain10": 13
+     },
+     {
+      "date": "2025-12-26",
+      "rain": 130.8,
+      "rain10": 15.4
+     },
+     {
+      "date": "2026-01-31",
+      "rain": 62.50000000000001,
+      "rain10": 46.400000000000006
+     },
+     {
+      "date": "2026-03-08",
+      "rain": 103.1,
+      "rain10": 0.9000000000000001
+     },
+     {
+      "date": "2026-04-13",
+      "rain": 63.699999999999996,
+      "rain10": 13.4
+     },
+     {
+      "date": "2026-05-19",
+      "rain": 83.1,
+      "rain10": 27.2
+     },
+     {
+      "date": "2026-06-24",
+      "rain": 76.3,
+      "rain10": 37.6
+     },
+     {
+      "date": "2026-07-30",
+      "rain": 27.1,
+      "rain10": 12.5
+     },
+     {
+      "date": "2026-09-04",
+      "rain": 29,
+      "rain10": 12.299999999999999
+     },
+     {
+      "date": "2026-10-10",
+      "rain": 12.100000000000001,
+      "rain10": 0
+     }
+    ],
+    "r": 0.20520664018281845,
+    "deficit": 573.4300000000005,
+    "events": [
+     {
+      "type": "rain",
+      "date": "2025-11-27",
+      "value": 40.8,
+      "pass": "2025-12-26",
+      "dHH": 0.5,
+      "dWater": 0.2,
+      "dDisp": -0.6
+     }
+    ],
+    "finding": {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.21 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 573 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.21 over 10 passes. May–September: a 573 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    }
+   },
+   "findings": [
+    {
+     "key": "wetland",
+     "level": "watch",
+     "title": {
+      "el": "Ο υγρότοπος γίνεται χωράφι",
+      "en": "Wetland is turning into fields"
+     },
+     "text": {
+      "el": "21 ha καλαμιώνα άλλαξαν σε γυμνό, οργωμένο έδαφος από 13 Απρ 2026 (−34% έκτασης). Το HV έπεσε (χάθηκε ο όγκος της βλάστησης) και το HH άλλαξε από διπλή ανάκλαση σε τραχιά επιφάνεια: η υπογραφή του οργώματος.",
+      "en": "21 ha of reeds turned into bare, ploughed ground since 13 Apr 2026 (−34% of the area). HV dropped (the vegetation volume is gone) and HH went from double bounce to a rough surface: the signature of ploughing."
+     },
+     "basis": {
+      "el": "NISAR HV (όγκος βλάστησης) + HH (τραχύτητα, διπλή ανάκλαση)",
+      "en": "NISAR HV (vegetation volume) + HH (roughness, double bounce)"
+     },
+     "action": {
+      "el": "Αυτοψία από τον Φορέα Διαχείρισης (ΟΦΥΠΕΚΑ) στα σημεία που άλλαξαν· έλεγχος χρήσεων γης στη ζώνη προστασίας.",
+      "en": "Field inspection by the protected-area authority at the changed spots; check land use inside the protection zone."
+     }
+    },
+    {
+     "key": "ground",
+     "level": "ok",
+     "title": {
+      "el": "Έδαφος σταθερό",
+      "en": "Ground is stable"
+     },
+     "text": {
+      "el": "Καμία αξιόλογη μετακίνηση: −2 mm/έτος.",
+      "en": "No significant motion: −2 mm/yr."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     }
+    },
+    {
+     "key": "soil",
+     "level": "ok",
+     "title": {
+      "el": "Υγρασία εδάφους κανονική",
+      "en": "Soil moisture normal"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 19% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (εδώ πιο υγρό).",
+      "en": "Soil moisture 19% at the last pass; the average of all areas that day is 17% (wetter here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     }
+    },
+    {
+     "key": "egms",
+     "level": "ok",
+     "title": {
+      "el": "Συμφωνεί με EGMS",
+      "en": "Agrees with EGMS"
+     },
+     "text": {
+      "el": "NISAR −2 έναντι EGMS 0 mm/έτος (διαφορά −2.0, RMSE 1.3 mm). Δύο ανεξάρτητα συστήματα δίνουν την ίδια εικόνα.",
+      "en": "NISAR −2 vs EGMS 0 mm/yr (difference −2.0, RMSE 1.3 mm). Two independent systems give the same picture."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     }
+    },
+    {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 21°C, βροχή 1.7 mm. Τελευταίες 30 ημέρες: 119 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −79 mm. Πρόγνωση 7 ημερών: 3 mm.",
+      "en": "Today up to 21°C, rain 1.7 mm. Last 30 days: 119 mm. 90-day balance (rain − evapotranspiration): −79 mm. 7-day forecast: 3 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    },
+    {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.21 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 573 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.21 over 10 passes. May–September: a 573 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    },
+    {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.61.",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.61."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   ],
+   "status": "watch",
+   "headline": {
+    "key": "wetland",
+    "level": "watch",
+    "title": {
+     "el": "Ο υγρότοπος γίνεται χωράφι",
+     "en": "Wetland is turning into fields"
+    },
+    "text": {
+     "el": "21 ha καλαμιώνα άλλαξαν σε γυμνό, οργωμένο έδαφος από 13 Απρ 2026 (−34% έκτασης). Το HV έπεσε (χάθηκε ο όγκος της βλάστησης) και το HH άλλαξε από διπλή ανάκλαση σε τραχιά επιφάνεια: η υπογραφή του οργώματος.",
+     "en": "21 ha of reeds turned into bare, ploughed ground since 13 Apr 2026 (−34% of the area). HV dropped (the vegetation volume is gone) and HH went from double bounce to a rough surface: the signature of ploughing."
+    },
+    "basis": {
+     "el": "NISAR HV (όγκος βλάστησης) + HH (τραχύτητα, διπλή ανάκλαση)",
+     "en": "NISAR HV (vegetation volume) + HH (roughness, double bounce)"
+    },
+    "action": {
+     "el": "Αυτοψία από τον Φορέα Διαχείρισης (ΟΦΥΠΕΚΑ) στα σημεία που άλλαξαν· έλεγχος χρήσεων γης στη ζώνη προστασίας.",
+     "en": "Field inspection by the protected-area authority at the changed spots; check land use inside the protection zone."
+    }
+   }
+  },
+  "apollonia": {
+   "id": "apollonia",
+   "lastPass": "2026-10-10",
+   "ground": {
+    "rate": -0.903901515151515,
+    "total": -2.9,
+    "level": "ok",
+    "ratio": null,
+    "finding": {
+     "key": "ground",
+     "level": "ok",
+     "title": {
+      "el": "Έδαφος σταθερό",
+      "en": "Ground is stable"
+     },
+     "text": {
+      "el": "Καμία αξιόλογη μετακίνηση: −1 mm/έτος.",
+      "en": "No significant motion: −1 mm/yr."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     }
+    }
+   },
+   "reference": {
+    "refRate": -1.7709090909090908,
+    "diff": 0.8670075757575758,
+    "rmse": 1.1458621208504975,
+    "agrees": true,
+    "finding": {
+     "key": "egms",
+     "level": "ok",
+     "title": {
+      "el": "Συμφωνεί με EGMS",
+      "en": "Agrees with EGMS"
+     },
+     "text": {
+      "el": "NISAR −1 έναντι EGMS −2 mm/έτος (διαφορά +0.9, RMSE 1.1 mm). Δύο ανεξάρτητα συστήματα δίνουν την ίδια εικόνα.",
+      "en": "NISAR −1 vs EGMS −2 mm/yr (difference +0.9, RMSE 1.1 mm). Two independent systems give the same picture."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     }
+    }
+   },
+   "sensors": {
+    "r": 0.7069561137928372,
+    "hvRange": 2.9499999999999993,
+    "finding": {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.71.",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.71."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   },
+   "flood": null,
+   "reservoir": null,
+   "aquifer": null,
+   "soil": {
+    "now": 14.8,
+    "avg": 17.48,
+    "drop": 15.331807780320364,
+    "finding": {
+     "key": "soil",
+     "level": "watch",
+     "title": {
+      "el": "Το έδαφος ξεραίνεται",
+      "en": "The soil is drying out"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 15% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (15% πιο ξερό εδώ).",
+      "en": "Soil moisture 15% at the last pass; the average of all areas that day is 17% (15% drier here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     },
+     "action": {
+      "el": "Άρδευση με βάση τη μετρημένη υγρασία αντί για σταθερό ωράριο: λιγότερο νερό από λίμνη και γεωτρήσεις.",
+      "en": "Irrigate by measured moisture instead of a fixed schedule: less water from the lake and the boreholes."
+     }
+    }
+   },
+   "wetland": null,
+   "weather": {
+    "rain7": 5.4,
+    "rain30": 137.69999999999996,
+    "balance90": -49.210000000000065,
+    "forecast": 2.2,
+    "dry": 0,
+    "tmax": 22.5,
+    "rainToday": 2.1,
+    "level": "ok",
+    "finding": {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 23°C, βροχή 2.1 mm. Τελευταίες 30 ημέρες: 138 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −49 mm. Πρόγνωση 7 ημερών: 2 mm.",
+      "en": "Today up to 23°C, rain 2.1 mm. Last 30 days: 138 mm. 90-day balance (rain − evapotranspiration): −49 mm. 7-day forecast: 2 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    }
+   },
+   "effects": {
+    "passes": [
+     {
+      "date": "2025-11-20",
+      "rain": 62.49999999999999,
+      "rain10": 8.4
+     },
+     {
+      "date": "2025-12-26",
+      "rain": 173.60000000000002,
+      "rain10": 37.1
+     },
+     {
+      "date": "2026-01-31",
+      "rain": 76.10000000000001,
+      "rain10": 56.89999999999999
+     },
+     {
+      "date": "2026-03-08",
+      "rain": 116.39999999999999,
+      "rain10": 0.3
+     },
+     {
+      "date": "2026-04-13",
+      "rain": 58.3,
+      "rain10": 3.4000000000000004
+     },
+     {
+      "date": "2026-05-19",
+      "rain": 63.699999999999996,
+      "rain10": 7.8999999999999995
+     },
+     {
+      "date": "2026-06-24",
+      "rain": 95.49999999999999,
+      "rain10": 31.299999999999997
+     },
+     {
+      "date": "2026-07-30",
+      "rain": 32.2,
+      "rain10": 15.6
+     },
+     {
+      "date": "2026-09-04",
+      "rain": 22.4,
+      "rain10": 17.9
+     },
+     {
+      "date": "2026-10-10",
+      "rain": 8.8,
+      "rain10": 0.4
+     }
+    ],
+    "r": 0.23733180230030274,
+    "deficit": 568.7700000000002,
+    "events": [],
+    "finding": {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.24 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 569 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.24 over 10 passes. May–September: a 569 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    }
+   },
+   "findings": [
+    {
+     "key": "soil",
+     "level": "watch",
+     "title": {
+      "el": "Το έδαφος ξεραίνεται",
+      "en": "The soil is drying out"
+     },
+     "text": {
+      "el": "Υγρασία εδάφους 15% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (15% πιο ξερό εδώ).",
+      "en": "Soil moisture 15% at the last pass; the average of all areas that day is 17% (15% drier here)."
+     },
+     "basis": {
+      "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+      "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+     },
+     "action": {
+      "el": "Άρδευση με βάση τη μετρημένη υγρασία αντί για σταθερό ωράριο: λιγότερο νερό από λίμνη και γεωτρήσεις.",
+      "en": "Irrigate by measured moisture instead of a fixed schedule: less water from the lake and the boreholes."
+     }
+    },
+    {
+     "key": "ground",
+     "level": "ok",
+     "title": {
+      "el": "Έδαφος σταθερό",
+      "en": "Ground is stable"
+     },
+     "text": {
+      "el": "Καμία αξιόλογη μετακίνηση: −1 mm/έτος.",
+      "en": "No significant motion: −1 mm/yr."
+     },
+     "basis": {
+      "el": "NISAR L2 GUNW · κλίση ευθείας στη χρονοσειρά μετατόπισης",
+      "en": "NISAR L2 GUNW · linear trend of the displacement series"
+     }
+    },
+    {
+     "key": "egms",
+     "level": "ok",
+     "title": {
+      "el": "Συμφωνεί με EGMS",
+      "en": "Agrees with EGMS"
+     },
+     "text": {
+      "el": "NISAR −1 έναντι EGMS −2 mm/έτος (διαφορά +0.9, RMSE 1.1 mm). Δύο ανεξάρτητα συστήματα δίνουν την ίδια εικόνα.",
+      "en": "NISAR −1 vs EGMS −2 mm/yr (difference +0.9, RMSE 1.1 mm). Two independent systems give the same picture."
+     },
+     "basis": {
+      "el": "EGMS · σύγκριση ρυθμών στην ίδια περιοχή",
+      "en": "EGMS · rates compared over the same area"
+     }
+    },
+    {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 23°C, βροχή 2.1 mm. Τελευταίες 30 ημέρες: 138 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −49 mm. Πρόγνωση 7 ημερών: 2 mm.",
+      "en": "Today up to 23°C, rain 2.1 mm. Last 30 days: 138 mm. 90-day balance (rain − evapotranspiration): −49 mm. 7-day forecast: 2 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    },
+    {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.24 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 569 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.24 over 10 passes. May–September: a 569 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    },
+    {
+     "key": "sensors",
+     "level": "ok",
+     "title": {
+      "el": "NISAR και Sentinel-1 συμφωνούν",
+      "en": "NISAR and Sentinel-1 agree"
+     },
+     "text": {
+      "el": "Οπισθοσκέδαση L-band (HH) και C-band (VV): συσχέτιση r = 0.71.",
+      "en": "L-band (HH) and C-band (VV) backscatter: correlation r = 0.71."
+     },
+     "basis": {
+      "el": "NISAR L2 GCOV + Sentinel-1 RTC · μέσος όρος περιοχής",
+      "en": "NISAR L2 GCOV + Sentinel-1 RTC · area mean"
+     }
+    }
+   ],
+   "status": "watch",
+   "headline": {
+    "key": "soil",
+    "level": "watch",
+    "title": {
+     "el": "Το έδαφος ξεραίνεται",
+     "en": "The soil is drying out"
+    },
+    "text": {
+     "el": "Υγρασία εδάφους 15% στην τελευταία λήψη· ο μέσος όρος όλων των περιοχών την ίδια μέρα είναι 17% (15% πιο ξερό εδώ).",
+     "en": "Soil moisture 15% at the last pass; the average of all areas that day is 17% (15% drier here)."
+    },
+    "basis": {
+     "el": "NISAR L-band · το νερό αυξάνει τη διηλεκτρική σταθερά του εδάφους και άρα το σήμα",
+     "en": "NISAR L-band · water raises the soil dielectric constant and therefore the signal"
+    },
+    "action": {
+     "el": "Άρδευση με βάση τη μετρημένη υγρασία αντί για σταθερό ωράριο: λιγότερο νερό από λίμνη και γεωτρήσεις.",
+     "en": "Irrigate by measured moisture instead of a fixed schedule: less water from the lake and the boreholes."
+    }
+   }
+  }
+ }
+}

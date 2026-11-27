@@ -1,0 +1,189 @@
+{
+ "today": "2026-11-14",
+ "ans": {
+  "el": {
+   "lines": [
+    "Τελευταία λήψη NISAR, 17 Σεπ 2026: 8,8 km² νερού, 32% της έκτασης του Φεβρουαρίου (27,3 km²). Όριο: 6,8 km².",
+    "Το μοντέλο εκτιμά ότι πέρασε κάτω από το όριο γύρω στις 19 Σεπ 2026. Σήμερα: ~17 km² (εύρος 11–22). Με καιρό σαν των ετών 2015–2025, ξαναπέφτει κάτω από το όριο γύρω στις 21 Ιουν 2027 (πιθανότερα 15 Μαρ 2027 – 29 Ιουλ 2027) και μένει από κάτω ~132 ημέρες.",
+    "Σχέδιο άρδευσης για τα χωράφια γύρω από τη λίμνη πριν από τις 15 Μαρ 2027. Με 20% λιγότερο νερό άρδευσης η πτώση καθυστερεί ~4 ημέρες και οι ημέρες κάτω από το όριο μειώνονται κατά ~22. Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ τώρα, όχι όταν περάσει το όριο."
+   ],
+   "backtest": "Έλεγχος στο παρελθόν: με λήψεις μόνο ως τις 17 Αυγ 2026, το μοντέλο θα έλεγε ότι η λίμνη πέφτει κάτω από το όριο γύρω στις 26 Σεπ 2026 (23 Σεπ 2026 – 6 Οκτ 2026), δηλαδή 40 ημέρες πριν. Για τις 17 Σεπ 2026 προέβλεψε 12,8 km²· το NISAR μέτρησε 8,8 km².",
+   "answers": {
+    "now": {
+     "text": [
+      "Τελευταία λήψη NISAR, 17 Σεπ 2026: 8,8 km² νερού, 32% της έκτασης του Φεβρουαρίου (27,3 km²). Όριο: 6,8 km².",
+      "Από τότε (58 ημέρες) δεν υπάρχει νέα λήψη, οπότε το σήμερα είναι εκτίμηση του μοντέλου με τον πραγματικό καιρό ως τις 20 Νοε 2026.",
+      "Το μοντέλο εκτιμά ότι πέρασε κάτω από το όριο γύρω στις 19 Σεπ 2026. Σήμερα: ~17 km² (εύρος 11–22).",
+      "Η επόμενη λήψη NISAR θα το επιβεβαιώσει ή θα το διορθώσει."
+     ],
+     "sources": "Πηγές: NISAR L2 GCOV · 14 μετρήσεις · Open-Meteo: καιρός ως 20 Νοε 2026 και 2015–2025 · μοντέλο ισοζυγίου νερού (tools/fit_forecast.py)"
+    },
+    "when": {
+     "text": [
+      "Έτρεξα το μοντέλο με τον καιρό καθενός από τα έτη 2015–2025, τρεις φορές το καθένα (33 σενάρια).",
+      "Μεσαίο σενάριο: η λίμνη πέφτει κάτω από το όριο (6,8 km²) γύρω στις 21 Ιουν 2027. Στα μισά σενάρια αυτό γίνεται από 15 Μαρ 2027 έως 29 Ιουλ 2027.",
+      "Το καλοκαίρι του 2027 μένει κάτω από το όριο ~132 ημέρες."
+     ],
+     "sources": "Πηγές: NISAR L2 GCOV · 14 μετρήσεις · Open-Meteo: καιρός ως 20 Νοε 2026 και 2015–2025 · μοντέλο ισοζυγίου νερού (tools/fit_forecast.py)"
+    },
+    "rain": {
+     "text": [
+      "Με 20% λιγότερη βροχή από σήμερα και μετά, η λίμνη πέφτει κάτω από το όριο γύρω στις 15 Μαΐ 2027, 37 ημέρες νωρίτερα από το μεσαίο σενάριο (21 Ιουν 2027).",
+      "Ημέρες κάτω από το όριο το επόμενο καλοκαίρι: 152 αντί για 132.",
+      "Η αλλαγή εφαρμόζεται σε κάθε σενάριο καιρού· τα ίδια σενάρια, απλώς με λιγότερη βροχή."
+     ],
+     "sources": "Πηγές: Open-Meteo: καιρός ως 20 Νοε 2026 και 2015–2025 · μοντέλο ισοζυγίου νερού (tools/fit_forecast.py)"
+    },
+    "irr": {
+     "text": [
+      "Με 20% λιγότερο νερό άρδευσης (15 Απρ – 30 Σεπ), η λίμνη πέφτει κάτω από το όριο γύρω στις 25 Ιουν 2027, 4 ημέρες αργότερα από το μεσαίο σενάριο (21 Ιουν 2027).",
+      "Ημέρες κάτω από το όριο το επόμενο καλοκαίρι: 110 αντί για 132.",
+      "Υπόθεση: το καλοκαίρι το 70% των απωλειών είναι άρδευση και το 30% εξάτμιση. Δεν έχουμε μετρημένες απολήψεις, οπότε ο αριθμός δείχνει κατεύθυνση."
+     ],
+     "sources": "Πηγές: Open-Meteo: καιρός ως 20 Νοε 2026 και 2015–2025 · μοντέλο ισοζυγίου νερού (tools/fit_forecast.py)"
+    },
+    "act": {
+     "text": [
+      "Προτάσεις προς τις αρμόδιες υπηρεσίες, όχι αποφάσεις:",
+      "1. Σχέδιο άρδευσης για τα χωράφια γύρω από τη λίμνη πριν από τις 15 Μαρ 2027. Με 20% λιγότερο νερό άρδευσης η πτώση καθυστερεί ~4 ημέρες και οι ημέρες κάτω από το όριο μειώνονται κατά ~22. Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ τώρα, όχι όταν περάσει το όριο.",
+      "2. Νέα λήψη NISAR κάθε 12 ημέρες: η εφαρμογή ξαναϋπολογίζει την πρόβλεψη με κάθε μέτρηση.",
+      "3. Να αντικατασταθεί το ενδεικτικό όριο με το επίσημο του Σχεδίου Διαχείρισης (EL10)."
+     ],
+     "sources": "Πηγές: NISAR L2 GCOV · 14 μετρήσεις · μοντέλο ισοζυγίου νερού (tools/fit_forecast.py)"
+    },
+    "trust": {
+     "text": [
+      "Το μοντέλο έχει 4 παραμέτρους, προσαρμοσμένες στις 14 μετρήσεις έκτασης του 2026. Τυπικό σφάλμα: ±1,7 km².",
+      "Έλεγχος στο παρελθόν: με λήψεις μόνο ως τις 17 Αυγ 2026, το μοντέλο θα έλεγε ότι η λίμνη πέφτει κάτω από το όριο γύρω στις 26 Σεπ 2026 (23 Σεπ 2026 – 6 Οκτ 2026), δηλαδή 40 ημέρες πριν. Για τις 17 Σεπ 2026 προέβλεψε 12,8 km²· το NISAR μέτρησε 8,8 km².",
+      "Αδυναμίες: δεν έχουμε ακόμα μέτρηση χειμώνα, οπότε το πόσο γρήγορα γεμίζει η λίμνη με τη βροχή είναι το πιο αβέβαιο κομμάτι (γι' αυτό το εύρος είναι φαρδύ). Το όριο είναι ενδεικτικό (25% της μέγιστης έκτασης)."
+     ],
+     "sources": "Πηγές: NISAR L2 GCOV · 14 μετρήσεις · Open-Meteo: καιρός ως 20 Νοε 2026 και 2015–2025 · μοντέλο ισοζυγίου νερού (tools/fit_forecast.py)"
+    },
+    "none": {
+     "text": [
+      "Δεν μπορώ να απαντήσω σε αυτό με τα δεδομένα που έχω. Δοκίμασε μία από τις ερωτήσεις παραπάνω."
+     ],
+     "sources": "Πηγές: "
+    }
+   }
+  },
+  "en": {
+   "lines": [
+    "Last NISAR pass, 17 Sept 2026: 8.8 km² of water, 32% of the February extent (27.3 km²). Limit: 6.8 km².",
+    "The model estimates it went below the limit around 19 Sept 2026. Today: ~17 km² (range 11–22). With weather like 2015–2025, it falls below the limit again around 21 Jun 2027 (most likely 15 Mar 2027 – 29 Jul 2027) and stays below for ~132 days.",
+    "An irrigation plan for the fields around the lake before 15 Mar 2027. With 20% less irrigation water the fall comes ~4 days later and the days below the limit drop by ~22. Notify the Water Directorate and irrigation boards now, not once the limit is crossed."
+   ],
+   "backtest": "Back-test: with passes only up to 17 Aug 2026, the model would have said the lake falls below the limit around 26 Sept 2026 (23 Sept 2026 – 6 Oct 2026), 40 days ahead. For 17 Sept 2026 it predicted 12.8 km²; NISAR measured 8.8 km².",
+   "answers": {
+    "now": {
+     "text": [
+      "Last NISAR pass, 17 Sept 2026: 8.8 km² of water, 32% of the February extent (27.3 km²). Limit: 6.8 km².",
+      "There has been no pass since (58 days), so today is the model's estimate with the real weather up to 20 Nov 2026.",
+      "The model estimates it went below the limit around 19 Sept 2026. Today: ~17 km² (range 11–22).",
+      "The next NISAR pass will confirm or correct it."
+     ],
+     "sources": "Sources: NISAR L2 GCOV · 14 measurements · Open-Meteo: weather up to 20 Nov 2026 and 2015–2025 · water-balance model (tools/fit_forecast.py)"
+    },
+    "when": {
+     "text": [
+      "I ran the model with the weather of each year 2015–2025, three times each (33 scenarios).",
+      "Middle scenario: the lake falls below the limit (6.8 km²) around 21 Jun 2027. In half the scenarios this happens between 15 Mar 2027 and 29 Jul 2027.",
+      "In summer 2027 it stays below the limit for ~132 days."
+     ],
+     "sources": "Sources: NISAR L2 GCOV · 14 measurements · Open-Meteo: weather up to 20 Nov 2026 and 2015–2025 · water-balance model (tools/fit_forecast.py)"
+    },
+    "rain": {
+     "text": [
+      "With 20% less rain from today on, the lake falls below the limit around 15 May 2027, 37 days earlier than the middle scenario (21 Jun 2027).",
+      "Days below the limit next summer: 152 instead of 132.",
+      "The change is applied to every weather scenario: the same scenarios, with less rain."
+     ],
+     "sources": "Sources: Open-Meteo: weather up to 20 Nov 2026 and 2015–2025 · water-balance model (tools/fit_forecast.py)"
+    },
+    "irr": {
+     "text": [
+      "With 20% less irrigation water (15 Apr – 30 Sep), the lake falls below the limit around 25 Jun 2027, 4 days later than the middle scenario (21 Jun 2027).",
+      "Days below the limit next summer: 110 instead of 132.",
+      "Assumption: in summer 70% of the loss is irrigation and 30% evaporation. We have no metered withdrawals, so the figure shows direction."
+     ],
+     "sources": "Sources: Open-Meteo: weather up to 20 Nov 2026 and 2015–2025 · water-balance model (tools/fit_forecast.py)"
+    },
+    "act": {
+     "text": [
+      "Suggestions for the competent authorities, not decisions:",
+      "1. An irrigation plan for the fields around the lake before 15 Mar 2027. With 20% less irrigation water the fall comes ~4 days later and the days below the limit drop by ~22. Notify the Water Directorate and irrigation boards now, not once the limit is crossed.",
+      "2. A new NISAR pass every 12 days: the app recomputes the forecast with each measurement.",
+      "3. Replace the indicative limit with the official one from the River Basin Management Plan (EL10)."
+     ],
+     "sources": "Sources: NISAR L2 GCOV · 14 measurements · water-balance model (tools/fit_forecast.py)"
+    },
+    "trust": {
+     "text": [
+      "The model has 4 parameters, fitted to the 14 area measurements of 2026. Typical error: ±1.7 km².",
+      "Back-test: with passes only up to 17 Aug 2026, the model would have said the lake falls below the limit around 26 Sept 2026 (23 Sept 2026 – 6 Oct 2026), 40 days ahead. For 17 Sept 2026 it predicted 12.8 km²; NISAR measured 8.8 km².",
+      "Weak points: we have no winter measurement yet, so how fast rain refills the lake is the most uncertain part (hence the wide range). The limit is indicative (25% of the largest extent)."
+     ],
+     "sources": "Sources: NISAR L2 GCOV · 14 measurements · Open-Meteo: weather up to 20 Nov 2026 and 2015–2025 · water-balance model (tools/fit_forecast.py)"
+    },
+    "none": {
+     "text": [
+      "I cannot answer that from the data I have. Try one of the questions above."
+     ],
+     "sources": "Sources: "
+    }
+   }
+  }
+ },
+ "finding": {
+  "key": "reservoir",
+  "level": "watch",
+  "title": {
+   "el": "Η λίμνη ξαναπέφτει κάτω από το όριο γύρω στις 21 Ιουν 2027",
+   "en": "The lake falls below the limit again around 21 Jun 2027"
+  },
+  "text": {
+   "el": "Τελευταία λήψη NISAR, 17 Σεπ 2026: 8,8 km² νερού, 32% της έκτασης του Φεβρουαρίου (27,3 km²). Όριο: 6,8 km². Το μοντέλο εκτιμά ότι πέρασε κάτω από το όριο γύρω στις 19 Σεπ 2026. Σήμερα: ~17 km² (εύρος 11–22). Με καιρό σαν των ετών 2015–2025, ξαναπέφτει κάτω από το όριο γύρω στις 21 Ιουν 2027 (πιθανότερα 15 Μαρ 2027 – 29 Ιουλ 2027) και μένει από κάτω ~132 ημέρες.",
+   "en": "Last NISAR pass, 17 Sept 2026: 8.8 km² of water, 32% of the February extent (27.3 km²). Limit: 6.8 km². The model estimates it went below the limit around 19 Sept 2026. Today: ~17 km² (range 11–22). With weather like 2015–2025, it falls below the limit again around 21 Jun 2027 (most likely 15 Mar 2027 – 29 Jul 2027) and stays below for ~132 days."
+  },
+  "action": {
+   "el": "Σχέδιο άρδευσης για τα χωράφια γύρω από τη λίμνη πριν από τις 15 Μαρ 2027. Με 20% λιγότερο νερό άρδευσης η πτώση καθυστερεί ~4 ημέρες και οι ημέρες κάτω από το όριο μειώνονται κατά ~22. Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ τώρα, όχι όταν περάσει το όριο.",
+   "en": "An irrigation plan for the fields around the lake before 15 Mar 2027. With 20% less irrigation water the fall comes ~4 days later and the days below the limit drop by ~22. Notify the Water Directorate and irrigation boards now, not once the limit is crossed."
+  },
+  "basis": {
+   "el": "NISAR (14 μετρήσεις) + καιρός Open-Meteo + μοντέλο ισοζυγίου νερού · σφάλμα ±1,7 km²",
+   "en": "NISAR (14 measurements) + Open-Meteo weather + water-balance model · error ±1.7 km²"
+  }
+ },
+ "questions": [
+  {
+   "id": "now",
+   "el": "Πώς είναι η λίμνη σήμερα;",
+   "en": "How is the lake today?"
+  },
+  {
+   "id": "when",
+   "el": "Πότε πέφτει ξανά κάτω από το όριο;",
+   "en": "When does it fall below the limit again?"
+  },
+  {
+   "id": "rain",
+   "el": "Κι αν βρέξει 20% λιγότερο;",
+   "en": "What if it rains 20% less?"
+  },
+  {
+   "id": "irr",
+   "el": "Κι αν μειωθεί η άρδευση 20%;",
+   "en": "What if irrigation drops 20%?"
+  },
+  {
+   "id": "act",
+   "el": "Τι πρέπει να κάνει η Περιφέρεια;",
+   "en": "What should the Region do?"
+  },
+  {
+   "id": "trust",
+   "el": "Πόσο σίγουρη είναι η πρόβλεψη;",
+   "en": "How sure is the forecast?"
+  }
+ ]
+}

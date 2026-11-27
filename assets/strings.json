@@ -1,0 +1,698 @@
+{
+ "mode.explore": {
+  "el": "Εξερεύνηση",
+  "en": "Explore"
+ },
+ "nav.validation": {
+  "el": "Επαλήθευση",
+  "en": "Validation"
+ },
+ "demo.badge": {
+  "el": "Δεδομένα επίδειξης",
+  "en": "Demo data"
+ },
+ "demo.warn": {
+  "el": "Συνθετικά δεδομένα επίδειξης — όχι πραγματικές μετρήσεις.",
+  "en": "Synthetic demo data — not real measurements."
+ },
+ "layers.title": {
+  "el": "Επίπεδα ραντάρ",
+  "en": "Radar layers"
+ },
+ "hint.click": {
+  "el": "Πάτησε ένα σημείο για να δεις τη χρονοσειρά του",
+  "en": "Click a point to see its time series"
+ },
+ "tab.ground": {
+  "el": "Έδαφος",
+  "en": "Ground"
+ },
+ "tab.radar": {
+  "el": "Ραντάρ",
+  "en": "Radar"
+ },
+ "listen.play": {
+  "el": "Άκου",
+  "en": "Listen"
+ },
+ "listen.stop": {
+  "el": "Στοπ",
+  "en": "Stop"
+ },
+ "unknowns.title": {
+  "el": "Τι δεν μπορούμε να πούμε",
+  "en": "What we cannot say"
+ },
+ "tl.compare": {
+  "el": "Σύγκριση",
+  "en": "Compare"
+ },
+ "ui.hide": {
+  "el": "Μάζεμα",
+  "en": "Collapse"
+ },
+ "ui.show": {
+  "el": "Άνοιγμα",
+  "en": "Expand"
+ },
+ "tl.frame": {
+  "el": "Λήψη",
+  "en": "Acquisition"
+ },
+ "tl.of": {
+  "el": "από",
+  "en": "of"
+ },
+ "tile.total": {
+  "el": "Συνολική μετατόπιση",
+  "en": "Total displacement"
+ },
+ "tile.rate": {
+  "el": "Ρυθμός",
+  "en": "Rate"
+ },
+ "tile.hv": {
+  "el": "Εύρος HV",
+  "en": "HV range"
+ },
+ "unit.mmyr": {
+  "el": "mm/έτος",
+  "en": "mm/yr"
+ },
+ "chart.disp": {
+  "el": "NISAR μετατόπιση (mm)",
+  "en": "NISAR displacement (mm)"
+ },
+ "chart.note.ground": {
+  "el": "Αρνητικές τιμές = το έδαφος απομακρύνεται από τον δορυφόρο (βύθιση).",
+  "en": "Negative values = ground moving away from the satellite (sinking)."
+ },
+ "chart.note.radar": {
+  "el": "Οπισθοσκέδαση σε dB. HH/HV: NISAR L-band · VV: Sentinel-1 C-band.",
+  "en": "Backscatter in dB. HH/HV: NISAR L-band · VV: Sentinel-1 C-band."
+ },
+ "voice.tag": {
+  "el": "Η φωνή του τόπου",
+  "en": "A local voice"
+ },
+ "val.kicker": {
+  "el": "Είναι αληθινό;",
+  "en": "Is it real?"
+ },
+ "val.title": {
+  "el": "Το NISAR απέναντι σε ανεξάρτητες μετρήσεις",
+  "en": "NISAR against independent measurements"
+ },
+ "val.n": {
+  "el": "Σημεία",
+  "en": "Points"
+ },
+ "val.r2": {
+  "el": "Συσχέτιση R²",
+  "en": "Correlation R²"
+ },
+ "val.rmse": {
+  "el": "RMSE",
+  "en": "RMSE"
+ },
+ "val.bias": {
+  "el": "Μέση απόκλιση",
+  "en": "Mean bias"
+ },
+ "val.text": {
+  "el": "Κάθε κουκκίδα είναι ένα σημείο του κάμπου, μετρημένο από δύο ανεξάρτητα συστήματα. Όσο πιο κοντά στη διαγώνιο, τόσο καλύτερα συμφωνούν.",
+  "en": "Each dot is one location on the plain, measured by two independent systems. The closer to the diagonal, the better they agree."
+ },
+ "val.line": {
+  "el": "Τέλεια συμφωνία (1:1)",
+  "en": "Perfect agreement (1:1)"
+ },
+ "about.sources": {
+  "el": "Πηγές δεδομένων",
+  "en": "Data sources"
+ },
+ "about.team": {
+  "el": "Ομάδα",
+  "en": "Team"
+ },
+ "about.ai": {
+  "el": "Χρήση τεχνητής νοημοσύνης",
+  "en": "Use of AI"
+ },
+ "kind.subsidence": {
+  "el": "Καθίζηση",
+  "en": "Subsidence"
+ },
+ "kind.water": {
+  "el": "Νερό",
+  "en": "Water"
+ },
+ "kind.flood": {
+  "el": "Πλημμύρα",
+  "en": "Flood"
+ },
+ "kind.crop": {
+  "el": "Καλλιέργεια",
+  "en": "Cropland"
+ },
+ "kind.urban": {
+  "el": "Πόλη",
+  "en": "Urban"
+ },
+ "kind.stable": {
+  "el": "Σταθερό",
+  "en": "Stable"
+ },
+ "mode.story": {
+  "el": "Ιστορία",
+  "en": "Story"
+ },
+ "story.next": {
+  "el": "Συνέχεια",
+  "en": "Continue"
+ },
+ "story.start": {
+  "el": "Ξεκίνα",
+  "en": "Begin"
+ },
+ "story.finish": {
+  "el": "Στην Κατάσταση",
+  "en": "To Status"
+ },
+ "sensor.optical": {
+  "el": "Οπτικό",
+  "en": "Optical"
+ },
+ "sensor.radar": {
+  "el": "Ραντάρ NISAR",
+  "en": "NISAR radar"
+ },
+ "sensor.cover": {
+  "el": "Νεφοκάλυψη {n}%",
+  "en": "Cloud cover {n}%"
+ },
+ "sensor.through": {
+  "el": "βλέπει μέσα από τα σύννεφα",
+  "en": "sees through clouds"
+ },
+ "legend.seeing": {
+  "el": "Τι βλέπει το NISAR;",
+  "en": "What is NISAR seeing?"
+ },
+ "probe.sm": {
+  "el": "Υγρασία εδάφους (όγκος νερού / όγκος εδάφους)",
+  "en": "Soil moisture (water volume / soil volume)"
+ },
+ "rg.tile.soil": {
+  "el": "Υγρασία εδάφους",
+  "en": "Soil moisture"
+ },
+ "rg.tile.cleared": {
+  "el": "Υγρότοπος που χάθηκε",
+  "en": "Wetland lost"
+ },
+ "rg.tile.lake": {
+  "el": "Έκταση λίμνης",
+  "en": "Lake area"
+ },
+ "action.title": {
+  "el": "Προτεινόμενη ενέργεια",
+  "en": "Suggested action"
+ },
+ "scn.title": {
+  "el": "Τι θα γινόταν αν…",
+  "en": "What if…"
+ },
+ "scn.q": {
+  "el": "Πώς θα είναι η {lake} τον επόμενο Σεπτέμβριο, αν αλλάξουν η βροχή του χειμώνα και η άρδευση του καλοκαιριού;",
+  "en": "What will {lake} look like next September if winter rain and summer irrigation change?"
+ },
+ "scn.rain": {
+  "el": "Βροχή χειμώνα",
+  "en": "Winter rain"
+ },
+ "scn.irr": {
+  "el": "Άρδευση καλοκαιριού",
+  "en": "Summer irrigation"
+ },
+ "scn.low": {
+  "el": "Ελάχιστο απόθεμα (Σεπ.)",
+  "en": "Lowest storage (Sep.)"
+ },
+ "scn.same": {
+  "el": "όπως φέτος",
+  "en": "as this year"
+ },
+ "scn.area": {
+  "el": "Έκταση λίμνης (Σεπ.)",
+  "en": "Lake area (Sep.)"
+ },
+ "scn.now": {
+  "el": "τώρα",
+  "en": "now"
+ },
+ "src.real": {
+  "el": "Πραγματικά",
+  "en": "Real"
+ },
+ "src.demo": {
+  "el": "Επίδειξη",
+  "en": "Demo"
+ },
+ "src.missing": {
+  "el": "<b>Δεν υπάρχουν ακόμα πραγματικά δεδομένα για:</b> {list}. Τα δείχνει η <button data-src=\"demo\">Επίδειξη</button>.",
+  "en": "<b>No real data yet for:</b> {list}. See them in the <button data-src=\"demo\">Demo</button>."
+ },
+ "src.story": {
+  "el": "Η Ιστορία χρησιμοποιεί τα δεδομένα επίδειξης.",
+  "en": "The Story uses the demo data."
+ },
+ "tl.nodata": {
+  "el": "χωρίς δεδομένα",
+  "en": "no data"
+ },
+ "sensor.nodata": {
+  "el": "Άδειο αρχείο NISAR για αυτή τη μέρα",
+  "en": "Empty NISAR file for this day"
+ },
+ "sensor.s2": {
+  "el": "Sentinel-2 (HLS) · {d}",
+  "en": "Sentinel-2 (HLS) · {d}"
+ },
+ "sensor.s2gap": {
+  "el": "Sentinel-2 (HLS) · {d} · {n} ημέρες από τη λήψη ραντάρ",
+  "en": "Sentinel-2 (HLS) · {d} · {n} days from the radar pass"
+ },
+ "scn.days": {
+  "el": "Ημέρες κάτω από το όριο",
+  "en": "Days below the limit"
+ },
+ "scn.fine": {
+  "el": "κίνδυνος προστίμου",
+  "en": "penalty risk"
+ },
+ "scn.nofine": {
+  "el": "εντός ορίου",
+  "en": "within the limit"
+ },
+ "scn.sink": {
+  "el": "Καθίζηση · {area}",
+  "en": "Sinking · {area}"
+ },
+ "scn.reset": {
+  "el": "Επαναφορά",
+  "en": "Reset"
+ },
+ "scn.note": {
+  "el": "Απλό ισοζύγιο από τις μετρήσεις: ο χειμώνας γεμίζει τη λίμνη ανάλογα με τη βροχή, το καλοκαίρι την αδειάζει (70% άρδευση, 30% εξάτμιση). Η έκταση ακολουθεί το απόθεμα όπως στις λήψεις του ραντάρ. Δείχνει κατεύθυνση, δεν είναι πρόβλεψη.",
+  "en": "A simple balance built from the measurements: winter fills the lake in proportion to rain, summer drains it (70% irrigation, 30% evaporation). Area follows storage as in the radar passes. It shows direction; it is not a forecast."
+ },
+ "report.btn": {
+  "el": "Αναφορά",
+  "en": "Report"
+ },
+ "report.kicker": {
+  "el": "Ημερήσια αναφορά για την Περιφέρεια",
+  "en": "Daily brief for the Region"
+ },
+ "report.title": {
+  "el": "Κατάσταση περιοχής",
+  "en": "Area status"
+ },
+ "report.demo": {
+  "el": "Προσοχή: τα δεδομένα ραντάρ αυτής της αναφοράς είναι συνθετικά (επίδειξη). Ο καιρός είναι πραγματικός.",
+  "en": "Note: the radar data in this brief is synthetic (demo). The weather is real."
+ },
+ "report.summary": {
+  "el": "Σύνοψη ανά περιοχή",
+  "en": "Summary by area"
+ },
+ "report.area": {
+  "el": "Περιοχή",
+  "en": "Area"
+ },
+ "report.status": {
+  "el": "Κατάσταση",
+  "en": "Status"
+ },
+ "report.actions": {
+  "el": "Ευρήματα και προτεινόμενες ενέργειες",
+  "en": "Findings and suggested actions"
+ },
+ "report.scn": {
+  "el": "Σενάριο: βροχή {rain}%, άρδευση {irr}%. Ελάχιστο απόθεμα τον Σεπτέμβριο {low} {unit} (όριο {limit}), {days} ημέρες κάτω από το όριο. Απλό ισοζύγιο, όχι πρόβλεψη.",
+  "en": "Scenario: rain {rain}%, irrigation {irr}%. Lowest storage in September {low} {unit} (limit {limit}), {days} days below the limit. A simple balance, not a forecast."
+ },
+ "report.foot": {
+  "el": "EarthDance · NISAR L-band (NASA/ISRO, ASF DAAC), Sentinel-1 (ESA/Copernicus), EGMS (Copernicus), καιρός Open-Meteo. Οι προτεινόμενες ενέργειες είναι προτάσεις προς τις αρμόδιες υπηρεσίες, όχι αποφάσεις.",
+  "en": "EarthDance · NISAR L-band (NASA/ISRO, ASF DAAC), Sentinel-1 (ESA/Copernicus), EGMS (Copernicus), weather Open-Meteo. Suggested actions are proposals to the competent services, not decisions."
+ },
+ "mode.status": {
+  "el": "Κατάσταση",
+  "en": "Status"
+ },
+ "demo.short": {
+  "el": "δεδομένα επίδειξης",
+  "en": "demo data"
+ },
+ "st.alert": {
+  "el": "Συναγερμός",
+  "en": "Alert"
+ },
+ "st.watch": {
+  "el": "Προσοχή",
+  "en": "Watch"
+ },
+ "st.ok": {
+  "el": "Εντάξει",
+  "en": "OK"
+ },
+ "brief.kicker": {
+  "el": "Ημερήσια εικόνα",
+  "en": "Daily briefing"
+ },
+ "brief.h.alert1": {
+  "el": "1 περιοχή θέλει ενέργεια τώρα",
+  "en": "1 area needs action now"
+ },
+ "brief.h.alertN": {
+  "el": "{n} περιοχές θέλουν ενέργεια τώρα",
+  "en": "{n} areas need action now"
+ },
+ "brief.h.watch1": {
+  "el": "1 περιοχή θέλει προσοχή",
+  "en": "1 area needs watching"
+ },
+ "brief.h.watchN": {
+  "el": "{n} περιοχές θέλουν προσοχή",
+  "en": "{n} areas need watching"
+ },
+ "brief.h.ok": {
+  "el": "Όλες οι περιοχές εντός ορίων",
+  "en": "All areas within limits"
+ },
+ "brief.radar": {
+  "el": "Ραντάρ",
+  "en": "Radar"
+ },
+ "brief.radarText": {
+  "el": "τελευταία λήψη {d}, πριν από {n} ημέρες",
+  "en": "last pass {d}, {n} days ago"
+ },
+ "brief.wx": {
+  "el": "Καιρός",
+  "en": "Weather"
+ },
+ "brief.wx.live": {
+  "el": "σήμερα, ζωντανά από το Open-Meteo",
+  "en": "today, live from Open-Meteo"
+ },
+ "brief.wx.snapshot": {
+  "el": "αποθηκευμένο αντίγραφο της {d} (χωρίς σύνδεση)",
+  "en": "saved copy from {d} (offline)"
+ },
+ "brief.wx.loading": {
+  "el": "φόρτωση…",
+  "en": "loading…"
+ },
+ "brief.wx.none": {
+  "el": "δεν φορτώθηκε· τα συμπεράσματα βγαίνουν μόνο από το ραντάρ",
+  "en": "not loaded; conclusions use radar only"
+ },
+ "brief.todo": {
+  "el": "Τι θέλει ενέργεια",
+  "en": "Needs action"
+ },
+ "brief.none": {
+  "el": "Τίποτα σήμερα.",
+  "en": "Nothing today."
+ },
+ "brief.areas": {
+  "el": "Περιοχές",
+  "en": "Areas"
+ },
+ "brief.foot": {
+  "el": "Ο καιρός ανανεώνεται κάθε μέρα. Το ραντάρ ανανεώνεται σε κάθε πέρασμα: NISAR κάθε 12 ημέρες, Sentinel-1 κάθε 6–12.",
+  "en": "Weather refreshes daily. Radar refreshes on every pass: NISAR every 12 days, Sentinel-1 every 6–12."
+ },
+ "rg.pass": {
+  "el": "Τελευταία λήψη {d} · πριν από {n} ημέρες",
+  "en": "Last pass {d} · {n} days ago"
+ },
+ "rg.tile.rate": {
+  "el": "Ρυθμός εδάφους",
+  "en": "Ground rate"
+ },
+ "rg.tile.egms": {
+  "el": "Διαφορά από {ref}",
+  "en": "Difference from {ref}"
+ },
+ "rg.tile.rain": {
+  "el": "Βροχή 30 ημερών",
+  "en": "30-day rain"
+ },
+ "rg.rain7": {
+  "el": "Βροχή 7 ημερών",
+  "en": "7-day rain"
+ },
+ "rg.findings": {
+  "el": "Συμπεράσματα",
+  "en": "Conclusions"
+ },
+ "fc.today": {
+  "el": "Σήμ.",
+  "en": "Today"
+ },
+ "rtab.wx": {
+  "el": "Καιρός",
+  "en": "Weather"
+ },
+ "rtab.fx": {
+  "el": "Βροχή → ραντάρ",
+  "en": "Rain → radar"
+ },
+ "rtab.h2o": {
+  "el": "Νερό",
+  "en": "Water"
+ },
+ "rc.rainWeek": {
+  "el": "Βροχή ανά εβδομάδα (mm)",
+  "en": "Rain per week (mm)"
+ },
+ "rc.balance": {
+  "el": "Σωρευτικό ισοζύγιο (mm)",
+  "en": "Cumulative balance (mm)"
+ },
+ "rc.rainPass": {
+  "el": "Βροχή από την προηγούμενη λήψη (mm)",
+  "en": "Rain since previous pass (mm)"
+ },
+ "rc.volume": {
+  "el": "Απόθεμα",
+  "en": "Storage"
+ },
+ "rc.limit": {
+  "el": "Ελάχιστο όριο",
+  "en": "Minimum limit"
+ },
+ "rc.projection": {
+  "el": "Προβολή",
+  "en": "Projection"
+ },
+ "rc.loss": {
+  "el": "Όγκος συμπίεσης (hm³)",
+  "en": "Compaction volume (hm³)"
+ },
+ "rc.water": {
+  "el": "Επιφάνεια νερού (km²)",
+  "en": "Water surface (km²)"
+ },
+ "rnote.wx": {
+  "el": "Πραγματικός καιρός (Open-Meteo). Ισοζύγιο = βροχή − εξατμισοδιαπνοή αναφοράς. Οι αχνές μπάρες είναι πρόγνωση.",
+  "en": "Real weather (Open-Meteo). Balance = rain − reference evapotranspiration. Faint bars are forecast."
+ },
+ "rnote.fx": {
+  "el": "Μπάρες: βροχή ανάμεσα στις λήψεις. Γραμμές: τι μέτρησαν οι δύο δορυφόροι.",
+  "en": "Bars: rain between passes. Lines: what the two satellites measured."
+ },
+ "rnote.h2o.res": {
+  "el": "Απόθεμα από την έκταση νερού στο ραντάρ. Διακεκομμένη: προβολή με τον τελευταίο ρυθμό.",
+  "en": "Storage from the radar water extent. Dashed: projection at the latest pace."
+ },
+ "rnote.h2o.aq": {
+  "el": "Όγκος συμπίεσης = βύθιση × έκταση: κατώτατη ένδειξη για το υπόγειο νερό που χάθηκε.",
+  "en": "Compaction volume = subsidence × area: a lower bound on the groundwater lost."
+ },
+ "rnote.nowx": {
+  "el": "Ο καιρός δεν φορτώθηκε.",
+  "en": "Weather could not be loaded."
+ },
+ "al.title": {
+  "el": "Ειδοποίηση για αποφυγή προστίμου",
+  "en": "Alert to avoid a penalty"
+ },
+ "al.warned": {
+  "el": "Με προειδοποίηση {w} ημερών πριν από το όριο, η ειδοποίηση βγαίνει από τη λήψη της {d}.",
+  "en": "With a {w}-day warning before the limit, the alert fires from the pass of {d}."
+ },
+ "al.rule": {
+  "el": "Κανόνας",
+  "en": "Rule"
+ },
+ "al.open": {
+  "el": "Ειδοποίηση για τη λίμνη",
+  "en": "Lake alert"
+ },
+ "al3.seen": {
+  "el": "Τι μετρήσαμε",
+  "en": "What we measured"
+ },
+ "al3.coming": {
+  "el": "Τι έρχεται",
+  "en": "What is coming"
+ },
+ "al3.do": {
+  "el": "Τι να γίνει",
+  "en": "What to do"
+ },
+ "rc.band": {
+  "el": "Εύρος πρόβλεψης",
+  "en": "Forecast range"
+ },
+ "rc.forecast": {
+  "el": "Πρόβλεψη (μεσαίο σενάριο)",
+  "en": "Forecast (middle scenario)"
+ },
+ "rc.measured": {
+  "el": "Μέτρηση NISAR / Sentinel-2",
+  "en": "NISAR / Sentinel-2 measurement"
+ },
+ "rc.today": {
+  "el": "Σήμερα",
+  "en": "Today"
+ },
+ "rnote.h2o.fc": {
+  "el": "Τελείες: έκταση νερού που μετρήθηκε. Διακεκομμένη: πρόβλεψη του μοντέλου ισοζυγίου νερού. Σκίαση: εύρος από 33 σενάρια καιρού (2015–2025) και το σφάλμα του μοντέλου.",
+  "en": "Dots: measured water extent. Dashed: the water-balance model forecast. Shading: range from 33 weather scenarios (2015–2025) and the model error."
+ },
+ "ask.title": {
+  "el": "Ρώτα το EarthDance",
+  "en": "Ask EarthDance"
+ },
+ "ask.ph": {
+  "el": "Γράψε μια ερώτηση για τη λίμνη…",
+  "en": "Ask something about the lake…"
+ },
+ "ask.send": {
+  "el": "Ρώτα",
+  "en": "Ask"
+ },
+ "ask.thinking": {
+  "el": "Υπολογίζω από τις μετρήσεις…",
+  "en": "Working it out from the measurements…"
+ },
+ "ask.note": {
+  "el": "Οι απαντήσεις φτιάχνονται από τα νούμερα του μοντέλου και των μετρήσεων, με σταθερά πρότυπα κειμένου. Δεν υπάρχει γλωσσικό μοντέλο, άρα δεν επινοείται κανένας αριθμός.",
+  "en": "Answers are built from the model and the measurements with fixed text templates. There is no language model, so no number is made up."
+ },
+ "scn.next": {
+  "el": "Επόμενη πτώση κάτω από το όριο",
+  "en": "Next fall below the limit"
+ },
+ "scn.sep": {
+  "el": "Έκταση λίμνης 1 Ιουν.",
+  "en": "Lake area 1 Jun."
+ },
+ "scn.base": {
+  "el": "χωρίς αλλαγή",
+  "en": "no change"
+ },
+ "scn.q.model": {
+  "el": "Πώς θα είναι η {lake} το επόμενο καλοκαίρι, αν αλλάξουν η βροχή και η άρδευση από σήμερα;",
+  "en": "What will {lake} look like next summer if rain and irrigation change from today?"
+ },
+ "scn.note.model": {
+  "el": "Το ίδιο μοντέλο ισοζυγίου νερού με την πρόβλεψη, με αλλαγμένη βροχή ή άρδευση. Υπόθεση για την άρδευση: το καλοκαίρι το 70% των απωλειών είναι άρδευση και το 30% εξάτμιση.",
+  "en": "The same water-balance model as the forecast, with rain or irrigation changed. Irrigation assumption: in summer 70% of the loss is irrigation and 30% evaporation."
+ },
+ "report.forecast": {
+  "el": "Πρόβλεψη για τη λίμνη",
+  "en": "Lake forecast"
+ },
+ "report.scn.model": {
+  "el": "Σενάριο: βροχή {rain}%, άρδευση {irr}%. Επόμενη πτώση κάτω από το όριο: {next}. Έκταση 1 Ιουνίου: {low} {unit} (όριο {limit}), {days} ημέρες κάτω από το όριο το καλοκαίρι.",
+  "en": "Scenario: rain {rain}%, irrigation {irr}%. Next fall below the limit: {next}. Area on 1 June: {low} {unit} (limit {limit}), {days} days below the limit in summer."
+ },
+ "ev.title": {
+  "el": "Ακραίος καιρός και τι είδε μετά το ραντάρ",
+  "en": "Extreme weather and what the radar saw next"
+ },
+ "ev.rain": {
+  "el": "{v} mm βροχής σε μία ημέρα",
+  "en": "{v} mm of rain in one day"
+ },
+ "ev.heat": {
+  "el": "Καύσωνας {n} ημερών, έως {v}°C",
+  "en": "{n}-day heatwave, up to {v}°C"
+ },
+ "ev.after": {
+  "el": "Λήψη {d}:",
+  "en": "Pass of {d}:"
+ },
+ "ev.water": {
+  "el": "νερό",
+  "en": "water"
+ },
+ "ev.ground": {
+  "el": "έδαφος",
+  "en": "ground"
+ },
+ "ev.none": {
+  "el": "Κανένα ακραίο φαινόμενο στην περίοδο των λήψεων.",
+  "en": "No extreme events during the satellite record."
+ },
+ "how.title": {
+  "el": "Πώς βγαίνουν τα συμπεράσματα",
+  "en": "How the conclusions are made"
+ },
+ "how.text": {
+  "el": "Με απλούς κανόνες και κατώφλια που φαίνονται εδώ και αλλάζουν στο data/regions.json.",
+  "en": "With plain rules and thresholds, shown here and editable in data/regions.json."
+ },
+ "how.sink": {
+  "el": "Καθίζηση: προσοχή κάτω από {a} mm/έτος, συναγερμός κάτω από {b}.",
+  "en": "Subsidence: watch below {a} mm/yr, alert below {b}."
+ },
+ "how.egms": {
+  "el": "Συμφωνία με {ref}: διαφορά ρυθμών έως ±{a} mm/έτος.",
+  "en": "Agreement with {ref}: rates within ±{a} mm/yr."
+ },
+ "how.res": {
+  "el": "Ταμιευτήρας: συναγερμός όταν το όριο απέχει {a} ημέρες ή λιγότερο με τον τρέχοντα ρυθμό.",
+  "en": "Reservoir: alert when the limit is {a} days away or less at the current pace."
+ },
+ "how.wx": {
+  "el": "Καιρός: βροχή πάνω από {a} mm/ημέρα, θερμοκρασία πάνω από {b}°C, {c} ημέρες χωρίς βροχή.",
+  "en": "Weather: rain above {a} mm/day, temperature above {b}°C, {c} days without rain."
+ },
+ "how.demo": {
+  "el": "Το ραντάρ είναι ακόμη συνθετικό, ο καιρός πραγματικός: οι σχέσεις ανάμεσά τους δεν σημαίνουν τίποτα μέχρι να μπουν πραγματικές λήψεις.",
+  "en": "The radar is still synthetic while the weather is real: links between them mean nothing until real acquisitions are loaded."
+ },
+ "agree.yes": {
+  "el": "Συμφωνεί με {ref}",
+  "en": "Agrees with {ref}"
+ },
+ "agree.no": {
+  "el": "Απόκλιση από {ref}",
+  "en": "Differs from {ref}"
+ },
+ "loader.map": {
+  "el": "Στήσιμο χάρτη…",
+  "en": "Setting up the map…"
+ },
+ "err.load": {
+  "el": "Δεν φορτώθηκαν τα δεδομένα. Τρέξε την εφαρμογή μέσω τοπικού server (δες README).",
+  "en": "Data failed to load. Run the app through a local server (see README)."
+ }
+}

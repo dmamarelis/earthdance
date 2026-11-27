@@ -1,0 +1,276 @@
+{
+  "story": [
+    {
+      "kicker": {
+        "el": "Πρόλογος",
+        "en": "Prologue"
+      },
+      "title": {
+        "el": "Μια λίμνη που κανείς δεν βλέπει",
+        "en": "A lake nobody can see"
+      },
+      "body": {
+        "el": "Η Κορώνεια, ανάμεσα στη Θεσσαλονίκη και τον Λαγκαδά, είναι υγρότοπος προστατευόμενος από το Natura 2000 και τη Σύμβαση Ramsar και, ταυτόχρονα, πηγή νερού για τα χωράφια γύρω της. Τις περισσότερες μέρες του χειμώνα και της άνοιξης, ένας συνηθισμένος δορυφόρος δεν τη βλέπει καν: τη σκεπάζουν σύννεφα.",
+        "en": "Koronia, between Thessaloniki and Langadas, is a wetland protected under Natura 2000 and the Ramsar Convention, and at the same time a water source for the fields around it. On most winter and spring days an ordinary satellite cannot even see it: clouds cover it."
+      },
+      "sensor": "optical",
+      "layer": "hh",
+      "frame": 4,
+      "center": [
+        23.2,
+        40.68
+      ],
+      "zoom": 10.6
+    },
+    {
+      "kicker": {
+        "el": "Το ραντάρ",
+        "en": "The radar"
+      },
+      "title": {
+        "el": "Μέσα από τα σύννεφα",
+        "en": "Through the clouds"
+      },
+      "body": {
+        "el": "Το NISAR εκπέμπει μικροκύματα μήκους 24 cm (L-band) που περνούν από σύννεφα και καπνό, μέρα και νύχτα. Στην πόλωση HH το ήρεμο νερό λειτουργεί σαν καθρέφτης: το σήμα ανακλάται μακριά από τον δορυφόρο και η λίμνη φαίνεται σκοτεινή. Πέρασε το ποντίκι πάνω της για να δεις τις τιμές.",
+        "en": "NISAR sends 24 cm microwaves (L-band) that pass through cloud and smoke, day and night. In HH polarisation calm water acts like a mirror: the signal bounces away from the satellite and the lake looks dark. Hover over it to see the values."
+      },
+      "sensor": "radar",
+      "layer": "hh",
+      "frame": 4,
+      "center": [
+        23.15,
+        40.683
+      ],
+      "zoom": 11.3
+    },
+    {
+      "kicker": {
+        "el": "Νερό",
+        "en": "Water"
+      },
+      "title": {
+        "el": "Η λίμνη αναπνέει — και λιγοστεύει",
+        "en": "The lake breathes — and shrinks"
+      },
+      "body": {
+        "el": "Από τον Απρίλιο στον Οκτώβριο η σκοτεινή επιφάνεια μαζεύει: η άρδευση και η εξάτμιση παίρνουν περισσότερο νερό από όσο φέρνει ο χειμώνας. Σύρε το timeline για να το δεις λήψη με λήψη.",
+        "en": "From April to October the dark surface contracts: irrigation and evaporation take more water than winter brings. Drag the timeline to watch it pass by pass."
+      },
+      "sensor": "radar",
+      "layer": "hh",
+      "frame": 9,
+      "center": [
+        23.15,
+        40.683
+      ],
+      "zoom": 11.3
+    },
+    {
+      "kicker": {
+        "el": "Υγρότοπος",
+        "en": "Wetland"
+      },
+      "title": {
+        "el": "Οι καλαμιώνες γίνονται χωράφια",
+        "en": "Reed beds become fields"
+      },
+      "body": {
+        "el": "Στην πόλωση HV ο όγκος της βλάστησης «ανάβει»: οι καλαμιώνες γύρω από τη λίμνη φαίνονται φωτεινοί. Στη βόρεια όχθη όμως κομμάτια τους σβήνουν από λήψη σε λήψη, ενώ το HH δείχνει τραχιά, οργωμένη επιφάνεια. Ο υγρότοπος γίνεται χωράφι.",
+        "en": "In HV polarisation vegetation volume lights up: the reed beds around the lake look bright. On the north shore, though, patches go dark pass after pass while HH shows a rough, ploughed surface. The wetland is becoming farmland."
+      },
+      "sensor": "radar",
+      "layer": "hv",
+      "frame": 9,
+      "center": [
+        23.15,
+        40.69
+      ],
+      "zoom": 11.7
+    },
+    {
+      "kicker": {
+        "el": "Έδαφος",
+        "en": "Ground"
+      },
+      "title": {
+        "el": "Η γη βυθίζεται",
+        "en": "The land is sinking"
+      },
+      "body": {
+        "el": "Συγκρίνοντας τη φάση του σήματος από λήψη σε λήψη (InSAR), το NISAR μετρά κινήσεις του εδάφους λίγων χιλιοστών. Στη νότια όχθη το έδαφος βυθίζεται πιο γρήγορα το καλοκαίρι, όταν δουλεύουν οι γεωτρήσεις: ο υδροφορέας αδειάζει και συμπιέζεται. Η ευρωπαϊκή υπηρεσία EGMS μετρά, ανεξάρτητα, το ίδιο.",
+        "en": "By comparing the signal phase pass to pass (InSAR), NISAR measures ground motion of a few millimetres. On the south shore the ground sinks faster in summer, when the boreholes run: the aquifer empties and compacts. The European EGMS service independently measures the same."
+      },
+      "sensor": "radar",
+      "layer": "disp",
+      "frame": 9,
+      "point": "agvasileios",
+      "center": [
+        23.14,
+        40.66
+      ],
+      "zoom": 11.6,
+      "pitch": 50,
+      "bearing": -15
+    },
+    {
+      "kicker": {
+        "el": "Επίλογος",
+        "en": "Epilogue"
+      },
+      "title": {
+        "el": "Από τα σήματα στις αποφάσεις",
+        "en": "From signals to decisions"
+      },
+      "body": {
+        "el": "Νερό, καλαμιώνες, υγρασία, έδαφος: η προβολή «Κατάσταση» τα κάνει καθημερινή εικόνα για την Περιφέρεια, με ειδοποιήσεις πριν από τα όρια, προτεινόμενες ενέργειες και σενάρια για την επόμενη χρονιά.",
+        "en": "Water, reeds, moisture, ground: the Status view turns them into a daily picture for the Region, with alerts before limits are crossed, suggested actions and scenarios for next year."
+      },
+      "sensor": "radar",
+      "layer": "sm",
+      "frame": 9,
+      "center": [
+        23.2,
+        40.68
+      ],
+      "zoom": 10.6
+    }
+  ],
+  "explanations": {
+    "subsidence": {
+      "title": {
+        "el": "Γιατί βυθίζεται;",
+        "en": "Why is it sinking?"
+      },
+      "text": {
+        "el": "Η βύθιση επιταχύνεται το καλοκαίρι, όταν οι γεωτρήσεις αντλούν για άρδευση, και επιβραδύνεται τον χειμώνα. Αυτός ο εποχικός ρυθμός δείχνει ότι αιτία είναι η πτώση της στάθμης του υπόγειου νερού.",
+        "en": "Sinking speeds up in summer, when boreholes pump for irrigation, and slows in winter. This seasonal rhythm points to falling groundwater levels as the cause."
+      }
+    },
+    "water": {
+      "title": {
+        "el": "Γιατί αλλάζει η λίμνη;",
+        "en": "Why does the lake change?"
+      },
+      "text": {
+        "el": "Η επιφάνεια του νερού φαίνεται σκούρα στο ραντάρ. Η έκταση μεγαλώνει με τις χειμερινές βροχές και μικραίνει το καλοκαίρι με την εξάτμιση και την άρδευση.",
+        "en": "Open water looks dark to radar. The extent grows with winter rain and shrinks in summer with evaporation and irrigation."
+      }
+    },
+    "flood": {
+      "title": {
+        "el": "Τι έγινε εδώ;",
+        "en": "What happened here?"
+      },
+      "text": {
+        "el": "Η απότομη πτώση του HH δείχνει ότι το χωράφι καλύφθηκε από νερό. Όταν η τιμή επιστρέφει στα προηγούμενα επίπεδα, το νερό έχει αποσυρθεί.",
+        "en": "The sharp HH drop shows the field was covered by water. When the value returns to earlier levels, the water has receded."
+      }
+    },
+    "crop": {
+      "title": {
+        "el": "Γιατί ανεβοκατεβαίνει το HV;",
+        "en": "Why does HV rise and fall?"
+      },
+      "text": {
+        "el": "Το HV ακολουθεί τον κύκλο της καλλιέργειας: ανεβαίνει όσο το φυτό αποκτά όγκο και πέφτει απότομα μετά τη συγκομιδή.",
+        "en": "HV follows the crop cycle: it rises as the plant gains volume and drops sharply after harvest."
+      }
+    },
+    "urban": {
+      "title": {
+        "el": "Γιατί είναι τόσο φωτεινή η πόλη;",
+        "en": "Why is the city so bright?"
+      },
+      "text": {
+        "el": "Τοίχοι και δρόμοι σχηματίζουν γωνίες που επιστρέφουν το σήμα κατευθείαν στον δορυφόρο. Η πόλη μένει σταθερά φωτεινή όλο τον χρόνο.",
+        "en": "Walls and streets form corners that send the signal straight back to the satellite. The city stays bright all year."
+      }
+    },
+    "stable": {
+      "title": {
+        "el": "Ένα σταθερό σημείο",
+        "en": "A stable point"
+      },
+      "text": {
+        "el": "Εδώ το έδαφος δεν κινείται μετρήσιμα. Τέτοια σημεία λειτουργούν ως αναφορά για να ξεχωρίσουμε την πραγματική κίνηση από τον θόρυβο.",
+        "en": "Here the ground does not move measurably. Points like this act as a reference to separate real motion from noise."
+      }
+    }
+  },
+  "voices": {
+    "agvasileios": {
+      "quote": {
+        "el": "[Θέση για απόσπασμα συνέντευξης με κάτοικο ή αγρότη της περιοχής]",
+        "en": "[Placeholder for an interview excerpt with a local resident or farmer]"
+      },
+      "who": {
+        "el": "Όνομα, ιδιότητα",
+        "en": "Name, role"
+      },
+      "media": ""
+    }
+  },
+  "unknowns": [
+    {
+      "el": "Η μετατόπιση μετριέται στη γραμμή όρασης του δορυφόρου, όχι καθαρά κατακόρυφα.",
+      "en": "Displacement is measured along the satellite line of sight, not purely vertically."
+    },
+    {
+      "el": "Σε δάση και νερό το σήμα χάνει τη συνοχή του και δεν υπάρχει μέτρηση.",
+      "en": "Over forest and water the signal loses coherence and there is no measurement."
+    },
+    {
+      "el": "Η ατμόσφαιρα προσθέτει θόρυβο λίγων χιλιοστών σε κάθε λήψη.",
+      "en": "The atmosphere adds a few millimetres of noise to each acquisition."
+    },
+    {
+      "el": "Η χρονοσειρά είναι ακόμη σύντομη· οι ετήσιοι ρυθμοί θα γίνουν πιο αξιόπιστοι με τον χρόνο.",
+      "en": "The time series is still short; annual rates will become more reliable over time."
+    },
+    {
+      "el": "Η «Οπτική» προβολή δείχνει την πραγματική νεφοκάλυψη κάθε ημερομηνίας, αλλά τα σύννεφα είναι σχηματικά, όχι εικόνα Sentinel-2.",
+      "en": "The Optical view shows each date's real cloud cover, but the clouds are schematic, not a Sentinel-2 image."
+    },
+    {
+      "el": "Το σενάριο «Τι θα γινόταν αν» είναι απλό ισοζύγιο νερού, όχι υδρολογικό μοντέλο.",
+      "en": "The What-if scenario is a simple water balance, not a hydrological model."
+    }
+  ],
+  "about": {
+    "tagline": {
+      "el": "Ο χορός της Γης, όπως τον βλέπει το ραντάρ του NISAR.",
+      "en": "Earth's dance, as seen by NISAR's radar."
+    },
+    "sources": [
+      {
+        "name": "NISAR L2 GCOV / GUNW",
+        "by": "NASA / ISRO · ASF DAAC",
+        "url": "https://search.asf.alaska.edu"
+      },
+      {
+        "name": "Sentinel-1 RTC",
+        "by": "ESA / Copernicus · OPERA",
+        "url": "https://www.jpl.nasa.gov/go/opera"
+      },
+      {
+        "name": "European Ground Motion Service",
+        "by": "Copernicus Land Monitoring Service",
+        "url": "https://egms.land.copernicus.eu"
+      },
+      {
+        "name": "Open-Meteo Weather API",
+        "by": "Open-Meteo · ERA5 / ECMWF · CC BY 4.0",
+        "url": "https://open-meteo.com"
+      }
+    ],
+    "team": {
+      "el": "[Ονόματα ομάδας]",
+      "en": "[Team names]"
+    },
+    "ai": {
+      "el": "Στην ανάπτυξη χρησιμοποιήθηκαν εργαλεία τεχνητής νοημοσύνης (Claude) για κώδικα και κείμενα. Η ομάδα έλεγξε και εκτέλεσε τα αποτελέσματα.",
+      "en": "AI tools (Claude) were used for code and text drafting. The team reviewed and ran the results."
+    }
+  }
+}

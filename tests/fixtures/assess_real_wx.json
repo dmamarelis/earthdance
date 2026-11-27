@@ -1,0 +1,441 @@
+{
+ "today": "2026-11-14",
+ "A": {
+  "koroneia_core": {
+   "id": "koroneia_core",
+   "lastPass": "2026-09-17",
+   "ground": {
+    "rate": null,
+    "total": null,
+    "level": "ok",
+    "ratio": null,
+    "finding": null
+   },
+   "reference": null,
+   "sensors": null,
+   "flood": null,
+   "reservoir": {
+    "now": 8.75,
+    "pct": 32.09831254585473,
+    "perDay": -0.06428571428571418,
+    "daysLeft": 30.022222222222265,
+    "crossDate": "2026-10-17",
+    "overdue": true,
+    "warnedOn": "2026-08-17",
+    "below": false,
+    "level": "watch",
+    "rainSince": 185.09999999999997,
+    "finding": {
+     "key": "reservoir",
+     "level": "watch",
+     "title": {
+      "el": "Η λίμνη ξαναπέφτει κάτω από το όριο γύρω στις 21 Ιουν 2027",
+      "en": "The lake falls below the limit again around 21 Jun 2027"
+     },
+     "text": {
+      "el": "Τελευταία λήψη NISAR, 17 Σεπ 2026: 8,8 km² νερού, 32% της έκτασης του Φεβρουαρίου (27,3 km²). Όριο: 6,8 km². Το μοντέλο εκτιμά ότι πέρασε κάτω από το όριο γύρω στις 19 Σεπ 2026. Σήμερα: ~17 km² (εύρος 11–22). Με καιρό σαν των ετών 2015–2025, ξαναπέφτει κάτω από το όριο γύρω στις 21 Ιουν 2027 (πιθανότερα 15 Μαρ 2027 – 29 Ιουλ 2027) και μένει από κάτω ~132 ημέρες.",
+      "en": "Last NISAR pass, 17 Sept 2026: 8.8 km² of water, 32% of the February extent (27.3 km²). Limit: 6.8 km². The model estimates it went below the limit around 19 Sept 2026. Today: ~17 km² (range 11–22). With weather like 2015–2025, it falls below the limit again around 21 Jun 2027 (most likely 15 Mar 2027 – 29 Jul 2027) and stays below for ~132 days."
+     },
+     "action": {
+      "el": "Σχέδιο άρδευσης για τα χωράφια γύρω από τη λίμνη πριν από τις 15 Μαρ 2027. Με 20% λιγότερο νερό άρδευσης η πτώση καθυστερεί ~4 ημέρες και οι ημέρες κάτω από το όριο μειώνονται κατά ~22. Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ τώρα, όχι όταν περάσει το όριο.",
+      "en": "An irrigation plan for the fields around the lake before 15 Mar 2027. With 20% less irrigation water the fall comes ~4 days later and the days below the limit drop by ~22. Notify the Water Directorate and irrigation boards now, not once the limit is crossed."
+     },
+     "basis": {
+      "el": "NISAR (14 μετρήσεις) + καιρός Open-Meteo + μοντέλο ισοζυγίου νερού · σφάλμα ±1,7 km²",
+      "en": "NISAR (14 measurements) + Open-Meteo weather + water-balance model · error ±1.7 km²"
+     }
+    }
+   },
+   "aquifer": null,
+   "soil": null,
+   "wetland": null,
+   "weather": {
+    "rain7": 5.1,
+    "rain30": 119.00000000000003,
+    "balance90": -83.70999999999998,
+    "forecast": 3,
+    "dry": 0,
+    "tmax": 22.2,
+    "rainToday": 1.7,
+    "level": "ok",
+    "finding": {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 22°C, βροχή 1.7 mm. Τελευταίες 30 ημέρες: 119 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −84 mm. Πρόγνωση 7 ημερών: 3 mm.",
+      "en": "Today up to 22°C, rain 1.7 mm. Last 30 days: 119 mm. 90-day balance (rain − evapotranspiration): −84 mm. 7-day forecast: 3 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    }
+   },
+   "effects": {
+    "passes": [
+     {
+      "date": "2026-02-16",
+      "rain": 139.40000000000003,
+      "rain10": 42
+     },
+     {
+      "date": "2026-03-13",
+      "rain": 22.099999999999998,
+      "rain10": 0.30000000000000004
+     },
+     {
+      "date": "2026-04-07",
+      "rain": 61.4,
+      "rain10": 53.1
+     },
+     {
+      "date": "2026-05-04",
+      "rain": 53,
+      "rain10": 19.3
+     },
+     {
+      "date": "2026-06-18",
+      "rain": 89.29999999999998,
+      "rain10": 26.3
+     },
+     {
+      "date": "2026-06-30",
+      "rain": 25.299999999999997,
+      "rain10": 21.4
+     },
+     {
+      "date": "2026-07-07",
+      "rain": 4.5,
+      "rain10": 5.8999999999999995
+     },
+     {
+      "date": "2026-07-24",
+      "rain": 15.2,
+      "rain10": 12.5
+     },
+     {
+      "date": "2026-08-12",
+      "rain": 3.8000000000000003,
+      "rain10": 2.3000000000000003
+     },
+     {
+      "date": "2026-08-17",
+      "rain": 11.399999999999999,
+      "rain10": 13
+     },
+     {
+      "date": "2026-08-24",
+      "rain": 3,
+      "rain10": 3
+     },
+     {
+      "date": "2026-09-05",
+      "rain": 12.299999999999999,
+      "rain10": 12.299999999999999
+     },
+     {
+      "date": "2026-09-10",
+      "rain": 0,
+      "rain10": 11.4
+     },
+     {
+      "date": "2026-09-17",
+      "rain": 2.2,
+      "rain10": 2.2
+     }
+    ],
+    "r": 0.03256322198009693,
+    "deficit": 585.6400000000004,
+    "events": [],
+    "finding": {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.03 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 586 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.03 over 10 passes. May–September: a 586 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    }
+   },
+   "findings": [
+    {
+     "key": "reservoir",
+     "level": "watch",
+     "title": {
+      "el": "Η λίμνη ξαναπέφτει κάτω από το όριο γύρω στις 21 Ιουν 2027",
+      "en": "The lake falls below the limit again around 21 Jun 2027"
+     },
+     "text": {
+      "el": "Τελευταία λήψη NISAR, 17 Σεπ 2026: 8,8 km² νερού, 32% της έκτασης του Φεβρουαρίου (27,3 km²). Όριο: 6,8 km². Το μοντέλο εκτιμά ότι πέρασε κάτω από το όριο γύρω στις 19 Σεπ 2026. Σήμερα: ~17 km² (εύρος 11–22). Με καιρό σαν των ετών 2015–2025, ξαναπέφτει κάτω από το όριο γύρω στις 21 Ιουν 2027 (πιθανότερα 15 Μαρ 2027 – 29 Ιουλ 2027) και μένει από κάτω ~132 ημέρες.",
+      "en": "Last NISAR pass, 17 Sept 2026: 8.8 km² of water, 32% of the February extent (27.3 km²). Limit: 6.8 km². The model estimates it went below the limit around 19 Sept 2026. Today: ~17 km² (range 11–22). With weather like 2015–2025, it falls below the limit again around 21 Jun 2027 (most likely 15 Mar 2027 – 29 Jul 2027) and stays below for ~132 days."
+     },
+     "action": {
+      "el": "Σχέδιο άρδευσης για τα χωράφια γύρω από τη λίμνη πριν από τις 15 Μαρ 2027. Με 20% λιγότερο νερό άρδευσης η πτώση καθυστερεί ~4 ημέρες και οι ημέρες κάτω από το όριο μειώνονται κατά ~22. Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ τώρα, όχι όταν περάσει το όριο.",
+      "en": "An irrigation plan for the fields around the lake before 15 Mar 2027. With 20% less irrigation water the fall comes ~4 days later and the days below the limit drop by ~22. Notify the Water Directorate and irrigation boards now, not once the limit is crossed."
+     },
+     "basis": {
+      "el": "NISAR (14 μετρήσεις) + καιρός Open-Meteo + μοντέλο ισοζυγίου νερού · σφάλμα ±1,7 km²",
+      "en": "NISAR (14 measurements) + Open-Meteo weather + water-balance model · error ±1.7 km²"
+     }
+    },
+    {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 22°C, βροχή 1.7 mm. Τελευταίες 30 ημέρες: 119 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −84 mm. Πρόγνωση 7 ημερών: 3 mm.",
+      "en": "Today up to 22°C, rain 1.7 mm. Last 30 days: 119 mm. 90-day balance (rain − evapotranspiration): −84 mm. 7-day forecast: 3 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    },
+    {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.03 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 586 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.03 over 10 passes. May–September: a 586 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    }
+   ],
+   "status": "watch",
+   "headline": {
+    "key": "reservoir",
+    "level": "watch",
+    "title": {
+     "el": "Η λίμνη ξαναπέφτει κάτω από το όριο γύρω στις 21 Ιουν 2027",
+     "en": "The lake falls below the limit again around 21 Jun 2027"
+    },
+    "text": {
+     "el": "Τελευταία λήψη NISAR, 17 Σεπ 2026: 8,8 km² νερού, 32% της έκτασης του Φεβρουαρίου (27,3 km²). Όριο: 6,8 km². Το μοντέλο εκτιμά ότι πέρασε κάτω από το όριο γύρω στις 19 Σεπ 2026. Σήμερα: ~17 km² (εύρος 11–22). Με καιρό σαν των ετών 2015–2025, ξαναπέφτει κάτω από το όριο γύρω στις 21 Ιουν 2027 (πιθανότερα 15 Μαρ 2027 – 29 Ιουλ 2027) και μένει από κάτω ~132 ημέρες.",
+     "en": "Last NISAR pass, 17 Sept 2026: 8.8 km² of water, 32% of the February extent (27.3 km²). Limit: 6.8 km². The model estimates it went below the limit around 19 Sept 2026. Today: ~17 km² (range 11–22). With weather like 2015–2025, it falls below the limit again around 21 Jun 2027 (most likely 15 Mar 2027 – 29 Jul 2027) and stays below for ~132 days."
+    },
+    "action": {
+     "el": "Σχέδιο άρδευσης για τα χωράφια γύρω από τη λίμνη πριν από τις 15 Μαρ 2027. Με 20% λιγότερο νερό άρδευσης η πτώση καθυστερεί ~4 ημέρες και οι ημέρες κάτω από το όριο μειώνονται κατά ~22. Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ τώρα, όχι όταν περάσει το όριο.",
+     "en": "An irrigation plan for the fields around the lake before 15 Mar 2027. With 20% less irrigation water the fall comes ~4 days later and the days below the limit drop by ~22. Notify the Water Directorate and irrigation boards now, not once the limit is crossed."
+    },
+    "basis": {
+     "el": "NISAR (14 μετρήσεις) + καιρός Open-Meteo + μοντέλο ισοζυγίου νερού · σφάλμα ±1,7 km²",
+     "en": "NISAR (14 measurements) + Open-Meteo weather + water-balance model · error ±1.7 km²"
+    }
+   }
+  },
+  "koroneia_shore": {
+   "id": "koroneia_shore",
+   "lastPass": "2026-09-17",
+   "ground": {
+    "rate": null,
+    "total": null,
+    "level": "ok",
+    "ratio": null,
+    "finding": null
+   },
+   "reference": null,
+   "sensors": null,
+   "flood": null,
+   "reservoir": null,
+   "aquifer": null,
+   "soil": null,
+   "wetland": null,
+   "weather": {
+    "rain7": 4.9,
+    "rain30": 164.8,
+    "balance90": -8.95999999999998,
+    "forecast": 2.3,
+    "dry": 0,
+    "tmax": 21.4,
+    "rainToday": 1.4,
+    "level": "ok",
+    "finding": {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 21°C, βροχή 1.4 mm. Τελευταίες 30 ημέρες: 165 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −9 mm. Πρόγνωση 7 ημερών: 2 mm.",
+      "en": "Today up to 21°C, rain 1.4 mm. Last 30 days: 165 mm. 90-day balance (rain − evapotranspiration): −9 mm. 7-day forecast: 2 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    }
+   },
+   "effects": {
+    "passes": [
+     {
+      "date": "2026-02-16",
+      "rain": 145.2,
+      "rain10": 32.300000000000004
+     },
+     {
+      "date": "2026-03-13",
+      "rain": 20.9,
+      "rain10": 1.3
+     },
+     {
+      "date": "2026-04-07",
+      "rain": 65.5,
+      "rain10": 53.39999999999999
+     },
+     {
+      "date": "2026-05-04",
+      "rain": 78.3,
+      "rain10": 32.599999999999994
+     },
+     {
+      "date": "2026-06-18",
+      "rain": 114.10000000000001,
+      "rain10": 30.2
+     },
+     {
+      "date": "2026-06-30",
+      "rain": 27.299999999999997,
+      "rain10": 21.099999999999998
+     },
+     {
+      "date": "2026-07-07",
+      "rain": 2.3,
+      "rain10": 2.9000000000000004
+     },
+     {
+      "date": "2026-07-24",
+      "rain": 18.8,
+      "rain10": 16.1
+     },
+     {
+      "date": "2026-08-12",
+      "rain": 2.7000000000000006,
+      "rain10": 1.5
+     },
+     {
+      "date": "2026-08-17",
+      "rain": 12.9,
+      "rain10": 14
+     },
+     {
+      "date": "2026-08-24",
+      "rain": 4.2,
+      "rain10": 4.2
+     },
+     {
+      "date": "2026-09-05",
+      "rain": 18.3,
+      "rain10": 18.3
+     },
+     {
+      "date": "2026-09-10",
+      "rain": 0,
+      "rain10": 17.8
+     },
+     {
+      "date": "2026-09-17",
+      "rain": 4.8999999999999995,
+      "rain10": 4.8999999999999995
+     }
+    ],
+    "r": 0.4615762044056975,
+    "deficit": 513.6499999999999,
+    "events": [],
+    "finding": {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.46 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 514 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.46 over 10 passes. May–September: a 514 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    }
+   },
+   "findings": [
+    {
+     "key": "weather",
+     "level": "ok",
+     "sub": null,
+     "title": {
+      "el": "Καιρός χωρίς ακραία φαινόμενα",
+      "en": "No extreme weather"
+     },
+     "text": {
+      "el": "Σήμερα έως 21°C, βροχή 1.4 mm. Τελευταίες 30 ημέρες: 165 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −9 mm. Πρόγνωση 7 ημερών: 2 mm.",
+      "en": "Today up to 21°C, rain 1.4 mm. Last 30 days: 165 mm. 90-day balance (rain − evapotranspiration): −9 mm. 7-day forecast: 2 mm."
+     },
+     "basis": {
+      "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+      "en": "Open-Meteo · daily reanalysis and forecast"
+     }
+    },
+    {
+     "key": "effects",
+     "level": "ok",
+     "title": {
+      "el": "Βροχή και ραντάρ: καμία καθαρή σχέση",
+      "en": "Rain and radar: no clear link"
+     },
+     "text": {
+      "el": "Βροχή 10 ημερών πριν από κάθε λήψη έναντι οπισθοσκέδασης HH: r = 0.46 σε 10 λήψεις. Μάιος–Σεπτέμβριος: έλλειμμα 514 mm, που καλύφθηκε με άρδευση.",
+      "en": "10-day rain before each pass against HH backscatter: r = 0.46 over 10 passes. May–September: a 514 mm deficit, made up by irrigation."
+     },
+     "basis": {
+      "el": "Open-Meteo + NISAR L2 GCOV",
+      "en": "Open-Meteo + NISAR L2 GCOV"
+     }
+    }
+   ],
+   "status": "ok",
+   "headline": {
+    "key": "weather",
+    "level": "ok",
+    "sub": null,
+    "title": {
+     "el": "Καιρός χωρίς ακραία φαινόμενα",
+     "en": "No extreme weather"
+    },
+    "text": {
+     "el": "Σήμερα έως 21°C, βροχή 1.4 mm. Τελευταίες 30 ημέρες: 165 mm. Ισοζύγιο 90 ημερών (βροχή − εξατμισοδιαπνοή): −9 mm. Πρόγνωση 7 ημερών: 2 mm.",
+     "en": "Today up to 21°C, rain 1.4 mm. Last 30 days: 165 mm. 90-day balance (rain − evapotranspiration): −9 mm. 7-day forecast: 2 mm."
+    },
+    "basis": {
+     "el": "Open-Meteo · ημερήσια δεδομένα επανανάλυσης και πρόγνωση",
+     "en": "Open-Meteo · daily reanalysis and forecast"
+    }
+   }
+  }
+ }
+}

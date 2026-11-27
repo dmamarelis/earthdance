@@ -11,3 +11,6 @@ raw/
 # the real Lake Koronia inputs are kept in the repo (tools/build_real_data.py reads them)
 !Koroneia_NISAR/*.tif
 !Koroneia_Sentinel/*.tif
+
+# Rust
+/target/

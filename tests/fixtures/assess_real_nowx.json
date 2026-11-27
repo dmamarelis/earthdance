@@ -1,0 +1,121 @@
+{
+ "today": "2026-11-14",
+ "A": {
+  "koroneia_core": {
+   "id": "koroneia_core",
+   "lastPass": "2026-09-17",
+   "ground": {
+    "rate": null,
+    "total": null,
+    "level": "ok",
+    "ratio": null,
+    "finding": null
+   },
+   "reference": null,
+   "sensors": null,
+   "flood": null,
+   "reservoir": {
+    "now": 8.75,
+    "pct": 32.09831254585473,
+    "perDay": -0.06428571428571418,
+    "daysLeft": 30.022222222222265,
+    "crossDate": "2026-10-17",
+    "overdue": true,
+    "warnedOn": "2026-08-17",
+    "below": false,
+    "level": "watch",
+    "rainSince": null,
+    "finding": {
+     "key": "reservoir",
+     "level": "watch",
+     "title": {
+      "el": "Η λίμνη ξαναπέφτει κάτω από το όριο γύρω στις 2 Μαΐ 2027",
+      "en": "The lake falls below the limit again around 2 May 2027"
+     },
+     "text": {
+      "el": "Τελευταία λήψη NISAR, 17 Σεπ 2026: 8,8 km² νερού, 32% της έκτασης του Φεβρουαρίου (27,3 km²). Όριο: 6,8 km². Το μοντέλο εκτιμά ότι πέρασε κάτω από το όριο γύρω στις 19 Σεπ 2026. Σήμερα: ~9 km² (εύρος 0–17). Με καιρό σαν των ετών 2015–2025, ξαναπέφτει κάτω από το όριο γύρω στις 2 Μαΐ 2027 (πιθανότερα 6 Δεκ 2026 – 28 Ιουν 2027) και μένει από κάτω ~143 ημέρες.",
+      "en": "Last NISAR pass, 17 Sept 2026: 8.8 km² of water, 32% of the February extent (27.3 km²). Limit: 6.8 km². The model estimates it went below the limit around 19 Sept 2026. Today: ~9 km² (range 0–17). With weather like 2015–2025, it falls below the limit again around 2 May 2027 (most likely 6 Dec 2026 – 28 Jun 2027) and stays below for ~143 days."
+     },
+     "action": {
+      "el": "Σχέδιο άρδευσης για τα χωράφια γύρω από τη λίμνη πριν από τις 6 Δεκ 2026. Με 20% λιγότερο νερό άρδευσης η πτώση καθυστερεί ~48 ημέρες και οι ημέρες κάτω από το όριο μειώνονται κατά ~9. Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ τώρα, όχι όταν περάσει το όριο.",
+      "en": "An irrigation plan for the fields around the lake before 6 Dec 2026. With 20% less irrigation water the fall comes ~48 days later and the days below the limit drop by ~9. Notify the Water Directorate and irrigation boards now, not once the limit is crossed."
+     },
+     "basis": {
+      "el": "NISAR (14 μετρήσεις) + καιρός Open-Meteo + μοντέλο ισοζυγίου νερού · σφάλμα ±1,7 km²",
+      "en": "NISAR (14 measurements) + Open-Meteo weather + water-balance model · error ±1.7 km²"
+     }
+    }
+   },
+   "aquifer": null,
+   "soil": null,
+   "wetland": null,
+   "weather": null,
+   "effects": null,
+   "findings": [
+    {
+     "key": "reservoir",
+     "level": "watch",
+     "title": {
+      "el": "Η λίμνη ξαναπέφτει κάτω από το όριο γύρω στις 2 Μαΐ 2027",
+      "en": "The lake falls below the limit again around 2 May 2027"
+     },
+     "text": {
+      "el": "Τελευταία λήψη NISAR, 17 Σεπ 2026: 8,8 km² νερού, 32% της έκτασης του Φεβρουαρίου (27,3 km²). Όριο: 6,8 km². Το μοντέλο εκτιμά ότι πέρασε κάτω από το όριο γύρω στις 19 Σεπ 2026. Σήμερα: ~9 km² (εύρος 0–17). Με καιρό σαν των ετών 2015–2025, ξαναπέφτει κάτω από το όριο γύρω στις 2 Μαΐ 2027 (πιθανότερα 6 Δεκ 2026 – 28 Ιουν 2027) και μένει από κάτω ~143 ημέρες.",
+      "en": "Last NISAR pass, 17 Sept 2026: 8.8 km² of water, 32% of the February extent (27.3 km²). Limit: 6.8 km². The model estimates it went below the limit around 19 Sept 2026. Today: ~9 km² (range 0–17). With weather like 2015–2025, it falls below the limit again around 2 May 2027 (most likely 6 Dec 2026 – 28 Jun 2027) and stays below for ~143 days."
+     },
+     "action": {
+      "el": "Σχέδιο άρδευσης για τα χωράφια γύρω από τη λίμνη πριν από τις 6 Δεκ 2026. Με 20% λιγότερο νερό άρδευσης η πτώση καθυστερεί ~48 ημέρες και οι ημέρες κάτω από το όριο μειώνονται κατά ~9. Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ τώρα, όχι όταν περάσει το όριο.",
+      "en": "An irrigation plan for the fields around the lake before 6 Dec 2026. With 20% less irrigation water the fall comes ~48 days later and the days below the limit drop by ~9. Notify the Water Directorate and irrigation boards now, not once the limit is crossed."
+     },
+     "basis": {
+      "el": "NISAR (14 μετρήσεις) + καιρός Open-Meteo + μοντέλο ισοζυγίου νερού · σφάλμα ±1,7 km²",
+      "en": "NISAR (14 measurements) + Open-Meteo weather + water-balance model · error ±1.7 km²"
+     }
+    }
+   ],
+   "status": "watch",
+   "headline": {
+    "key": "reservoir",
+    "level": "watch",
+    "title": {
+     "el": "Η λίμνη ξαναπέφτει κάτω από το όριο γύρω στις 2 Μαΐ 2027",
+     "en": "The lake falls below the limit again around 2 May 2027"
+    },
+    "text": {
+     "el": "Τελευταία λήψη NISAR, 17 Σεπ 2026: 8,8 km² νερού, 32% της έκτασης του Φεβρουαρίου (27,3 km²). Όριο: 6,8 km². Το μοντέλο εκτιμά ότι πέρασε κάτω από το όριο γύρω στις 19 Σεπ 2026. Σήμερα: ~9 km² (εύρος 0–17). Με καιρό σαν των ετών 2015–2025, ξαναπέφτει κάτω από το όριο γύρω στις 2 Μαΐ 2027 (πιθανότερα 6 Δεκ 2026 – 28 Ιουν 2027) και μένει από κάτω ~143 ημέρες.",
+     "en": "Last NISAR pass, 17 Sept 2026: 8.8 km² of water, 32% of the February extent (27.3 km²). Limit: 6.8 km². The model estimates it went below the limit around 19 Sept 2026. Today: ~9 km² (range 0–17). With weather like 2015–2025, it falls below the limit again around 2 May 2027 (most likely 6 Dec 2026 – 28 Jun 2027) and stays below for ~143 days."
+    },
+    "action": {
+     "el": "Σχέδιο άρδευσης για τα χωράφια γύρω από τη λίμνη πριν από τις 6 Δεκ 2026. Με 20% λιγότερο νερό άρδευσης η πτώση καθυστερεί ~48 ημέρες και οι ημέρες κάτω από το όριο μειώνονται κατά ~9. Ενημέρωση Διεύθυνσης Υδάτων και ΤΟΕΒ τώρα, όχι όταν περάσει το όριο.",
+     "en": "An irrigation plan for the fields around the lake before 6 Dec 2026. With 20% less irrigation water the fall comes ~48 days later and the days below the limit drop by ~9. Notify the Water Directorate and irrigation boards now, not once the limit is crossed."
+    },
+    "basis": {
+     "el": "NISAR (14 μετρήσεις) + καιρός Open-Meteo + μοντέλο ισοζυγίου νερού · σφάλμα ±1,7 km²",
+     "en": "NISAR (14 measurements) + Open-Meteo weather + water-balance model · error ±1.7 km²"
+    }
+   }
+  },
+  "koroneia_shore": {
+   "id": "koroneia_shore",
+   "lastPass": "2026-09-17",
+   "ground": {
+    "rate": null,
+    "total": null,
+    "level": "ok",
+    "ratio": null,
+    "finding": null
+   },
+   "reference": null,
+   "sensors": null,
+   "flood": null,
+   "reservoir": null,
+   "aquifer": null,
+   "soil": null,
+   "wetland": null,
+   "weather": null,
+   "effects": null,
+   "findings": [],
+   "status": "ok"
+  }
+ }
+}

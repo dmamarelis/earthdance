@@ -1,0 +1,11 @@
+[package]
+name = "ed-core"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+description = "EarthDance domain model, statistics, rules, lake forecast and answers. Pure: no IO."
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+unicode-normalization = "0.1"
