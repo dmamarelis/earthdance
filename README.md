@@ -5,7 +5,8 @@ it is heading, and what the regional authority should do about it.**
 
 Built for Lake Koronia (Central Macedonia, Greece) at the NASA Space Apps Challenge 2026,
 *Dancing with the SARs*, where the team took **3rd place** and advanced to NASA's global round.
-It now runs as a native desktop app and works for any lake on Earth that Sentinel-2 sees.
+It now runs as a native desktop app and can open any lake that Sentinel-2 sees (checked at Koronia so
+far; other lakes are still to be tested).
 
 ![Status view: the lake on satellite imagery, the alert, and the forecast](docs/img/status.jpg)
 

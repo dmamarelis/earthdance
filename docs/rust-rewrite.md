@@ -135,6 +135,9 @@ with d = 2. Synthetic data is never mixed into the real set: the demo set stays 
   and band (nearest-neighbour warp 3.2 → 0.2 s CPU), partial results are analysed after the first batch
   and then every third instead of after every batch (analysis 1.9 → 0.3 s, assembly 1.0 → 0.1 s), and the
   per-scene work runs on all cores (rayon).
+* **Status of other lakes**: the build has been run end to end only at Koronia. A five-lake check (Bled,
+  Mývatn, Naivasha, Taupō, Mead) was started and then stopped before finishing, to be run when there is
+  time; until then, results for other lakes are untested.
 
 **For the team to look at**: for Koronia, Sentinel-2 sees ~26–31 km² of water all through 2025–26, while
 the NISAR radar (legacy method, HH ≤ −18 dB) saw the lake fall to ~9 km² in September 2026. Radar counts
