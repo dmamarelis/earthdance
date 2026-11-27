@@ -336,6 +336,44 @@ pub struct Params {
     pub k: f64,
     pub q: f64,
     pub amax: f64,
+    /// Months of the wet season (bit m−1), when rain also runs off the catchment into the lake. Absent in
+    /// older files: November–March, the Koronia definition.
+    #[serde(default = "legacy_wet_months")]
+    pub wet_months: u16,
+    /// Months of the irrigation season (bit m−1). `None`: 15 April – 30 September, the Koronia definition.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub irrigation_months: Option<u16>,
+}
+
+/// November, December, January, February, March.
+pub const LEGACY_WET_MONTHS: u16 = (1 << 10) | (1 << 11) | 0b111;
+
+fn legacy_wet_months() -> u16 {
+    LEGACY_WET_MONTHS
+}
+
+impl Params {
+    pub fn new(a_wet: f64, a_dry: f64, k: f64, q: f64, amax: f64) -> Self {
+        Self { a_wet, a_dry, k, q, amax, wet_months: LEGACY_WET_MONTHS, irrigation_months: None }
+    }
+    pub fn with_seasons(self, s: (u16, Option<u16>)) -> Self {
+        Self { wet_months: s.0, irrigation_months: s.1, ..self }
+    }
+    pub fn seasons(&self) -> (u16, Option<u16>) {
+        (self.wet_months, self.irrigation_months)
+    }
+    pub fn is_wet(&self, d: Date) -> bool {
+        self.wet_months & (1 << (d.month() - 1)) != 0
+    }
+    pub fn is_irrigation(&self, d: Date) -> bool {
+        match self.irrigation_months {
+            Some(m) => m & (1 << (d.month() - 1)) != 0,
+            None => {
+                let md = d.md();
+                ((4, 15)..=(9, 30)).contains(&md)
+            }
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

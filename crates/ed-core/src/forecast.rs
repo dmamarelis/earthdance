@@ -30,22 +30,40 @@ pub const RAIN_FACTORS: [f64; 3] = [0.5, 1.0, 1.5];
 /// How many simulated years the weather generator supplies (× the 3 rain factors = members).
 pub const SYNTHETIC_YEARS: usize = 150;
 
-/// November to March: rain also runs off the catchment into the lake.
+/// The Koronia wet season (November to March), for code without fitted parameters.
 pub fn is_wet(d: Date) -> bool {
-    let m = d.month();
-    m >= 11 || m <= 3
+    Params::new(0.0, 0.0, 0.0, 1.0, 1.0).is_wet(d)
 }
 
-/// 15 April to 30 September.
-pub fn is_irrigation(d: Date) -> bool {
-    let md = d.md();
-    ((4, 15)..=(9, 30)).contains(&md)
+/// Wet and irrigation seasons from a place's own climate: the wet season is the five months with the
+/// highest mean rain − ET0 (the months that refill), the irrigation season the six months with the
+/// highest ET0 (the months that drain). For Koronia this gives back Nov–Mar and Apr–Sep; in the southern
+/// hemisphere or the tropics it follows the local calendar.
+pub fn seasons_from_climate(wx: &DailyWeather) -> (u16, Option<u16>) {
+    let mut sum = [(0.0f64, 0.0f64, 0usize); 12];
+    for (d, (r, e)) in wx {
+        let s = &mut sum[(d.month() - 1) as usize];
+        s.0 += r;
+        s.1 += e;
+        s.2 += 1;
+    }
+    if sum.iter().any(|s| s.2 == 0) {
+        return (crate::model::LEGACY_WET_MONTHS, None);
+    }
+    let mean = |m: usize, f: fn(&(f64, f64, usize)) -> f64| f(&sum[m]) / sum[m].2 as f64;
+    let mut by_balance: Vec<usize> = (0..12).collect();
+    by_balance.sort_by(|&a, &b| (mean(b, |s| s.0) - mean(b, |s| s.1)).total_cmp(&(mean(a, |s| s.0) - mean(a, |s| s.1))));
+    let mut by_et0: Vec<usize> = (0..12).collect();
+    by_et0.sort_by(|&a, &b| mean(b, |s| s.1).total_cmp(&mean(a, |s| s.1)));
+    let wet = by_balance[..5].iter().fold(0u16, |m, i| m | (1 << i));
+    let irr = by_et0[..6].iter().fold(0u16, |m, i| m | (1 << i));
+    (wet, Some(irr))
 }
 
 /// One day of the water balance. `rain_factor` scales the rain coefficient, `loss_factor` the ET0 loss.
 #[inline]
 pub fn step(s: f64, p: &Params, d: Date, rain: f64, et0: f64, rain_factor: f64, loss_factor: f64) -> f64 {
-    let a = if is_wet(d) { p.a_wet } else { p.a_dry };
+    let a = if p.is_wet(d) { p.a_wet } else { p.a_dry };
     (s + a * rain_factor * rain - p.k * et0 * loss_factor).clamp(0.0, 1.0)
 }
 
@@ -216,7 +234,7 @@ pub fn run(fc: &ForecastModel, res: &Reservoir, wx: Option<&Weather>, today: Dat
                     let r = rain * if future { fr } else { 1.0 };
                     // the fitted loss k·ET0 is taken as 30 % evaporation + 70 % irrigation in the irrigation
                     // season; only the what-if uses that split (with no change the factor is 1)
-                    let kf = if future && is_irrigation(d) { 0.3 + 0.7 * fi } else { 1.0 };
+                    let kf = if future && p.is_irrigation(d) { 0.3 + 0.7 * fi } else { 1.0 };
                     s = step(s, &p, d, r, et0, af, kf);
                     area_of(s, &p)
                 })
@@ -338,6 +356,8 @@ pub struct FitConfig {
     /// Fit the generator to the last this-many years of `wx` only (the climate is shifting);
     /// `None` = all of it.
     pub generator_years: Option<i32>,
+    /// Take the wet and irrigation seasons from the place's climate (otherwise the Koronia calendar).
+    pub local_seasons: bool,
 }
 
 /// Window the generator is fitted on (years before the end), chosen by the held-out evaluation in
@@ -349,7 +369,7 @@ pub const WET_DAY_MM: f64 = 1.0;
 
 impl Default for FitConfig {
     fn default() -> Self {
-        Self { climate_from: 2015, backtest_cutoff: None, refill_from: None, generator: true, generator_years: GENERATOR_YEARS }
+        Self { climate_from: 2015, backtest_cutoff: None, refill_from: None, generator: true, generator_years: GENERATOR_YEARS, local_seasons: true }
     }
 }
 
@@ -366,21 +386,22 @@ pub struct FitResult {
 /// Two steps: (1) `a_dry, k, q` by least squares between the simulated and the measured areas; (2) `a_wet`
 /// so that a lake at this record's lowest area on `refill_from` refills to the first measured area with the
 /// real weather in between (the measurements have no winter yet).
-pub fn fit_params(dates: &[Date], area: &[f64], amax: f64, refill_from: Date, wx: &DailyWeather) -> FitResult {
+pub fn fit_params(dates: &[Date], area: &[f64], amax: f64, refill_from: Date, wx: &DailyWeather, seasons: (u16, Option<u16>)) -> FitResult {
     let d0 = dates[0];
     let idx: Vec<usize> = dates.iter().map(|d| d.since(d0) as usize).collect();
     let span = idx[idx.len() - 1] as i32;
     let n = area.len();
 
     // with winter measurements in the record, the winter coefficient is fitted, not assumed
-    if dates.iter().filter(|d| is_wet(**d)).count() >= MIN_WINTER_PASSES {
+    let season_probe = Params::new(0.0, 0.0, 0.0, 1.0, 1.0).with_seasons(seasons);
+    if dates.iter().filter(|d| season_probe.is_wet(**d)).count() >= MIN_WINTER_PASSES {
         let resid = |x: &[f64]| -> Vec<f64> {
-            let p = Params { a_wet: x[0], a_dry: x[1], k: x[2], q: x[3], amax };
+            let p = Params::new(x[0], x[1], x[2], x[3], amax).with_seasons(seasons);
             let sim = simulate(&p, d0, area[0], span, |d| wx_at(wx, d));
             idx.iter().zip(area).map(|(&i, a)| sim[i] - a).collect()
         };
         let f = least_squares(resid, &[0.002, 0.001, 0.001, 0.3], &[0.0, 0.0, 1e-5, 0.05], &[0.05, 0.05, 0.05, 2.0], 800);
-        let params = Params { a_wet: f.x[0], a_dry: f.x[1], k: f.x[2], q: f.x[3], amax };
+        let params = Params::new(f.x[0], f.x[1], f.x[2], f.x[3], amax).with_seasons(seasons);
         let ss: f64 = f.fun.iter().map(|v| v * v).sum();
         let mut jtj = [0.0; 16];
         for row in 0..n {
@@ -400,7 +421,7 @@ pub fn fit_params(dates: &[Date], area: &[f64], amax: f64, refill_from: Date, wx
     }
 
     let resid = |x: &[f64]| -> Vec<f64> {
-        let p = Params { a_wet: x[0], a_dry: x[0], k: x[1], q: x[2], amax };
+        let p = Params::new(x[0], x[0], x[1], x[2], amax).with_seasons(seasons);
         let sim = simulate(&p, d0, area[0], span, |d| wx_at(wx, d));
         idx.iter().zip(area).map(|(&i, a)| sim[i] - a).collect()
     };
@@ -423,11 +444,11 @@ pub fn fit_params(dates: &[Date], area: &[f64], amax: f64, refill_from: Date, wx
     let low = crate::stats::min(area);
     let days = d0.since(refill_from);
     let miss = |a_wet: f64| {
-        let p = Params { a_wet, a_dry, k, q, amax };
+        let p = Params::new(a_wet, a_dry, k, q, amax).with_seasons(seasons);
         simulate(&p, refill_from, low, days, |d| wx_at(wx, d))[days as usize] - area[0]
     };
     let a_wet = if miss(a_dry) < 0.0 && 0.0 < miss(0.05) { brent(miss, a_dry, 0.05, 2e-12, 100).unwrap_or(a_dry) } else { a_dry };
-    let params = Params { a_wet, a_dry, k, q, amax };
+    let params = Params::new(a_wet, a_dry, k, q, amax).with_seasons(seasons);
     let sim = simulate(&params, d0, area[0], span, |d| wx_at(wx, d));
     let fitted: Vec<f64> = idx.iter().map(|&i| sim[i]).collect();
     let rmse = mean(&fitted.iter().zip(area).map(|(s, a)| (s - a).powi(2)).collect::<Vec<_>>()).sqrt();
@@ -454,7 +475,8 @@ pub fn fit(region_id: &str, res: &Reservoir, wx: &DailyWeather, end: Date, cfg: 
     let area: Vec<f64> = res.area_km2.clone().unwrap_or_else(|| res.volume.clone());
     let amax = res.capacity.max(crate::stats::max(&area));
     let refill_from = cfg.refill_from.unwrap_or_else(|| Date::ymd(dates[0].year() - 1, 10, 1));
-    let full = fit_params(dates, &area, amax, refill_from, wx);
+    let seasons = if cfg.local_seasons { seasons_from_climate(wx) } else { (crate::model::LEGACY_WET_MONTHS, None) };
+    let full = fit_params(dates, &area, amax, refill_from, wx, seasons);
 
     // back-test: fit on the passes up to the cutoff, forecast the last pass with the real weather
     let last = dates[dates.len() - 1];
@@ -463,7 +485,7 @@ pub fn fit(region_id: &str, res: &Reservoir, wx: &DailyWeather, end: Date, cfg: 
     let backtest = (cut.len() >= 4).then(|| {
         let cd: Vec<Date> = cut.iter().map(|&i| dates[i]).collect();
         let ca: Vec<f64> = cut.iter().map(|&i| area[i]).collect();
-        let bt = fit_params(&cd, &ca, amax, refill_from, wx);
+        let bt = fit_params(&cd, &ca, amax, refill_from, wx, seasons);
         let c0 = cd[cd.len() - 1];
         let a0 = ca[ca.len() - 1];
         let pred = *simulate(&bt.params, c0, a0, last.since(c0), |d| wx_at(wx, d)).last().expect("non-empty");

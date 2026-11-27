@@ -105,6 +105,8 @@ pub struct Brief {
     pub years: (i32, i32),
     /// With a weather generator: the ERA5 years it was fitted to.
     pub generator: Option<(i32, i32)>,
+    /// Irrigation months when taken from the local climate (`None`: 15 Apr – 30 Sep).
+    pub irrigation_months: Option<u16>,
 }
 
 pub fn brief(fc: &ForecastModel, res: &Reservoir, wx: Option<&Weather>, today: Date, lake_name: &Text) -> Brief {
@@ -128,6 +130,7 @@ pub fn brief(fc: &ForecastModel, res: &Reservoir, wx: Option<&Weather>, today: D
         bt: fc.backtest.clone(),
         years: (ys[0], ys[ys.len().saturating_sub(2)]),
         generator: fc.generator.as_ref().map(|g| g.years),
+        irrigation_months: fc.params.irrigation_months,
     }
 }
 
@@ -357,11 +360,15 @@ pub fn answer(q: Question, b: &Brief, l: Lang) -> Answer {
         Question::Rain | Question::Irr => {
             let alt = if q == Question::Rain { &b.less_rain } else { &b.less_irr };
             let d = shift(f.next.map(|n| n.mid), alt.next.map(|n| n.mid));
+            let season = b.irrigation_months.map_or_else(
+                || if el { "15 Απρ – 30 Σεπ".to_string() } else { "15 Apr – 30 Sep".to_string() },
+                |m| crate::text::month_span(m, l),
+            );
             let what = match (q == Question::Rain, el) {
-                (true, true) => "Με 20% λιγότερη βροχή από σήμερα και μετά",
-                (true, false) => "With 20% less rain from today on",
-                (false, true) => "Με 20% λιγότερο νερό άρδευσης (15 Απρ – 30 Σεπ)",
-                (false, false) => "With 20% less irrigation water (15 Apr – 30 Sep)",
+                (true, true) => "Με 20% λιγότερη βροχή από σήμερα και μετά".to_string(),
+                (true, false) => "With 20% less rain from today on".to_string(),
+                (false, true) => format!("Με 20% λιγότερο νερό άρδευσης ({season})"),
+                (false, false) => format!("With 20% less irrigation water ({season})"),
             };
             let mv = match d {
                 None => String::new(),

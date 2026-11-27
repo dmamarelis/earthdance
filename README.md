@@ -32,7 +32,8 @@ cargo run --release -p ed-app -- --demo          # the demo set (all data made u
 cargo run --release -p ed-app -- --place "Lake Volvi,23.48,40.68,10"   # any place: name,lon,lat,radius_km
 ```
 
-Inside the app, **Source ▾ → Anywhere…** searches places by name; **Show ▾** picks the basemap
+Inside the app, **Source ▾ → Anywhere…** finds any lake by name (in any language; the lake's size sets
+the area, and seasons come from its own climate); **Show ▾** picks the basemap
 (satellite imagery or Sentinel-2 cloudless), place names, layer opacity and what is drawn. Keys: `←` `→` step through dates
 (or Story chapters), `R` switches optical / radar, `Esc` closes dialogs.
 

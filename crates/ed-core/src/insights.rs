@@ -609,7 +609,8 @@ pub struct Effects {
     pub finding: Finding,
 }
 
-fn weather_effects(s: &Series, wx: &Weather, th: &Thresholds) -> Effects {
+/// `south`: the place is in the southern hemisphere (the dry season is November–March there).
+fn weather_effects(s: &Series, wx: &Weather, th: &Thresholds, south: bool) -> Effects {
     let passes: Vec<PassRain> = s
         .dates
         .iter()
@@ -629,7 +630,8 @@ fn weather_effects(s: &Series, wx: &Weather, th: &Thresholds) -> Effects {
     };
     let last = s.dates[s.dates.len() - 1];
     let first = s.dates[0];
-    let (may, sep) = (Date::ymd(last.year(), 5, 1), Date::ymd(last.year(), 9, 30));
+    // the dry season of the last pass's year: May–September in the north, November–March in the south
+    let (may, sep) = if south { (Date::ymd(last.year() - 1, 11, 1), Date::ymd(last.year(), 3, 31)) } else { (Date::ymd(last.year(), 5, 1), Date::ymd(last.year(), 9, 30)) };
     let deficit = -(wx_sum(wx, &wx.rain, may, sep) - wx_sum(wx, &wx.et0, may, sep));
 
     // notable days inside the satellite record, each paired with the first pass after it
@@ -687,10 +689,16 @@ fn weather_effects(s: &Series, wx: &Weather, th: &Thresholds) -> Effects {
             }
             if deficit > 50.0 {
                 let d = to_fixed(deficit, 0);
+                let season = match (south, el(l)) {
+                    (false, true) => "Μάιος–Σεπτέμβριος",
+                    (false, false) => "May–September",
+                    (true, true) => "Νοέμβριος–Μάρτιος",
+                    (true, false) => "November–March",
+                };
                 out += &if el(l) {
-                    format!(" Μάιος–Σεπτέμβριος: έλλειμμα {d} mm, που καλύφθηκε με άρδευση.")
+                    format!(" {season}: έλλειμμα {d} mm, που καλύφθηκε με άρδευση.")
                 } else {
-                    format!(" May–September: a {d} mm deficit, made up by irrigation.")
+                    format!(" {season}: a {d} mm deficit, made up by irrigation.")
                 };
             }
             out
@@ -969,7 +977,7 @@ pub fn assess(region: &Region, wx: Option<&Weather>, th: &Thresholds, today: Dat
         soil: soil(s, th, soil_ref),
         wetland: wetland(s, th),
         weather: wx.and_then(|w| weather_now(w, th, today)),
-        effects: wx.map(|w| weather_effects(s, w, th)),
+        effects: wx.map(|w| weather_effects(s, w, th, region.center[1] < 0.0)),
         ground: g,
         findings: Vec::new(),
         status: Level::Ok,

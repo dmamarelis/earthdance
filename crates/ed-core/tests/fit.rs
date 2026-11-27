@@ -14,7 +14,7 @@ fn refit_matches_python() {
     let regions: Regions = serde_json::from_str(&fs::read_to_string(format!("{root}data/real/regions.json")).unwrap()).unwrap();
     let lake = regions.regions.iter().find(|r| r.id == fc.region).unwrap();
     let wx = weather_from_climate(&fc.climate);
-    let cfg = FitConfig { climate_from: 2015, backtest_cutoff: Some(Date::ymd(2026, 8, 17)), refill_from: Some(Date::ymd(2025, 10, 1)), generator: false, generator_years: None };
+    let cfg = FitConfig { climate_from: 2015, backtest_cutoff: Some(Date::ymd(2026, 8, 17)), refill_from: Some(Date::ymd(2025, 10, 1)), generator: false, generator_years: None, local_seasons: false };
     let t = std::time::Instant::now();
     let got = fit(&lake.id, lake.reservoir.as_ref().unwrap(), &wx, fc.climate.until, &cfg);
     println!("fit in {:?}", t.elapsed());
@@ -52,4 +52,16 @@ fn koronia_model_passes_the_quality_gate() {
     let fc: ForecastModel = serde_json::from_str(&fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../data/real/forecast.json")).unwrap()).unwrap();
     let r2 = ed_core::forecast::fit_quality(&fc).expect("the radar-based Koronia model is well determined");
     assert!(r2 > 0.8, "{r2}");
+}
+
+#[test]
+fn local_seasons_recover_the_koronia_calendar() {
+    let fc: ForecastModel = serde_json::from_str(&fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../data/real/forecast.json")).unwrap()).unwrap();
+    let (wet, irr) = ed_core::forecast::seasons_from_climate(&weather_from_climate(&fc.climate));
+    let l = ed_core::Lang::En;
+    println!("wet {} · irrigation {}", ed_core::text::month_span(wet, l), ed_core::text::month_span(irr.unwrap(), l));
+    assert_eq!(irr, Some(0b0000_0011_1111_0000 >> 1), "irrigation Apr–Sep");
+    assert_eq!(wet.count_ones(), 5);
+    // the wet months sit in the cool half of the year
+    assert!([0, 1, 10, 11].iter().all(|m| wet & (1 << m) != 0), "{}", ed_core::text::month_span(wet, l));
 }

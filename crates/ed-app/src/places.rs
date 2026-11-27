@@ -19,7 +19,7 @@ pub struct Places {
 
 impl Default for Places {
     fn default() -> Self {
-        Self { open: false, query: String::new(), results: Vec::new(), searching: None, error: None, half_km: 8.0 }
+        Self { open: false, query: String::new(), results: Vec::new(), searching: None, error: None, half_km: 6.0 }
     }
 }
 
@@ -70,7 +70,7 @@ pub fn window(app: &mut App, ctx: &egui::Context) {
             }
         });
         ui.horizontal(|ui| {
-            ui.label(if el { "Ακτίνα" } else { "Radius" });
+            ui.label(if el { "Αρχική ακτίνα (μεγαλώνει μόνη της για μεγάλες λίμνες)" } else { "Start radius (grows by itself for big lakes)" });
             ui.add(egui::Slider::new(&mut app.places.half_km, 3.0..=25.0).step_by(1.0).suffix(" km"));
         });
         ui.horizontal(|ui| {
@@ -88,8 +88,11 @@ pub fn window(app: &mut App, ctx: &egui::Context) {
             ui.label(RichText::new(e).color(theme::ALERT));
         }
         for f in &app.places.results {
-            if ui.selectable_label(false, format!("{} · {}  ({:.3}, {:.3})", f.name, f.detail, f.lat, f.lon)).clicked() {
-                go = Some(Place { name: f.name.clone(), lon: f.lon, lat: f.lat, half_km: app.places.half_km });
+            let size = f.half_km().map_or(String::new(), |h| format!("  ·  ~{:.0} km", 2.0 * h));
+            let label = format!("{}{} · {}{size}", if f.water { "🌊 " } else { "" }, f.name, f.detail);
+            if ui.selectable_label(false, label).on_hover_text(format!("{:.4}, {:.4}", f.lat, f.lon)).clicked() {
+                // a lake whose extent is known gets an area that holds all of it
+                go = Some(Place { name: f.name.clone(), lon: f.lon, lat: f.lat, half_km: f.half_km().unwrap_or(app.places.half_km) });
             }
         }
         ui.separator();

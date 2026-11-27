@@ -68,9 +68,10 @@ pub struct OpticalScene {
     pub scl: Grid<f32>,
 }
 
-/// SCL classes that are not a clear view of the ground: no data, saturated, cloud shadow, clouds, cirrus.
+/// SCL classes that are not a clear view of the ground: no data, saturated, cloud shadow, clouds, cirrus,
+/// and snow / ice (a frozen lake cannot be measured optically).
 pub fn scl_clear(c: f32) -> bool {
-    c.is_finite() && !matches!(c as i32, 0 | 1 | 3 | 8..=10)
+    c.is_finite() && !matches!(c as i32, 0 | 1 | 3 | 8..=11)
 }
 pub fn scl_cloud(c: f32) -> bool {
     matches!(c as i32, 8..=10)
@@ -144,6 +145,8 @@ pub struct SiteAnalysis {
     pub scenes: Vec<SceneResult>,
     /// Lake edge on the last usable scene (closed ring, 72 rays).
     pub outline: Vec<[f64; 2]>,
+    /// The lake reaches the edge of the grid: the area looked at is too small for it.
+    pub touches_edge: bool,
 }
 
 /// The "Optical" picture of a date, from green + NIR only (no red/blue fetched: fewer bytes). Colours are
@@ -171,6 +174,33 @@ fn image(s: &OpticalScene) -> Rgba {
         })
         .collect();
     Rgba { w: s.green.w, h: s.green.h, bounds: s.green.bounds, px }
+}
+
+/// The connected water body at `target` [lon, lat], or the nearest one to it (ignoring specks of fewer
+/// than 20 pixels); the largest when there is no target.
+fn pick(mask: &Grid<bool>, target: Option<[f64; 2]>) -> Grid<bool> {
+    let Some(t) = target else { return largest(mask) };
+    let (labels, n) = label4(mask);
+    if n == 0 {
+        return mask.map(|_| false);
+    }
+    let mut count = vec![0usize; n as usize + 1];
+    for l in &labels {
+        count[*l as usize] += 1;
+    }
+    let lat0 = mask.lat(mask.h / 2).to_radians().cos();
+    let mut best = vec![f64::INFINITY; n as usize + 1];
+    for (i, l) in labels.iter().enumerate() {
+        if *l > 0 && count[*l as usize] >= 20 {
+            let (dx, dy) = ((mask.lon(i % mask.w) - t[0]) * lat0, mask.lat(i / mask.w) - t[1]);
+            let d = dx * dx + dy * dy;
+            if d < best[*l as usize] {
+                best[*l as usize] = d;
+            }
+        }
+    }
+    let Some(pick) = (1..=n as usize).filter(|&i| best[i].is_finite()).min_by(|&a, &b| best[a].total_cmp(&best[b])) else { return largest(mask) };
+    Grid::from_vec(mask.w, mask.h, mask.bounds, labels.iter().map(|l| *l as usize == pick).collect())
 }
 
 fn largest(mask: &Grid<bool>) -> Grid<bool> {
@@ -212,8 +242,9 @@ fn outline(g: &Grid<bool>) -> Vec<[f64; 2]> {
     ring
 }
 
-/// Water, lake and area series from the scenes (any order; the result is sorted by date).
-pub fn analyse(grid: &SiteGrid, scenes: &[OpticalScene]) -> Option<SiteAnalysis> {
+/// Water, lake and area series from the scenes (any order; the result is sorted by date). The lake is the
+/// water body at or nearest to `target` [lon, lat] (the largest one without a target).
+pub fn analyse(grid: &SiteGrid, scenes: &[OpticalScene], target: Option<[f64; 2]>) -> Option<SiteAnalysis> {
     let px_km2 = grid.px_km2();
     let n = grid.w * grid.h;
     let clear_of = |s: &OpticalScene| -> Vec<bool> { (0..n).map(|i| scl_clear(s.scl.data[i]) && s.green.data[i].is_finite() && s.nir.data[i].is_finite()).collect() };
@@ -245,7 +276,7 @@ pub fn analyse(grid: &SiteGrid, scenes: &[OpticalScene]) -> Option<SiteAnalysis>
             }
         }
     }
-    let lake = largest(&max_ext);
+    let lake = pick(&max_ext, target);
     let lake_px = lake.data.iter().filter(|v| **v).count();
     if lake_px < 20 {
         return None;
@@ -276,12 +307,31 @@ pub fn analyse(grid: &SiteGrid, scenes: &[OpticalScene]) -> Option<SiteAnalysis>
         }
         outline(&largest(&wz))
     });
-    Some(SiteAnalysis { threshold, lake, zone, lake_km2, center, radius_km: (lake_km2 / std::f64::consts::PI).sqrt(), scenes: results, outline })
+    let touches_edge = (0..grid.w).any(|x| *lake.at(x, 0) || *lake.at(x, grid.h - 1)) || (0..grid.h).any(|y| *lake.at(0, y) || *lake.at(grid.w - 1, y));
+    Some(SiteAnalysis { threshold, lake, zone, lake_km2, center, radius_km: (lake_km2 / std::f64::consts::PI).sqrt(), scenes: results, outline, touches_edge })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn picks_the_lake_asked_for_not_the_biggest() {
+        let g = SiteGrid::around(10.0, 45.0, 5.0, 100);
+        let mut m = Grid::filled(g.w, g.h, g.bounds, false);
+        for y in 10..60 {
+            for x in 5..40 {
+                *m.at_mut(x, y) = true; // big lake on the left
+            }
+            for x in 70..80 {
+                *m.at_mut(x, y) = true; // small lake on the right
+            }
+        }
+        let target = [m.lon(75), m.lat(30)];
+        let p = pick(&m, Some(target));
+        assert!(*p.at(75, 30) && !*p.at(20, 30));
+        assert!(*largest(&m).at(20, 30));
+    }
 
     #[test]
     fn otsu_splits_a_bimodal_histogram() {
@@ -315,7 +365,8 @@ mod tests {
             let gr = |v: Vec<f32>| Grid::from_vec(g.w, g.h, g.bounds, v);
             OpticalScene { date: ed_core::Date::parse(date).unwrap(), source: date.into(), green: gr(green), red: gr(vec![700.0; n]), nir: gr(nir), scl: gr(scl) }
         };
-        let a = analyse(&g, &[mk("2026-01-01", 30.0, false), mk("2026-06-01", 20.0, false), mk("2026-07-01", 15.0, true)]).unwrap();
+        let a = analyse(&g, &[mk("2026-01-01", 30.0, false), mk("2026-06-01", 20.0, false), mk("2026-07-01", 15.0, true)], None).unwrap();
+        assert!(!a.touches_edge);
         assert_eq!(a.scenes.len(), 3);
         let (w0, w1) = (a.scenes[0].water_km2.unwrap(), a.scenes[1].water_km2.unwrap());
         assert!(w0 > w1 * 2.0, "{w0} vs {w1}");

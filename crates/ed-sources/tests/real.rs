@@ -23,7 +23,7 @@ fn real_set_reproduces_the_legacy_pipeline() {
     let today = legacy_fc.climate.until.add_days(2);
     let t = std::time::Instant::now();
     // legacy parity: replayed climate years, as the Python + JS did
-    let legacy_cfg = FitConfig { generator: false, ..FitConfig::default() };
+    let legacy_cfg = FitConfig { generator: false, local_seasons: false, ..FitConfig::default() };
     let ds = build(&LocalDirs::in_repo(&root), FitWeather::Given(weather_from_climate(&legacy_fc.climate)), &legacy_cfg, today, &|s| println!("{s}")).unwrap();
     println!("built in {:?}", t.elapsed());
 

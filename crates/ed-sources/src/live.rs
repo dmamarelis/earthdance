@@ -50,6 +50,9 @@ pub struct LiveConfig {
     pub slack: Option<f64>,
 }
 
+/// Largest area looked at: 120 km across. Bigger lakes are measured inside it (partially) and say so.
+pub const MAX_HALF_KM: f64 = 60.0;
+
 /// Below this link speed (bytes/s) the coarser overview is used (~4× fewer bytes).
 pub const SLOW_LINK: f64 = 300_000.0;
 
@@ -301,8 +304,16 @@ fn assemble(place: &Place, grid: &SiteGrid, a: &SiteAnalysis, model: Option<ed_c
         area_km2: Some(area.clone()),
         outline: (!a.outline.is_empty()).then(|| a.outline.clone()),
         method: Text::new(
-            format!("Επιφάνεια νερού από το Sentinel-2: NDWI πάνω από {:.2} (Otsu), μόνο σε λήψεις όπου η ζώνη της λίμνης φαίνεται ≥ 90 % χωρίς σύννεφα.", a.threshold),
-            format!("Water surface from Sentinel-2: NDWI above {:.2} (Otsu), only on dates where the lake zone is ≥ 90 % cloud-free.", a.threshold),
+            format!(
+                "Επιφάνεια νερού από το Sentinel-2: NDWI πάνω από {:.2} (Otsu), μόνο σε λήψεις όπου η ζώνη της λίμνης φαίνεται ≥ 90 % χωρίς σύννεφα ή πάγο.{}",
+                a.threshold,
+                if a.touches_edge { " Η λίμνη ξεπερνά την περιοχή των 120 km: μετριέται μόνο το μέρος της μέσα σε αυτήν." } else { "" }
+            ),
+            format!(
+                "Water surface from Sentinel-2: NDWI above {:.2} (Otsu), only on dates where the lake zone is ≥ 90 % free of cloud and ice.{}",
+                a.threshold,
+                if a.touches_edge { " The lake extends beyond the 120 km area: only the part inside it is measured." } else { "" }
+            ),
         ),
         rule: Text::new("Ενδεικτικό όριο: 25 % της μεγαλύτερης μετρημένης επιφάνειας. Να αντικατασταθεί με το επίσημο.", "Indicative limit: 25 % of the largest measured surface. Replace with the official one."),
     });
@@ -382,6 +393,8 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
     SLACK.with(|s| s.set(slack));
     let mut scenes: Vec<OpticalScene> = Vec::new();
     let mut done: std::collections::BTreeSet<Date> = std::collections::BTreeSet::new();
+    // set when the first look shows the lake running off the edge: the area is then widened
+    let grow = std::cell::Cell::new(false);
 
     let run = |items: &[Item], label: &str, scenes: &mut Vec<OpticalScene>, done: &mut std::collections::BTreeSet<Date>| {
         let todo: Vec<(Date, Vec<&Item>)> = pick_dates(items, b, cfg.every_days).into_iter().filter(|(d, _)| *d >= from && !done.contains(d)).collect();
@@ -396,6 +409,9 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
         ));
         let total = todo.len();
         for (k, chunk) in todo.chunks(cfg.batch.max(1)).enumerate() {
+            if grow.get() {
+                return;
+            }
             let (t0, b0) = (std::time::Instant::now(), http::fetcher().fetched.load(std::sync::atomic::Ordering::Relaxed));
             let got: Vec<Result<Option<OpticalScene>>> = http::parallel(chunk, 3, |(d, its)| {
                 SLACK.with(|s| s.set(slack));
@@ -427,9 +443,13 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
                 continue;
             }
             let t = std::time::Instant::now();
-            let an = if scenes.len() >= 2 { analyse(&grid, scenes) } else { None };
+            let an = if scenes.len() >= 2 { analyse(&grid, scenes, Some([place.lon, place.lat])) } else { None };
             timing::add(&timing::ANALYSE, t);
             if let Some(a) = an {
+                if a.touches_edge && place.half_km < MAX_HALF_KM {
+                    grow.set(true);
+                    progress(&format!("the lake runs past the {:.0} km area: widening", 2.0 * place.half_km));
+                }
                 let t = std::time::Instant::now();
                 partial(assemble(place, &grid, &a, None, &content));
                 timing::add(&timing::ASSEMBLE, t);
@@ -440,17 +460,23 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
     if let Some(old) = stac::last("sentinel-2-l2a", bbox, Some(cfg.max_tile_cloud)) {
         run(&old, "(saved list)", &mut scenes, &mut done);
     }
+    if grow.get() {
+        return build(&Place { half_km: (place.half_km * 2.2).min(MAX_HALF_KM), ..place.clone() }, cfg, today, progress, partial);
+    }
     progress("Sentinel-2: searching the archive …");
     match stac::search(stac::EARTH_SEARCH, "sentinel-2-l2a", bbox, from, today, Some(cfg.max_tile_cloud)) {
         Ok(items) => run(&items, "(new)", &mut scenes, &mut done),
         Err(e) if !scenes.is_empty() => progress(&format!("archive search failed ({e}); showing the saved scenes")),
         Err(e) => return Err(e),
     }
+    if grow.get() {
+        return build(&Place { half_km: (place.half_km * 2.2).min(MAX_HALF_KM), ..place.clone() }, cfg, today, progress, partial);
+    }
     if scenes.is_empty() {
         return Err(Error::Data("no clear Sentinel-2 scene over this place".into()));
     }
     let t = std::time::Instant::now();
-    let a = analyse(&grid, &scenes).ok_or_else(|| Error::Data("no water body found in the clear scenes".into()))?;
+    let a = analyse(&grid, &scenes, Some([place.lon, place.lat])).ok_or_else(|| Error::Data("no water body found in the clear scenes".into()))?;
     timing::add(&timing::ANALYSE, t);
 
     // the lake model, fitted on the measured areas with ERA5 at the lake
@@ -496,24 +522,66 @@ pub struct Found {
     pub detail: String,
     pub lon: f64,
     pub lat: f64,
+    /// A lake, reservoir, lagoon or pond.
+    #[serde(default)]
+    pub water: bool,
+    /// Its extent [w, s, e, n], when known (OpenStreetMap).
+    #[serde(default)]
+    pub bbox: Option<[f64; 4]>,
 }
 
-/// Place search (Open-Meteo geocoding: GeoNames, free, no key).
+/// GeoNames feature codes of standing water.
+fn is_water(code: &str) -> bool {
+    matches!(code, "LK" | "LKS" | "LKN" | "LKNI" | "LKI" | "LKO" | "LKOI" | "LKC" | "LKSC" | "LKSI" | "LKSN" | "LKSB" | "LKX" | "RSV" | "RSVI" | "RSVT" | "LGN" | "LGNS" | "PND" | "PNDS" | "PNDI" | "PNDSF" | "RES")
+}
+
+impl Found {
+    /// Half the side of an area that holds the whole water body (with a margin), when its extent is known.
+    pub fn half_km(&self) -> Option<f64> {
+        let b = self.bbox?;
+        let wk = (b[2] - b[0]) * 111.32 * self.lat.to_radians().cos();
+        let hk = (b[3] - b[1]) * 110.57;
+        Some((wk.max(hk) / 2.0 * 1.3).clamp(1.5, MAX_HALF_KM))
+    }
+}
+
+/// Place search. Lakes, reservoirs and lagoons come from OpenStreetMap (Nominatim), which also gives their
+/// extent; towns and anything Nominatim misses from GeoNames (Open-Meteo). Water bodies are listed first.
 pub fn geocode(query: &str, lang: &str) -> Result<Vec<Found>> {
-    let q: String = query.chars().map(|c| if c.is_alphanumeric() || c == ' ' || c == '-' { c } else { ' ' }).collect();
-    let url = format!("https://geocoding-api.open-meteo.com/v1/search?name={}&count=8&language={lang}&format=json", q.trim().replace(' ', "+"));
-    let v = http::fetcher().get_json(&url)?;
-    Ok(v["results"]
-        .as_array()
-        .into_iter()
-        .flatten()
-        .filter_map(|r| {
-            Some(Found {
-                name: r["name"].as_str()?.to_string(),
+    let mut out: Vec<Found> = Vec::new();
+    if let Ok(v) = http::fetcher().get_json_query(
+        "https://nominatim.openstreetmap.org/search",
+        &[("q", query), ("format", "jsonv2"), ("limit", "8"), ("accept-language", lang)],
+    ) {
+        for r in v.as_array().into_iter().flatten() {
+            let num = |k: &str| r[k].as_str().and_then(|s| s.parse::<f64>().ok());
+            let (Some(lat), Some(lon)) = (num("lat"), num("lon")) else { continue };
+            let kind = (r["category"].as_str().unwrap_or(""), r["type"].as_str().unwrap_or(""));
+            let water = matches!(kind, ("water" | "natural", "lake" | "reservoir" | "water" | "lagoon" | "pond" | "oxbow" | "basin") | ("landuse", "reservoir" | "basin"));
+            let bbox = r["boundingbox"].as_array().filter(|b| b.len() == 4).and_then(|b| {
+                let f = |i: usize| b[i].as_str()?.parse::<f64>().ok();
+                Some([f(2)?, f(0)?, f(3)?, f(1)?]) // [south, north, west, east] → [w, s, e, n]
+            });
+            let display = r["display_name"].as_str().unwrap_or("");
+            let name = r["name"].as_str().filter(|s| !s.is_empty()).unwrap_or(display.split(',').next().unwrap_or(query)).to_string();
+            let detail = display.split(", ").skip(1).collect::<Vec<_>>().join(", ");
+            out.push(Found { name, detail, lon, lat, water, bbox: if water { bbox } else { None } });
+        }
+    }
+    if out.iter().all(|f| !f.water) {
+        let v = http::fetcher().get_json_query("https://geocoding-api.open-meteo.com/v1/search", &[("name", query), ("count", "8"), ("language", lang), ("format", "json")])?;
+        for r in v["results"].as_array().into_iter().flatten() {
+            let (Some(name), Some(lon), Some(lat)) = (r["name"].as_str(), r["longitude"].as_f64(), r["latitude"].as_f64()) else { continue };
+            out.push(Found {
+                name: name.to_string(),
                 detail: [r["admin1"].as_str(), r["country"].as_str()].into_iter().flatten().collect::<Vec<_>>().join(", "),
-                lon: r["longitude"].as_f64()?,
-                lat: r["latitude"].as_f64()?,
-            })
-        })
-        .collect())
+                lon,
+                lat,
+                water: r["feature_code"].as_str().is_some_and(is_water),
+                bbox: None,
+            });
+        }
+    }
+    out.sort_by_key(|f| !f.water);
+    Ok(out)
 }

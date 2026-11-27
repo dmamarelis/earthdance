@@ -240,6 +240,32 @@ pub fn fmt_date(d: Date, l: Lang, style: DateStyle) -> String {
     }
 }
 
+/// Short month name (1–12).
+pub fn month_short(m: u32, l: Lang) -> &'static str {
+    let i = (m.clamp(1, 12) - 1) as usize;
+    if l == Lang::El { MON_EL[i] } else { MON_EN[i] }
+}
+
+/// A set of months (bit m−1) as ranges, wrapping over the new year: "Οκτ–Μαρ", "Apr–Sept".
+pub fn month_span(mask: u16, l: Lang) -> String {
+    let on = |m: i32| mask & (1 << m.rem_euclid(12)) != 0;
+    if mask & 0xfff == 0xfff {
+        return if l == Lang::El { "όλο το έτος".into() } else { "all year".into() };
+    }
+    let mut parts = Vec::new();
+    for m in 0..12 {
+        if on(m) && !on(m - 1) {
+            let mut e = m;
+            while on(e + 1) {
+                e += 1;
+            }
+            let (a, b) = (month_short(m as u32 + 1, l), month_short((e.rem_euclid(12)) as u32 + 1, l));
+            parts.push(if a == b { a.to_string() } else { format!("{a}–{b}") });
+        }
+    }
+    parts.join(", ")
+}
+
 /// Default-style date, or `–` when there is none (`fd()` in ask.js).
 pub fn fd(d: Option<Date>, l: Lang) -> String {
     d.map_or_else(|| "–".into(), |d| fmt_date(d, l, DateStyle::DayMonYear))
@@ -308,5 +334,7 @@ mod tests {
         assert_eq!(signed(-12.345, 1), "\u{2212}12.3");
         assert_eq!(signed(3.0, 0), "+3");
         assert_eq!(fill("a {n} b {x}", &[("n", "1")]), "a 1 b undefined");
+        assert_eq!(month_span(crate::model::LEGACY_WET_MONTHS, Lang::En), "Nov–Mar");
+        assert_eq!(month_span(0b0000_0011_1111_0000 >> 1, Lang::En), "Apr–Sept");
     }
 }

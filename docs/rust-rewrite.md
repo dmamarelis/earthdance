@@ -116,8 +116,16 @@ with d = 2. Synthetic data is never mixed into the real set: the demo set stays 
   the cloud band first (cloudy dates cost one band); one MGRS tile when it covers the area; one date per
   8 days; 16 pooled connections with jittered retries; every byte range cached on disk forever; the scene
   list shown from the last search while a fresh search runs.
-* **Water**: SCL cloud mask, NDWI threshold from the data (Otsu), the lake = largest connected water body.
-  No per-site constants. The lake model is fitted only if it passes a quality gate (R² ≥ 0.5, no
+* **Any lake**: search by name in any script (OpenStreetMap Nominatim for water bodies, with their extent;
+  GeoNames via Open-Meteo for towns). A lake's extent sets the area (up to 120 km across); without one,
+  the area doubles whenever the lake reaches its edge.
+* **Water**: SCL mask for cloud, shadow, snow and ice (a frozen lake is not measured), NDWI threshold from
+  the data (Otsu), the lake = the water body at (or nearest to) the place asked for, not merely the
+  largest one in view (a coast or a bigger neighbour no longer gets picked). No per-site constants.
+* **Seasons from the local climate**: the wet season (five months with the highest rain − ET0) and the
+  irrigation season (six months with the highest ET0) come from each lake's ERA5 record; for Koronia this
+  reproduces Nov–Mar and Apr–Sep exactly, south of the equator it flips. The weather rule's dry-season
+  deficit follows the hemisphere. The lake model is fitted only if it passes a quality gate (R² ≥ 0.5, no
   parameter on a bound).
 * **Measured on this machine's link (~70 KB/s)**: Lake Koronia, 18 months, 43 dates: first map after
   57 s, complete after 12 min, 39 MB. On a 50 Mbit/s line the first build is a matter of seconds.

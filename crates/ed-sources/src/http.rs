@@ -106,6 +106,17 @@ impl Fetcher {
         Ok(bytes)
     }
 
+    /// GET with query parameters (properly URL-encoded, so any script works in a place name).
+    pub fn get_json_query(&self, url: &str, query: &[(&str, &str)]) -> Result<serde_json::Value> {
+        retry(|| {
+            let mut r = self.agent.get(url).header("User-Agent", "earthdance/0.2 (desktop lake explorer)");
+            for (k, v) in query {
+                r = r.query(*k, *v);
+            }
+            r.call()?.body_mut().read_json()
+        })
+    }
+
     pub fn get_json(&self, url: &str) -> Result<serde_json::Value> {
         retry(|| self.agent.get(url).call()?.body_mut().read_json())
     }
