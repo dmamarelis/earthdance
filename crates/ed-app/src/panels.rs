@@ -490,17 +490,52 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
     let swipe_x = rect.left() + rect.width() * app.st.swipe;
     let draw = |app: &mut App, frame: &Frame, clip: Rect| {
         let p = painter.with_clip_rect(clip);
-        let img = match app.st.sensor {
-            Sensor::Optical => optical_for(app, &ds, frame).map(|i| ds.optical[i].image.clone()),
-            Sensor::Radar => frame.image.clone().filter(|_| !frame.empty),
-        };
-        if let Some(img) = img {
-            let tex = app.texture(&ctx, &img);
-            let r = app.map.bounds_rect(rect, img.bounds);
-            // data layers sit on the imagery at the chosen opacity; the optical picture is shown as is
-            let a = if app.st.sensor == Sensor::Radar && base.is_some() { app.st.show.opacity } else { 1.0 };
-            let tint = Color32::from_white_alpha((a * 255.0) as u8);
-            p.image(tex, r, Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0)), tint);
+        let full = Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0));
+        match app.st.sensor {
+            // demo clouds: tiled, mirror-flipped (seamless), anchored to the ground, over the whole view
+            Sensor::Optical if ds.demo => {
+                let Some(i) = optical_for(app, &ds, frame) else { return };
+                let img = ds.optical[i].image.clone();
+                let tex = app.texture(&ctx, &img, crate::app::Edge::Hard);
+                let r0 = app.map.bounds_rect(rect, img.bounds);
+                let (tw, th) = (r0.width().max(1.0), r0.height().max(1.0));
+                let i0 = ((rect.left() - r0.left()) / tw).floor() as i32;
+                let i1 = ((rect.right() - r0.left()) / tw).ceil() as i32;
+                let j0 = ((rect.top() - r0.top()) / th).floor() as i32;
+                let j1 = ((rect.bottom() - r0.top()) / th).ceil() as i32;
+                if (i1 - i0) * (j1 - j0) > 400 {
+                    return; // zoomed far out: the cloud field would be noise
+                }
+                for j in j0..j1 {
+                    for i in i0..i1 {
+                        let r = Rect::from_min_size(r0.min + Vec2::new(i as f32 * tw, j as f32 * th), r0.size());
+                        // flip every other copy so edges always meet their own mirror image
+                        let (u0, u1) = if i.rem_euclid(2) == 1 { (1.0, 0.0) } else { (0.0, 1.0) };
+                        let (v0, v1) = if j.rem_euclid(2) == 1 { (1.0, 0.0) } else { (0.0, 1.0) };
+                        let mut mesh = egui::Mesh::with_texture(tex);
+                        mesh.add_rect_with_uv(r, Rect::from_min_max(Pos2::new(0.0, 0.0), Pos2::new(1.0, 1.0)), Color32::WHITE);
+                        let n = mesh.vertices.len();
+                        // corners in order: left-top, right-top, left-bottom, right-bottom
+                        for (k, (u, v)) in [(u0, v0), (u1, v0), (u0, v1), (u1, v1)].into_iter().enumerate() {
+                            mesh.vertices[n - 4 + k].uv = Pos2::new(u, v);
+                        }
+                        p.add(egui::Shape::mesh(mesh));
+                    }
+                }
+            }
+            Sensor::Optical => {
+                let Some(i) = optical_for(app, &ds, frame) else { return };
+                let img = ds.optical[i].image.clone();
+                let tex = app.texture(&ctx, &img, crate::app::Edge::Feather);
+                p.image(tex, app.map.bounds_rect(rect, img.bounds), full, Color32::WHITE);
+            }
+            Sensor::Radar => {
+                let Some(img) = frame.image.clone().filter(|_| !frame.empty) else { return };
+                // data layers sit on the imagery at the chosen opacity, fading out in a soft oval
+                let tex = app.texture(&ctx, &img, crate::app::Edge::Organic);
+                let a = if base.is_some() { app.st.show.opacity } else { 1.0 };
+                p.image(tex, app.map.bounds_rect(rect, img.bounds), full, Color32::from_white_alpha((a * 255.0) as u8));
+            }
         }
     };
     if let Some(ly) = layer

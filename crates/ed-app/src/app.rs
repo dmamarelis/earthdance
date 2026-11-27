@@ -72,6 +72,17 @@ impl WxState {
     }
 }
 
+/// How an overlay meets the basemap.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Edge {
+    /// As is (tiled clouds: any fade would show the seams).
+    Hard = 1,
+    /// The outer 10 % fades out (pictures already masked to the lake).
+    Feather = 2,
+    /// Fades out in an irregular oval (data layers covering a whole rectangle).
+    Organic = 3,
+}
+
 /// What is drawn on the map (the "Show" menu).
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(default)]
@@ -408,22 +419,36 @@ impl App {
 
     // ───────────────────────────────────────────────────────── textures
 
-    pub fn texture(&mut self, ctx: &egui::Context, img: &Arc<Rgba>) -> egui::TextureId {
-        let key = Arc::as_ptr(img) as usize;
+    /// The GPU texture of an image, made once. `edge` decides how it meets the basemap.
+    pub fn texture(&mut self, ctx: &egui::Context, img: &Arc<Rgba>, edge: Edge) -> egui::TextureId {
+        let key = (Arc::as_ptr(img) as usize) ^ (edge as usize);
         self.textures
             .entry(key)
             .or_insert_with(|| {
-                // feathered edges: overlays fade into the basemap instead of ending in a hard square
-                let bw = (0.10 * img.w.min(img.h) as f32).max(3.0);
+                let (w, h) = (img.w as f32, img.h as f32);
+                let bw = (0.10 * w.min(h)).max(3.0);
                 let flat: Vec<u8> = img
                     .px
                     .iter()
                     .enumerate()
                     .flat_map(|(i, p)| {
                         let (x, y) = ((i % img.w) as f32, (i / img.w) as f32);
-                        let d = x.min(y).min(img.w as f32 - 1.0 - x).min(img.h as f32 - 1.0 - y);
-                        let t = (d / bw).clamp(0.0, 1.0);
-                        let f = t * t * (3.0 - 2.0 * t);
+                        let f = match edge {
+                            Edge::Hard => 1.0,
+                            // fade over the outer 10 % of each side
+                            Edge::Feather => {
+                                let t = (x.min(y).min(w - 1.0 - x).min(h - 1.0 - y) / bw).clamp(0.0, 1.0);
+                                t * t * (3.0 - 2.0 * t)
+                            }
+                            // a soft, irregular oval: no straight edge or corner left to read as a rectangle
+                            Edge::Organic => {
+                                let (dx, dy) = ((x - w / 2.0) / (w / 2.0), (y - h / 2.0) / (h / 2.0));
+                                let th = dy.atan2(dx);
+                                let r = (dx * dx + dy * dy).sqrt() * (1.0 + 0.06 * (3.0 * th + 0.7).sin() + 0.035 * (7.0 * th + 2.1).sin());
+                                let t = ((1.0 - r) / 0.35).clamp(0.0, 1.0);
+                                t * t * (3.0 - 2.0 * t)
+                            }
+                        };
                         [p[0], p[1], p[2], (f32::from(p[3]) * f) as u8]
                     })
                     .collect();

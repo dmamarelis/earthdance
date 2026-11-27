@@ -40,7 +40,12 @@ fn main() {
         }
         println!("\ncapacity {:.1} km², limit {:.1}", res.capacity, res.limit);
     }
+    if let Some(res) = &r.reservoir {
+        println!("method: {}", res.method.en);
+    }
     if let Some(fc) = &ds.forecast {
+        let l = ed_core::Lang::En;
+        println!("seasons: wet {} · irrigation {}", ed_core::text::month_span(fc.params.wet_months, l), fc.params.irrigation_months.map_or("15 Apr–30 Sep".into(), |m| ed_core::text::month_span(m, l)));
         println!("model: {:?} rmse {:.2} · winter fitted from data: {}", fc.params, fc.rmse, fc.params.a_wet != fc.params.a_dry);
     }
 }

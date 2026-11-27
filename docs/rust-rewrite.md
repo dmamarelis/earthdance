@@ -168,8 +168,10 @@ Satellite basemap tiles (`crates/ed-sources/src/tiles.rs`, `crates/ed-app/src/ba
   so there are no holes. At most 8 tile textures are uploaded per frame, so motion never stutters.
 * **Measured** (this machine, warm connection): zoom in by two levels to tiles never fetched before,
   complete in 1.6 s; zoom out by two levels, 0.4 s. Tiles are cached on disk forever.
-* **Overlays** sit on the imagery at a chosen opacity (Show ▾ → Layer opacity, default 70 %) with a wide
-  soft edge; live places show the dated Sentinel-2 picture only around the lake, tone-mapped to the basemap.
+* **Overlays** sit on the imagery at a chosen opacity (Show ▾ → Layer opacity, default 70 %). Data layers
+  that cover a whole rectangle fade out in a soft, irregular oval, so no straight edge or corner reads as a
+  pasted square; live places show the dated Sentinel-2 picture only around the lake, tone-mapped to the
+  basemap. Demo clouds are tiled mirror-wise over the whole view, anchored to the ground.
 
 ## Threads
 
