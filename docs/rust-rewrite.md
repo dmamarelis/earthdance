@@ -142,12 +142,21 @@ AMD Ryzen 7 5825U:
 
 **≈ 16.5× faster** (`node oracle/bench.mjs` vs `cargo run --release -p ed-core --example bench_status`).
 
+## The map (Google-Earth style)
+
+Satellite basemap tiles (`crates/ed-sources/src/tiles.rs`, `crates/ed-app/src/basemap.rs`) stream in on
+background workers (newest request first, separate pools for imagery and place names), are cached on disk
+forever, and stand in for each other while loading: a scaled-up ancestor is drawn until the sharp tile
+arrives. At most 6 tile textures are uploaded per frame, so panning (with momentum) never stutters. Data
+overlays fade into the imagery; for live places the dated Sentinel-2 picture covers only the lake and
+~1.5 km around it, in colours tone-mapped to the basemap. Basemap choice and place names are in Show ▾.
+
 ## Still open
 
 | | Decision | Now |
 |---|---|---|
 | D1 | Where acquisitions come from | Sentinel-2 live from AWS for any place; NISAR / HLS (Earthdata token) and Sentinel-1 RTC still to plug in |
-| D2 | Map renderer and basemap tiles | Web-Mercator canvas with graticule, no basemap |
+| D2 | Map renderer and basemap tiles | Web-Mercator canvas on a satellite basemap (Esri World Imagery or Sentinel-2 cloudless by EOX, place names on top), tiles streamed and cached; no 3D terrain |
 | D3 | Where live processing runs | in-process, background thread at start-up (0.6 s) |
 | D4 | Report format | self-contained HTML opened in the browser to print |
 

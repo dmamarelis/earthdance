@@ -40,7 +40,7 @@ No accounts or API keys are needed. The app downloads only what it needs and cac
 
 ## The three data sets
 
-* **Real (Lake Koronia):** 19 NISAR L2 GCOV passes (June–September 2026; 12 used, the rest are steep-orbit
+* **Real (Lake Koronia):** 19 NISAR L2 GCOV passes (June–September 2026; 12 kept, 2 of them empty files; the rest are steep-orbit
   or wind-roughened) and 16 Sentinel-2 (HLS)
   scenes, kept in `Koroneia_NISAR/` and `Koroneia_Sentinel/`, processed when the app starts.
 * **Anywhere:** Sentinel-2 L2A for the last 18 months, streamed from the public AWS archive: clouds
