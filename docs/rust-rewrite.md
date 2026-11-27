@@ -46,7 +46,8 @@ Open-Meteo daily ──► WeatherSet ──► ed-core::status::compute ──�
 * end to end, TIFFs → findings: identical to the legacy app's (`crates/ed-sources/tests/real.rs`).
 
 `EARTHDANCE_SHOT=out.png` makes the app open a view (see `crates/ed-app/src/shot.rs`), screenshot it and
-quit, which is how the UI was checked.
+quit, which is how the UI was checked. Screenshot runs use the default settings and leave the user's saved
+preferences alone.
 
 ## The weather behind the lake forecast
 

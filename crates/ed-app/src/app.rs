@@ -189,7 +189,8 @@ pub struct App {
 impl App {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         theme::install(&cc.egui_ctx);
-        let prefs: Option<Prefs> = ed_sources::cache::get("prefs");
+        // screenshot runs (EARTHDANCE_SHOT) start from the defaults and never touch the saved preferences
+        let prefs: Option<Prefs> = if crate::shot::active() { None } else { ed_sources::cache::get("prefs") };
         let args: Vec<String> = std::env::args().collect();
         // --place "name,lon,lat,half_km": open a live place directly
         let place = args.iter().position(|a| a == "--place").and_then(|i| args.get(i + 1)).and_then(|v| {
@@ -254,6 +255,9 @@ impl App {
     }
 
     pub fn save_prefs(&self) {
+        if crate::shot::active() {
+            return;
+        }
         ed_sources::cache::put("prefs", &Prefs { lang: self.st.lang, source: self.source.clone(), left_open: self.st.left_open, timeline_open: self.st.timeline_open, show: self.st.show });
     }
 

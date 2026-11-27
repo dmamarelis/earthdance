@@ -58,7 +58,8 @@ cargo run --release -p ed-core --example bench_status                           
 
 The app can render itself to a PNG without user input: set `EARTHDANCE_SHOT=out.png` plus the
 `EARTHDANCE_SHOT_*` variables listed at the top of `crates/ed-app/src/shot.rs` (mode, sensor, frame,
-language, zoom, …). Use it to look at visual changes before committing them.
+language, zoom, …). Use it to look at visual changes before committing them. Screenshot runs start from the
+default settings and never read or write the user's saved preferences.
 
 ## Conventions
 

@@ -545,7 +545,12 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
     // ── Status: areas (drawn on the demo set; on the real set the lake picture is enough) and the what-if shoreline
     let mut hovered_region = None;
     if app.st.mode == Mode::Status {
-        for r in &ds.regions.regions {
+        // names are placed right, left, above or below their dot, wherever they do not cover another name;
+        // the selected area is placed first, and a name with no free spot is left out (the dot stays)
+        let mut placed: Vec<Rect> = Vec::new();
+        let mut order: Vec<&ed_core::model::Region> = ds.regions.regions.iter().collect();
+        order.sort_by_key(|r| app.st.region.as_deref() != Some(&r.id));
+        for r in order {
             let a = status.get(&r.id);
             let col = theme::level(a.status);
             let sel = app.st.region.as_deref() == Some(&r.id);
@@ -563,7 +568,16 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
             if app.st.show.area_labels || sel || hovered_region.as_deref() == Some(&r.id) {
                 painter.circle_filled(c, 4.0, col);
                 let g = painter.layout_no_wrap(r.name.get(l).to_string(), FontId::proportional(11.0), theme::TEXT);
-                let tag = Rect::from_min_size(c + Vec2::new(8.0, -g.size().y / 2.0 - 2.0), g.size() + Vec2::new(8.0, 4.0));
+                let size = g.size() + Vec2::new(8.0, 4.0);
+                let spots = [
+                    c + Vec2::new(8.0, -size.y / 2.0),
+                    c + Vec2::new(-8.0 - size.x, -size.y / 2.0),
+                    c + Vec2::new(-size.x / 2.0, -8.0 - size.y),
+                    c + Vec2::new(-size.x / 2.0, 8.0),
+                ];
+                let free = spots.iter().map(|p| Rect::from_min_size(*p, size)).find(|t| placed.iter().all(|o| !o.expand(2.0).intersects(*t)));
+                let Some(tag) = free.or_else(|| (sel || hovered_region.as_deref() == Some(&r.id)).then(|| Rect::from_min_size(spots[0], size))) else { continue };
+                placed.push(tag);
                 painter.rect_filled(tag, 4, Color32::from_rgba_unmultiplied(11, 14, 19, 200));
                 painter.galley(tag.min + Vec2::new(4.0, 2.0), g, if sel { theme::ACCENT } else { theme::TEXT });
                 if resp.hover_pos().is_some_and(|h| tag.contains(h)) {
@@ -763,6 +777,7 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
     // a compact legend, bottom left
     if app.st.show.legend
         && app.st.mode != Mode::Status
+        && app.st.sensor == Sensor::Radar
         && let Some(ly) = ds.layers.get(app.st.layer)
     {
         let r = Rect::from_min_size(Pos2::new(rect.left() + 12.0, rect.bottom() - 92.0), Vec2::new(250.0, 80.0));
@@ -791,7 +806,8 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
             Mode::Status => t("brief.kicker", l).to_string(),
             Mode::Explore => String::new(),
         };
-        if ui.put(pill, egui::Button::new(format!("▸ {label}"))).on_hover_text(t("ui.show", l)).clicked() {
+        let button = egui::Button::new(RichText::new(format!("▸ {label}")).color(theme::TEXT)).fill(theme::PANEL).stroke(Stroke::new(1.0, Color32::from_white_alpha(28))).corner_radius(15);
+        if ui.put(pill, button).on_hover_text(t("ui.show", l)).clicked() {
             app.toggle_left();
         }
     }

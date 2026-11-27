@@ -28,6 +28,11 @@ fn var(k: &str) -> Option<String> {
     std::env::var(k).ok().filter(|v| !v.is_empty())
 }
 
+/// A screenshot run (the app then leaves the saved preferences alone).
+pub fn active() -> bool {
+    var("EARTHDANCE_SHOT").is_some()
+}
+
 impl App {
     pub fn shot(&mut self, ctx: &egui::Context) {
         let Some(path) = var("EARTHDANCE_SHOT") else { return };
@@ -38,8 +43,10 @@ impl App {
         self.shot.frames += 1;
         if !self.shot.configured {
             self.shot.configured = true;
-            if var("EARTHDANCE_SHOT_LANG").as_deref() == Some("en") {
-                self.st.lang = ed_core::Lang::En;
+            match var("EARTHDANCE_SHOT_LANG").as_deref() {
+                Some("en") => self.st.lang = ed_core::Lang::En,
+                Some("el") => self.st.lang = ed_core::Lang::El,
+                _ => {}
             }
             match var("EARTHDANCE_SHOT_MODE").as_deref() {
                 Some("status") => self.set_mode(Mode::Status),

@@ -564,6 +564,7 @@ dependencies = [
  "eframe",
  "egui_plot",
  "image",
+ "rayon",
  "rodio",
  "serde",
 ]
