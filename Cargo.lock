@@ -582,6 +582,7 @@ name = "ed-raster"
 version = "0.1.0"
 dependencies = [
  "ed-core",
+ "miniz_oxide 0.8.9",
  "rayon",
  "serde_json",
 ]
@@ -1254,6 +1255,8 @@ dependencies = [
  "num-traits",
  "png",
  "tiff",
+ "zune-core",
+ "zune-jpeg",
 ]
 
 [[package]]
