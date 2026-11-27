@@ -2,7 +2,6 @@
 name = "ed-sources"
 edition.workspace = true
 version.workspace = true
-license.workspace = true
 description = "EarthDance data sources: weather (Open-Meteo), acquisitions, disk cache, and the data-set builders."
 
 [dependencies]

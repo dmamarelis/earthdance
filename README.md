@@ -1,216 +1,121 @@
 # EarthDance · Ο Χορός της Γης
 
-Διαδραστική εφαρμογή που δείχνει με δεδομένα ραντάρ NISAR πώς αλλάζει η Λίμνη Κορώνεια: νερό, καλαμιώνες, υγρασία εδάφους, έδαφος που βυθίζεται.
-Και τα κάνει καθημερινή εικόνα με ειδοποιήσεις για την Περιφέρεια.
-NASA Space Apps Challenge 2026 — *Dancing with the SARs*.
+**Satellite radar and optical data turned into a daily picture of a lake: how much water it holds, where
+it is heading, and what the regional authority should do about it.**
 
-> **🏆 3η θέση στον διαγωνισμό NASA Space Apps Challenge 2026.** Η ομάδα προκρίθηκε στην παγκόσμια φάση του διαγωνισμού της NASA.
-> *3rd place at NASA Space Apps Challenge 2026; the team advances to NASA's global round.*
+Built for Lake Koronia (Central Macedonia, Greece) at the NASA Space Apps Challenge 2026,
+*Dancing with the SARs*, where the team took **3rd place** and advanced to NASA's global round.
+It now runs as a native desktop app and works for any lake on Earth that Sentinel-2 sees.
 
-Τρεις προβολές:
+![Status view: the lake on satellite imagery, the alert, and the forecast](docs/img/status.jpg)
 
-- **Εξερεύνηση**: επίπεδα ραντάρ, διακόπτης **Οπτικό / Ραντάρ NISAR** (τα σύννεφα της ημέρας έναντι του ραντάρ), τιμή dB και εξήγηση κάτω από τον κέρσορα, timeline, σύγκριση με μπάρα, σημεία με χρονοσειρές και ήχο.
-- **Ιστορία**: 6 κεφάλαια για το ευρύ κοινό (σύννεφα → ραντάρ → νερό → καλαμιώνες → καθίζηση → αποφάσεις).
-- **Κατάσταση**: ημερήσια εικόνα για την Περιφέρεια, συμπεράσματα και **προτεινόμενες ενέργειες** ανά περιοχή, καιρός, συμφωνία με EGMS, ειδοποίηση για το όριο νερού, σενάριο **«Τι θα γινόταν αν…»** και **εξαγωγή αναφοράς σε PDF**.
+## What it does
 
-> **Δύο σετ δεδομένων, με διακόπτη «Πραγματικά | Επίδειξη» πάνω δεξιά** (μένει στο URL ως `?src=real` ή `?src=demo`):
->
-> - **Πραγματικά** (`data/real/`, προεπιλογή): λήψεις NISAR L2 GCOV HH (18 Ιουν – 22 Σεπ 2026). Στον χάρτη μπαίνουν οι 10 που μετρούν σωστά το νερό και οι 2 με άδειο αρχείο ως «χωρίς δεδομένα»· οι 7 της απότομης τροχιάς ή με αέρα (το νερό φαίνεται φωτεινό) μένουν έξω
->   και Sentinel-2 HLS (Φεβ – Οκτ 2026) για τη Λίμνη Κορώνεια. Τα αρχεία είναι στους φακέλους `Koroneia_NISAR/` και `Koroneia_Sentinel/`
->   και τα επεξεργάζεται το `python tools/build_real_data.py`. Υπάρχουν μόνο HH, αλλαγή και επιφάνεια λίμνης· το όριο νερού είναι ενδεικτικό.
-> - **Επίδειξη** (`data/`, `"demo": true`): συνθετικά δεδομένα από το `tools/make_demo_data.py`, για τα features που δεν έχουν ακόμα
->   πραγματικά δεδομένα (HV, καθίζηση, Sentinel-1, υγρασία εδάφους, EGMS, σημεία, Ιστορία). Δείχνει μόνιμα την ένδειξη «Δεδομένα επίδειξης».
+| View | What you get |
+|---|---|
+| **Explore** | Radar and optical layers on a satellite basemap, a timeline of every acquisition, swipe-compare between two dates, the value under the cursor with a plain-language explanation, points with time series (and a sonified version you can listen to). |
+| **Story** | Six short chapters for the general public: clouds → radar → water → reeds → sinking ground → decisions. |
+| **Status** | The daily briefing for the region: which areas need action and why, the lake alert (what we measured · what is coming · what to do), weather, a "what if" for rain and irrigation, "Ask EarthDance", and a printable report. |
 
-## Εκτέλεση
+| ![Swipe compare: June vs September](docs/img/compare.jpg) | ![Any place: Sentinel-2 picture blended into the basemap](docs/img/anywhere.jpg) |
+|---|---|
+| Swipe compare, NISAR radar, 18 June vs 10 September 2026 | Anywhere on Earth: the dated Sentinel-2 picture around the lake |
 
-```bash
-python -m http.server 5173
-```
+## Run it
 
-Μετά ανοίγεις `http://localhost:5173`. Δεν χρειάζεται build, npm ή κλειδιά API.
-(Το διπλό κλικ στο `index.html` δεν δουλεύει, γιατί ο browser δεν φορτώνει τα JSON χωρίς server.)
-
-## Δομή
-
-```
-index.html            Σκελετός της σελίδας
-css/style.css         Όλη η εμφάνιση (χρώματα και γραμματοσειρές στην αρχή, στο :root)
-js/app.js             Λογική: χάρτης, επίπεδα, timeline, σύγκριση, σημεία, επαλήθευση
-js/status.js          Προβολή «Κατάσταση»: ημερήσια εικόνα, κάρτα περιοχής, ειδοποιήσεις
-js/insights.js        Οι κανόνες που βγάζουν τα συμπεράσματα (χωρίς DOM, εύκολο να ελεγχθούν)
-js/weather.js         Καιρός από το Open-Meteo (ιστορικό + πρόγνωση 7 ημερών)
-js/i18n.js            Κείμενα του UI σε EL/EN
-js/sound.js           Μετατροπή χρονοσειράς σε μελωδία
-data/manifest.json    ★ Τι επίπεδα και ποιες ημερομηνίες υπάρχουν
-data/layers/          Οι εικόνες των επιπέδων (μία ανά ημερομηνία)
-data/values/          Οι τιμές των επιπέδων σε μικρό πλέγμα, για το hover (int16, τιμή × 10)
-data/clouds/          Τα σύννεφα της «Οπτικής» προβολής, ένα ανά ημερομηνία
-data/points.geojson   ★ Σημεία με χρονοσειρές
-data/regions.json     ★ Περιοχές παρακολούθησης, ταμιευτήρες και κατώφλια ειδοποιήσεων
-data/weather.json     Αποθηκευμένο αντίγραφο καιρού, για λειτουργία χωρίς σύνδεση
-data/validation.json  ★ Ζεύγη NISAR – EGMS για το γράφημα επαλήθευσης
-data/content.json     ★ Εξηγήσεις, συνεντεύξεις, ομάδα
-fonts/                Iosevka Charon Mono για αριθμούς και ετικέτες (SIL OFL), τοπικά. Κείμενο: Manrope, τίτλοι: Literata (Google Fonts)
-tools/add_layer.py    Προσθέτει μία πραγματική λήψη στην εφαρμογή
-tools/fetch_weather.py   Ανανεώνει το data/weather.json
-tools/make_demo_data.py  Ξαναφτιάχνει τα demo δεδομένα
-```
-
-Τα αρχεία με ★ είναι τα μόνα που αλλάζετε για να μπουν τα δικά σας δεδομένα. **Ο κώδικας δεν χρειάζεται αλλαγή.**
-
-## Πώς μπαίνουν τα πραγματικά δεδομένα
-
-### 1. Εικόνες επιπέδων (χάρτης)
-
-Για κάθε λήψη NISAR βγάζετε ένα raster σε γεωγραφικές συντεταγμένες (EPSG:4326) και τρέχετε:
+Requires a Rust toolchain (1.88 or newer, `rustup` recommended). On Linux, ALSA headers for sound
+(`alsa-lib-devel` on Fedora, `libasound2-dev` on Debian/Ubuntu).
 
 ```bash
-python tools/add_layer.py --layer hh --date 2026-03-14 --input hh_20260314.tif --source NISAR_L2_PR_GCOV_... --url https://...
+cargo run --release -p ed-app                    # Lake Koronia, real NISAR + Sentinel-2 data
+cargo run --release -p ed-app -- --demo          # the demo set (all data made up, clearly labelled)
+cargo run --release -p ed-app -- --place "Lake Volvi,23.48,40.68,10"   # any place: name,lon,lat,radius_km
 ```
 
-Το εργαλείο χρωματίζει το raster με τη χρωματική κλίμακα του επιπέδου, το σώζει στο `data/layers/` και ενημερώνει το manifest.
-Η πρώτη πραγματική λήψη ενός επιπέδου σβήνει τις demo λήψεις του. Όταν δεν μείνει καμία demo λήψη, το `demo` γίνεται `false`.
+Inside the app, **Source ▾ → Anywhere…** searches places by name. Keys: `←` `→` step through dates
+(or Story chapters), `R` switches optical / radar, `Esc` closes dialogs.
 
-| Επίπεδο | Προϊόν | Τιμές που περιμένει |
-|---|---|---|
-| `hh`, `hv` | NISAR L2 GCOV | dB: `10*log10(gamma0)` |
-| `change` | Διαφορά δύο GCOV | dB: `hh(t) - hh(t0)` |
-| `disp` | NISAR L2 GUNW | mm στη γραμμή όρασης: `phase * 238.4 / (4π)` (L-band, λ ≈ 23,84 cm) |
-| `s1vv` | Sentinel-1 RTC (OPERA) | dB |
+No accounts or API keys are needed. The app downloads only what it needs and caches it in
+`~/.cache/earthdance`, so a place opens instantly the second time and works offline afterwards.
 
-Δέχεται και `.npy` (με `--bounds W S E N`), αν διαβάζετε τα HDF5 του NISAR απευθείας με `h5py`.
-Για GeoTIFF χρειάζεται `pip install rasterio`.
+## The three data sets
 
-Για νέο επίπεδο ή άλλη χρωματική κλίμακα, προσθέτετε/αλλάζετε ένα αντικείμενο στο `layers` του manifest
-(`id`, `name`, `unit`, `legend.stops`). Το `legend.stops` χρωματίζει και την εικόνα και το υπόμνημα.
+* **Real (Lake Koronia):** 19 NISAR L2 GCOV passes (June–September 2026; 12 used, the rest are steep-orbit
+  or wind-roughened) and 16 Sentinel-2 (HLS)
+  scenes, kept in `Koroneia_NISAR/` and `Koroneia_Sentinel/`, processed when the app starts.
+* **Anywhere:** Sentinel-2 L2A for the last 18 months, streamed from the public AWS archive: clouds
+  masked, water found with a threshold computed from the data, lake detected automatically.
+* **Demo:** synthetic radar, subsidence, soil moisture, EGMS and points for the features that have no real
+  data yet. Every screen says "Demo data".
 
-Εναλλακτικά, ένα frame μπορεί να έχει `"tiles": "https://.../{z}/{x}/{y}.png"` αντί για `"image"` (π.χ. από titiler πάνω σε COG).
-
-### 2. Σημεία με χρονοσειρές — `data/points.geojson`
-
-Κάθε σημείο έχει `id`, `name` (el/en), `kind` (`subsidence`, `water`, `flood`, `crop`, `urban`, `stable`) και:
-
-```json
-"series": {
-  "dates":   ["2026-01-07", "2026-02-12"],
-  "disp_mm": [0.0, -4.2],
-  "ref_mm":  [0.0, -3.9],
-  "hh_db":   [-13.1, -12.4],
-  "hv_db":   [-22.0, -20.5],
-  "vv_db":   [-11.2, -10.8]
-}
-```
-
-Το `ref_mm` (EGMS) και το `vv_db` (Sentinel-1) είναι προαιρετικά. Το `kind` καθορίζει το χρώμα και ποια εξήγηση «Γιατί συμβαίνει;» εμφανίζεται.
-
-### 3. Επαλήθευση — `data/validation.json`
-
-Λίστα `pairs` με `{ "nisar": ρυθμός, "ref": ρυθμός }` σε mm/έτος για τα ίδια σημεία. Τα R², RMSE και η μέση απόκλιση υπολογίζονται αυτόματα.
-
-### 4. Κείμενα — `data/content.json`
-
-- `explanations`: η κάρτα «Γιατί συμβαίνει;» ανά `kind`.
-- `voices`: απόσπασμα συνέντευξης ανά `id` σημείου (και προαιρετικά αρχείο ήχου στο `media`).
-- `unknowns`, `about`: περιορισμοί, πηγές, ομάδα, δήλωση χρήσης AI.
-
-### 5. Προβολή «Κατάσταση» — `data/regions.json`
-
-Η δεύτερη προβολή είναι η ημερήσια εικόνα για όποιον διοικεί την περιοχή: ποιες περιοχές θέλουν ενέργεια, γιατί, και τι καιρό έχουν.
-Κάθε περιοχή είναι ένας κύκλος (`center`, `radius_km`) με στατιστικά της έκτασής της ανά λήψη:
-
-```json
-{
-  "id": "south", "name": { "el": "Νότια όχθη Κορώνειας", "en": "Koronia south shore" },
-  "center": [23.16, 40.635], "radius_km": 4.5, "points": ["agvasileios", "gerakarou", "koronia"],
-  "series": {
-    "dates":        ["2026-01-07", "2026-02-12"],
-    "disp_mm":      [0.0, -6.1],
-    "ref_mm":       [0.0, -5.8],
-    "hh_db":        [-16.9, -16.7],
-    "hv_db":        [-25.1, -24.0],
-    "vv_db":        [-14.2, -13.9],
-    "water_km2":    [77.2, 85.6],
-    "vol_loss_hm3": [0.0, 0.4]
-  },
-  "reservoir": { "name": {}, "unit": "hm³", "capacity": 120, "limit": 30, "dates": [], "volume": [], "method": {}, "rule": {} }
-}
-```
-
-| Πεδίο | Τι είναι | Πώς βγαίνει από πραγματικά δεδομένα |
-|---|---|---|
-| `disp_mm` | Μετατόπιση της περιοχής (NISAR) | Στο demo: 10ο εκατοστημόριο του GUNW μέσα στον κύκλο |
-| `ref_mm` | Το ίδιο από το EGMS | Μέσος όρος των σημείων EGMS μέσα στον κύκλο |
-| `hh_db`, `hv_db`, `vv_db` | Μέση οπισθοσκέδαση (NISAR, Sentinel-1) | Μέσος όρος GCOV / RTC μέσα στον κύκλο |
-| `water_km2` | Επιφάνεια νερού | Pixel με HH κάτω από κατώφλι × εμβαδόν pixel |
-| `vol_loss_hm3` | Όγκος συμπίεσης | Άθροισμα βύθισης × εμβαδόν pixel (mm × km² × 0,001) |
-| `soil_moist_pct` | Υγρασία εδάφους (%) | Μέσος όρος του προϊόντος υγρασίας εδάφους του NISAR (L3) μέσα στον κύκλο |
-| `reed_km2` | Έκταση καλαμιώνων | Pixel της ζώνης υγροτόπου με υψηλό HV (όγκος βλάστησης) |
-| `cleared_ha` | Υγρότοπος που έγινε χωράφι | Pixel της ζώνης όπου έπεσε το HV και ανέβηκε η τραχύτητα στο HH |
-| `reservoir.volume` | Απόθεμα λίμνης | Επιφάνεια νερού × καμπύλη στάθμης–όγκου |
-| `reservoir.area_km2` | Επιφάνεια λίμνης ανά λήψη | Pixel νερού (σκοτεινό HH) × εμβαδόν pixel. Το χρησιμοποιεί το σενάριο |
-| `reservoir.outline` | Η ακτή της λίμνης στην τελευταία λήψη | Πολύγωνο [lon, lat]. Το σενάριο το μικραίνει ή το μεγαλώνει στον χάρτη |
-
-Το `reservoir` είναι προαιρετικό. Το `limit` και το `rule` (ποιο όριο ισχύει και ποια κύρωση) **πρέπει να τα συμπληρώσετε εσείς** από την επίσημη πηγή: στο demo είναι ενδεικτικά.
-
-Τα `thresholds` στην αρχή του αρχείου ορίζουν πότε μια περιοχή γίνεται «Προσοχή» ή «Συναγερμός».
-Τα συμπεράσματα βγαίνουν με απλούς κανόνες στο `js/insights.js` και ξαναϋπολογίζονται μόνα τους όταν αλλάξουν τα δεδομένα ή τα κατώφλια.
-
-**Προτεινόμενες ενέργειες.** Κάθε εύρημα με «Προσοχή» ή «Συναγερμό» έχει μια προτεινόμενη ενέργεια (`ACTIONS` στο `js/insights.js`).
-Είναι προτάσεις προς τις αρμόδιες υπηρεσίες, όχι αποφάσεις· ελέγξτε τες με κάποιον που ξέρει τη διοίκηση της περιοχής.
-
-**Σενάριο «Τι θα γινόταν αν…».** Απλό ισοζύγιο από τις ίδιες τις μετρήσεις (`scenario()` στο `js/insights.js`): ο χειμώνας γεμίζει τη λίμνη ανάλογα με τη βροχή,
-το καλοκαίρι την αδειάζει (70% άρδευση, 30% εξάτμιση), η έκταση ακολουθεί το απόθεμα με καμπύλη που προσαρμόζεται στις λήψεις, η καθίζηση κλιμακώνεται με την άντληση.
-Δείχνει κατεύθυνση, δεν είναι υδρολογικό μοντέλο.
-
-**Αναφορά.** Το κουμπί «Αναφορά» στην Κατάσταση ανοίγει την εκτύπωση του browser με μια σελίδα για την Περιφέρεια (χάρτης, πίνακας, ευρήματα, ενέργειες). Επιλέξτε «Αποθήκευση ως PDF».
-
-**Οπτική προβολή.** Η νεφοκάλυψη κάθε ημερομηνίας είναι η πραγματική (Open-Meteo, `cloud_cover_mean`)· το σχήμα των σύννεφων είναι σχηματικό.
-Για αληθινή οπτική εικόνα, βάλτε σε κάθε στοιχείο του `optical.clouds` στο manifest μια εικόνα Sentinel-2 της ίδιας μέρας.
-
-**Hover.** Κάθε frame μπορεί να έχει `"values"` (αρχείο int16 με τιμή × 10) και `"grid": [πλάτος, ύψος]`. Το `tools/add_layer.py` τα γράφει μόνο του.
-Το `classes` κάθε επιπέδου στο manifest ορίζει την εξήγηση που εμφανίζεται για κάθε εύρος τιμών.
-
-**Καιρός.** Φορτώνεται ζωντανά από το [Open-Meteo](https://open-meteo.com) για το κέντρο κάθε περιοχής (χωρίς κλειδί API): ημερήσιο ιστορικό από 30 ημέρες πριν από την πρώτη λήψη, μαζί με πρόγνωση 7 ημερών.
-Το ιστορικό είναι επανανάλυση (μοντέλο), όχι μετρήσεις σταθμού. Πριν από την παρουσίαση τρέξτε `python tools/fetch_weather.py`, ώστε να υπάρχει αντίγραφο αν πέσει το internet.
-
-### 6. Πρόβλεψη για τη λίμνη (μόνο στα πραγματικά δεδομένα) — `data/real/forecast.json`
-
-Ένα μικρό μοντέλο ισοζυγίου νερού, με 4 παραμέτρους που προσαρμόζονται στις μετρήσεις έκτασης:
+## How it works
 
 ```
-S    = πόσο γεμάτη είναι η λίμνη, 0 (άδεια) … 1 (η πιο γεμάτη μέτρηση)
-dS   = a · βροχή − k · ET0          κάθε μέρα   (a = a_wet Νοε–Μαρ, a_dry Απρ–Οκτ)
-έκταση = A_max · S^q                (ρηχή, επίπεδη λίμνη: λίγο νερό καλύπτει μεγάλη έκταση)
+ satellite files / archive ──► ed-raster ──────────► Dataset ──► ed-core ──────────► ed-app
+ (GeoTIFF, COG byte ranges)    warp, water, colour      │         rules, forecast,     map, views,
+                                                        │         answers              charts, sound
+ Open-Meteo (ERA5 + forecast) ───────────────────────────┘
 ```
 
-- `python tools/fit_forecast.py` (μετά το `build_real_data.py`): κατεβάζει καιρό 2015–σήμερα από το Open-Meteo, προσαρμόζει τις παραμέτρους,
-  κάνει έλεγχο στο παρελθόν (μόνο λήψεις ως 17 Αυγ → πρόβλεψη για 17 Σεπ) και γράφει το `data/real/forecast.json`.
-- `js/forecast.js` τρέχει το μοντέλο στον browser: πραγματικός καιρός ως σήμερα + 7 ημέρες, μετά 11 σενάρια (ο καιρός κάθε έτους 2015–2025)
-  × 3 τιμές του `a` (50%, 100%, 150%). Εύρος = 10ο–90ό εκατοστημόριο ± το τυπικό σφάλμα του μοντέλου.
-- `js/ask.js` φτιάχνει την ειδοποίηση με τις τρεις γραμμές (τι μετρήσαμε · τι έρχεται · τι να γίνει) και τις απαντήσεις του «Ρώτα το EarthDance»
-  από σταθερά πρότυπα κειμένου με τους αριθμούς του μοντέλου. Δεν υπάρχει γλωσσικό μοντέλο.
-- Υποθέσεις: ο χειμώνας δεν έχει μετρηθεί ακόμα· για τον υπολογισμό του γεμίσματος θεωρούμε ότι το φθινόπωρο του 2025 η λίμνη ήταν όσο η χαμηλότερη φετινή μέτρηση.
-  Στο σενάριο άρδευσης, το καλοκαίρι το 70% των απωλειών είναι άρδευση και το 30% εξάτμιση.
+| Crate | Role |
+|---|---|
+| `ed-core` | Domain model, the rules that turn numbers into findings, the lake water-balance forecast, the Markov-chain weather generator, gap filling, "Ask". Pure: no IO. |
+| `ed-raster` | GeoTIFF / Cloud-Optimized GeoTIFF reading, UTM reprojection, filters, water detection, colouring. |
+| `ed-sources` | Weather (Open-Meteo), satellite archives (STAC), basemap tiles, the disk cache, building data sets. |
+| `ed-app` | The desktop app (egui). |
 
-### Άλλη περιοχή μελέτης
+**The lake forecast.** A small water balance (rain in, evaporation and irrigation out) is fitted to the
+measured lake areas. It runs forward on 150 simulated years of weather from a Markov-chain generator
+fitted to the last 30 years of ERA5 at the lake. On 22 held-out years that forecasts the summer water
+deficit 7 % better than replaying past years, with well-calibrated ranges. A forecast is shown only if the
+fit passes a quality check.
 
-Αλλάζετε το `site` στο manifest (`name`, `center`, `zoom`, `bounds`), τα σημεία και τις περιοχές. Τίποτα άλλο.
+**Between passes** the app draws estimates (dotted and labelled, never mixed with measurements): the
+water balance run on the real weather between two passes, which beat every pure interpolation in a
+leave-one-out test.
 
-## Πλήκτρα
+More detail, with the evaluations: [docs/rust-rewrite.md](docs/rust-rewrite.md).
+One-page summary for the team: [docs/rust-rewrite-team-brief.pdf](docs/rust-rewrite-team-brief.pdf).
 
-`←` `→` αλλαγή ημερομηνίας (ή κεφαλαίου στην Ιστορία) · `R` εναλλαγή Οπτικό / Ραντάρ · `Esc` κλείσιμο παραθύρου
+## How we know it is right
 
-## Γνωστοί περιορισμοί
+```bash
+cargo test --workspace --release
+```
 
-- Οι εικόνες τεντώνονται γραμμικά ανάμεσα στις 4 γωνίες. Για περιοχή ~100 km το σφάλμα είναι μικρό· για μεγαλύτερες προτιμήστε `tiles`.
-- Χρονοσειρά εμφανίζεται μόνο στα σημεία του `points.geojson`, όχι σε τυχαίο κλικ.
-- Ο δορυφορικός χάρτης είναι της Esri και θέλει σύνδεση στο internet.
-- Η εφαρμογή ανοίγει στην «Οπτική» προβολή (`sensor: 'optical'` στην αρχή του `js/app.js`)· τα επίπεδα ραντάρ φαίνονται με τον διακόπτη «Ραντάρ NISAR».
-- Το όνομα του προϊόντος υγρασίας εδάφους (`L3 Soil Moisture`) είναι γενικό: ελέγξτε το ακριβές όνομα στο ASF πριν από την παρουσίαση.
-- Η «Κατάσταση» δείχνει καθημερινά νέο καιρό, αλλά το ραντάρ αλλάζει μόνο όταν προσθέσετε νέα λήψη στα αρχεία. Δεν κατεβάζει μόνη της δεδομένα NISAR.
-- Οι περιοχές είναι κύκλοι, όχι διοικητικά όρια, και οι συντεταγμένες των σημείων είναι κατά προσέγγιση.
-- Όσο το ραντάρ είναι demo και ο καιρός πραγματικός, οι σχέσεις βροχής–ραντάρ που δείχνει η εφαρμογή δεν σημαίνουν τίποτα.
+* The rules, answers and forecasts are checked against what the original web app produced on the same
+  inputs (`tests/fixtures/`, written by `oracle/gen.mjs`): every sentence matches in Greek and English.
+* The raster pipeline reproduces the original Python outputs exactly, pixel for pixel.
+* End to end: raw GeoTIFFs → findings identical to the original app.
+* The daily briefing computes about 16× faster than the original JavaScript
+  (`node oracle/bench.mjs` vs `cargo run --release -p ed-core --example bench_status`).
 
-## Χρήση τεχνητής νοημοσύνης
+## Known limits and open questions
 
-Ο σκελετός της εφαρμογής γράφτηκε με τη βοήθεια του Claude (Anthropic). Η ομάδα ελέγχει και εκτελεί τον κώδικα και είναι υπεύθυνη για τα δεδομένα και τα συμπεράσματα.
+* **The two satellites disagree about Koronia.** Sentinel-2 sees about 26–31 km² of water all year; the
+  NISAR radar saw about 9 km² in September 2026. Radar counts only calm open water; optical counts any
+  water-looking surface. The alert uses the radar. This needs a field check.
+* The lake's minimum limit (25 % of the largest measured area) is indicative. Replace it with the official
+  value from the river basin management plan before using the alerts.
+* Radar for arbitrary places is not wired in yet (Sentinel-1 needs no account; NISAR needs a free
+  Earthdata token).
+* The winter refill rate of Koronia is still uncertain: the radar record has no winter yet.
+* The "what if" and the irrigation split (70 % irrigation, 30 % evaporation in summer) show direction, not
+  exact amounts.
+
+## Data and credits
+
+NISAR L2 GCOV (NASA/ISRO, via ASF) · Sentinel-2 (Copernicus; HLS by NASA LP DAAC; L2A COGs on AWS via
+Element 84 Earth Search) · ERA5 reanalysis and forecasts via [Open-Meteo](https://open-meteo.com)
+(CC BY 4.0) · place search: GeoNames via Open-Meteo · basemap: Esri World Imagery and place names
+(© Esri, Maxar, Earthstar Geographics) or Sentinel-2 cloudless by EOX (CC BY-NC-SA 4.0).
+
+**Use of AI.** The Rust rewrite was written with Claude (Anthropic) under the team's direction; the
+original prototype was also built with its help. The team reviews and runs the code and is responsible for
+the data and the conclusions.
+
+## The original web app
+
+The first version (browser app in `index.html`, `js/`, `css/`, with Python tools in `tools/`) is still in
+the repository and still runs: `python -m http.server 5173`, then open `http://localhost:5173`. The Rust
+app is checked against it.

@@ -5,7 +5,6 @@ members = ["crates/ed-core", "crates/ed-raster", "crates/ed-sources", "crates/ed
 [workspace.package]
 edition = "2024"
 version = "0.1.0"
-license = "MIT"
 
 [workspace.dependencies]
 ed-core = { path = "crates/ed-core" }

@@ -2,7 +2,6 @@
 name = "ed-raster"
 edition.workspace = true
 version.workspace = true
-license.workspace = true
 description = "Raster processing for EarthDance: GeoTIFF decoding, UTM reprojection, filters, water masks, colouring."
 
 [dependencies]
