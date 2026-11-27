@@ -7,7 +7,7 @@ use ed_core::stats::{max, min, slope_per_year};
 use ed_core::text::{fill, fmt_date, fmt_num, t, tf, to_fixed, DateStyle};
 use ed_core::Level;
 
-use crate::app::{card, chip, nearest, section, short, tile, App, Mode, PointTab, Sensor, Source};
+use crate::app::{card, chip, nearest, short, tile, App, Mode, PointTab, Sensor, Source};
 use crate::map::{dashed, ring, star_fill};
 use crate::theme;
 
@@ -46,15 +46,18 @@ pub fn top_bar(app: &mut App, ui: &mut egui::Ui) {
     let Some(d) = &app.data else { return };
     let (ds, status) = (d.ds.clone(), d.status.clone());
     let alerts = status.counts()[Level::Alert as usize];
-    egui::Panel::top("top").exact_size(48.0).show(ui, |ui| {
+    egui::Panel::top("top").exact_size(40.0).show(ui, |ui| {
         ui.horizontal_centered(|ui| {
-            ui.label(RichText::new("◉ EarthDance").strong().size(18.0).color(theme::ACCENT));
-            ui.label(RichText::new(format!("{} · {}", ds.site.name.get(l), ds.site.country.get(l))).color(theme::MUTED));
-            ui.add_space(24.0);
+            if app.st.mode != Mode::Explore && ui.selectable_label(app.st.left_open, "☰").on_hover_text(t(if app.st.left_open { "ui.hide" } else { "ui.show" }, l)).clicked() {
+                app.toggle_left();
+            }
+            ui.label(RichText::new("EarthDance").strong().color(theme::ACCENT));
+            ui.label(RichText::new(ds.site.name.get(l)).small().color(theme::MUTED));
+            ui.separator();
             for (m, key) in [(Mode::Explore, "mode.explore"), (Mode::Story, "mode.story"), (Mode::Status, "mode.status")] {
                 let mut label = t(key, l).to_string();
                 if m == Mode::Status && alerts > 0 {
-                    label = format!("{label}  ● {alerts}");
+                    label = format!("{label} ·{alerts}");
                 }
                 let mut b = ui.selectable_label(app.st.mode == m, label);
                 if m == Mode::Story && !ds.demo {
@@ -64,30 +67,93 @@ pub fn top_bar(app: &mut App, ui: &mut egui::Ui) {
                     app.set_mode(m);
                 }
             }
+            ui.separator();
+            if app.st.mode != Mode::Status && !ds.layers.is_empty() {
+                let cur = ds.layers.get(app.st.layer).map_or(String::new(), |ly| ly.info.name.get(l).to_string());
+                ui.menu_button(format!("{cur} ▾"), |ui| layers_menu(app, ui));
+            }
+            ui.menu_button(format!("{} ▾", if l == ed_core::Lang::El { "Εμφάνιση" } else { "Show" }), |ui| show_menu(app, ui));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if ui.button(if l == ed_core::Lang::El { "EL · en" } else { "el · EN" }).clicked() {
+                if ui.small_button(if l == ed_core::Lang::El { "EN" } else { "ΕΛ" }).clicked() {
                     app.toggle_lang();
                 }
-                if ui.button("ℹ").on_hover_text("About").clicked() {
-                    app.st.show_about = true;
-                }
-                if ds.validation.is_some() && ui.button(format!("✓ {}", t("nav.validation", l))).clicked() {
-                    app.st.show_validation = true;
-                }
-                if ds.demo {
-                    chip(ui, t("demo.badge", l), theme::WATCH);
-                }
-                ui.separator();
-                for (s, key) in [(Source::Demo, "src.demo"), (Source::Real, "src.real")] {
-                    if ui.selectable_label(app.source == s, t(key, l)).clicked() && app.source != s {
-                        let ctx = ui.ctx().clone();
-                        app.st.mode = Mode::Explore;
-                        app.load(s, &ctx);
+                ui.menu_button("⋯", |ui| {
+                    if ds.validation.is_some() && ui.button(format!("✓ {}", t("nav.validation", l))).clicked() {
+                        app.st.show_validation = true;
+                        ui.close();
                     }
+                    if ui.button("ℹ EarthDance").clicked() {
+                        app.st.show_about = true;
+                        ui.close();
+                    }
+                });
+                if ds.demo {
+                    ui.label(RichText::new(t("demo.badge", l)).small().color(theme::WATCH));
                 }
+                egui::ComboBox::from_id_salt("source")
+                    .width(110.0)
+                    .selected_text(t(if app.source == Source::Real { "src.real" } else { "src.demo" }, l))
+                    .show_ui(ui, |ui| {
+                        for (s, key) in [(Source::Real, "src.real"), (Source::Demo, "src.demo")] {
+                            if ui.selectable_label(app.source == s, t(key, l)).clicked() && app.source != s {
+                                let ctx = ui.ctx().clone();
+                                app.st.mode = Mode::Explore;
+                                app.load(s, &ctx);
+                            }
+                        }
+                    });
             });
         });
     });
+}
+
+/// The layer picker (a dropdown instead of a permanent panel).
+fn layers_menu(app: &mut App, ui: &mut egui::Ui) {
+    let l = app.st.lang;
+    let Some(ds) = app.ds() else { return };
+    ui.set_min_width(300.0);
+    for (i, ly) in ds.layers.iter().enumerate() {
+        let r = ui
+            .horizontal(|ui| {
+                let (sw, _) = ui.allocate_exact_size(Vec2::new(6.0, 28.0), Sense::hover());
+                paint_gradient(ui.painter(), sw, &ly.info);
+                ui.vertical(|ui| {
+                    ui.label(RichText::new(ly.info.name.get(l)).strong().color(if i == app.st.layer { theme::ACCENT } else { theme::TEXT }));
+                    ui.label(RichText::new(format!("{} · {}-band", ly.info.short.get(l), ly.info.band)).small().color(theme::MUTED));
+                });
+            })
+            .response
+            .interact(Sense::click());
+        if r.clicked() {
+            app.set_layer(i);
+            ui.close();
+        }
+    }
+    if !ds.missing.is_empty() {
+        ui.separator();
+        let list = ds.missing.iter().map(|m| m.name.get(l)).collect::<Vec<_>>().join(", ");
+        ui.label(RichText::new(strip_tags(&tf("src.missing", l, &[("list", &list)]))).small().color(theme::MUTED));
+    }
+}
+
+/// What to draw on the map.
+fn show_menu(app: &mut App, ui: &mut egui::Ui) {
+    let el = app.st.lang == ed_core::Lang::El;
+    let s = &mut app.st.show;
+    let before = format!("{s:?}");
+    ui.checkbox(&mut s.legend, if el { "Υπόμνημα" } else { "Legend" });
+    ui.checkbox(&mut s.points, if el { "Σημεία" } else { "Points" });
+    ui.checkbox(&mut s.point_labels, if el { "Ονόματα σημείων" } else { "Point names" });
+    ui.checkbox(&mut s.areas, if el { "Περιοχές (κύκλοι)" } else { "Areas (circles)" });
+    ui.checkbox(&mut s.area_labels, if el { "Ονόματα περιοχών" } else { "Area names" });
+    ui.checkbox(&mut s.shoreline, if el { "Ακτογραμμή σεναρίου" } else { "What-if shoreline" });
+    ui.checkbox(&mut s.estimates, if el { "Εκτιμήσεις ανάμεσα στις λήψεις" } else { "Estimates between passes" });
+    ui.checkbox(&mut s.grid, if el { "Κάναβος" } else { "Grid" });
+    ui.separator();
+    ui.checkbox(&mut app.st.timeline_open, if el { "Χρονολόγιο" } else { "Timeline" });
+    if format!("{:?}", app.st.show) != before {
+        app.save_prefs();
+    }
 }
 
 // ───────────────────────────────────────────────────────── timeline
@@ -100,11 +166,11 @@ pub fn timeline(app: &mut App, ui: &mut egui::Ui) {
     if fr.is_empty() {
         return;
     }
-    egui::Panel::bottom("timeline").exact_size(92.0).show(ui, |ui| {
-        ui.add_space(6.0);
+    egui::Panel::bottom("timeline").exact_size(70.0).show(ui, |ui| {
+        ui.add_space(2.0);
         ui.horizontal(|ui| {
             let f = &fr[app.st.frame];
-            ui.label(RichText::new(fmt_date(f.date, l, DateStyle::DayMonthYear)).size(17.0).strong());
+            ui.label(RichText::new(fmt_date(f.date, l, DateStyle::DayMonthYear)).strong());
             let meta = format!(
                 "{} {} {} {} · {}{}",
                 t("tl.frame", l),
@@ -139,7 +205,7 @@ pub fn timeline(app: &mut App, ui: &mut egui::Ui) {
             });
         });
         // the track: click or drag anywhere
-        let (rect, resp) = ui.allocate_exact_size(Vec2::new(ui.available_width(), 40.0), Sense::click_and_drag());
+        let (rect, resp) = ui.allocate_exact_size(Vec2::new(ui.available_width(), 34.0), Sense::click_and_drag());
         let rail = Rect::from_min_max(Pos2::new(rect.left() + 20.0, rect.top() + 8.0), Pos2::new(rect.right() - 20.0, rect.top() + 12.0));
         let n = fr.len();
         let x_of = |i: usize| if n > 1 { rail.left() + rail.width() * i as f32 / (n - 1) as f32 } else { rail.center().x };
@@ -161,9 +227,9 @@ pub fn timeline(app: &mut App, ui: &mut egui::Ui) {
             } else {
                 Color32::from_white_alpha(90)
             };
-            p.circle_filled(Pos2::new(x, rail.center().y), if now { 6.0 } else { 3.5 }, col);
+            p.circle_filled(Pos2::new(x, rail.center().y), if now { 5.0 } else { 2.5 }, col);
             if i % every == 0 || now {
-                p.text(Pos2::new(x, rail.bottom() + 14.0), Align2::CENTER_CENTER, short(f.date, l), FontId::proportional(11.0), if now { theme::TEXT } else { theme::MUTED });
+                p.text(Pos2::new(x, rail.bottom() + 14.0), Align2::CENTER_CENTER, short(f.date, l), FontId::proportional(10.5), if now { theme::TEXT } else { theme::MUTED });
             }
         }
         if let Some(pos) = resp.interact_pointer_pos()
@@ -219,55 +285,6 @@ pub fn legend(ui: &mut egui::Ui, info: &LayerInfo, l: ed_core::Lang) {
             ui.label(RichText::new(info.legend.high.get(l)).small().color(theme::MUTED));
         });
     });
-}
-
-pub fn explore_left(app: &mut App, ui: &mut egui::Ui) {
-    let l = app.st.lang;
-    let Some(ds) = app.ds() else { return };
-    ui.horizontal(|ui| {
-        ui.heading(t("layers.title", l));
-        ui.label(RichText::new(format!("{:02}", ds.layers.len())).color(theme::MUTED));
-        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-            if ui.small_button("◂").on_hover_text(t("ui.hide", l)).clicked() {
-                app.toggle_left();
-            }
-        });
-    });
-    for (i, ly) in ds.layers.iter().enumerate() {
-        let active = i == app.st.layer;
-        let r = egui::Frame::new()
-            .fill(if active { theme::ACCENT.gamma_multiply(0.12) } else { theme::CARD })
-            .stroke(Stroke::new(1.0, if active { theme::ACCENT } else { Color32::from_white_alpha(12) }))
-            .corner_radius(10)
-            .inner_margin(8)
-            .show(ui, |ui| {
-                ui.set_width(ui.available_width());
-                ui.horizontal(|ui| {
-                    let (sw, _) = ui.allocate_exact_size(Vec2::new(8.0, 34.0), Sense::hover());
-                    paint_gradient(ui.painter(), sw, &ly.info);
-                    ui.vertical(|ui| {
-                        ui.label(RichText::new(ly.info.name.get(l)).strong());
-                        ui.label(RichText::new(ly.info.short.get(l)).small().color(theme::MUTED));
-                    });
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        chip(ui, &ly.info.band, if ly.info.band == "L" { theme::ACCENT } else { theme::VIOLET });
-                    });
-                });
-            })
-            .response
-            .interact(Sense::click());
-        if r.clicked() {
-            app.set_layer(i);
-        }
-    }
-    if !ds.missing.is_empty() {
-        let list = ds.missing.iter().map(|m| m.name.get(l)).collect::<Vec<_>>().join(", ");
-        ui.label(RichText::new(strip_tags(&tf("src.missing", l, &[("list", &list)]))).small().color(theme::MUTED));
-    }
-    if let Some(ly) = ds.layers.get(app.st.layer) {
-        section(ui, t("legend.seeing", l));
-        legend(ui, &ly.info, l);
-    }
 }
 
 /// The legacy strings carry a little HTML (`<b>`, `<em>`); the native UI shows plain text.
@@ -429,7 +446,9 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
     let ctx = ui.ctx().clone();
     let painter = ui.painter_at(rect);
     painter.rect_filled(rect, 0, theme::BG);
-    app.map.graticule(&painter, rect);
+    if app.st.show.grid {
+        app.map.graticule(&painter, rect);
+    }
     let site = app.map.bounds_rect(rect, ds.site.bounds);
     painter.rect_stroke(site, 0, Stroke::new(1.0, Color32::from_white_alpha(18)), egui::StrokeKind::Middle);
 
@@ -445,7 +464,7 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         if let Some(img) = img {
             let tex = app.texture(&ctx, &img);
             let r = app.map.bounds_rect(rect, img.bounds);
-            let tint = if app.st.sensor == Sensor::Radar { Color32::from_white_alpha(230) } else { Color32::WHITE };
+            let tint = Color32::from_white_alpha(theme::IMAGERY_ALPHA);
             p.image(tex, r, Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0)), tint);
         }
     };
@@ -470,30 +489,32 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         for r in &ds.regions.regions {
             let a = status.get(&r.id);
             let col = theme::level(a.status);
-            let pts: Vec<Pos2> = ring(r.center, r.radius_km).iter().map(|q| app.map.to_screen(rect, q[0], q[1])).collect();
             let sel = app.st.region.as_deref() == Some(&r.id);
-            if ds.demo {
-                painter.add(star_fill(&pts[..pts.len() - 1], col.gamma_multiply(if sel { 0.3 } else { 0.13 })));
-                painter.add(egui::Shape::line(pts.clone(), Stroke::new(if sel { 3.0 } else { 1.6 }, col)));
-            }
             let c = app.map.to_screen(rect, r.center[0], r.center[1]);
             let rad = (r.radius_km / app.map.km_per_px()) as f32;
+            if app.st.show.areas || sel {
+                let pts: Vec<Pos2> = ring(r.center, r.radius_km).iter().map(|q| app.map.to_screen(rect, q[0], q[1])).collect();
+                painter.add(star_fill(&pts[..pts.len() - 1], col.gamma_multiply(if sel { 0.16 } else { 0.07 })));
+                painter.add(egui::Shape::line(pts, Stroke::new(if sel { 1.6 } else { 1.0 }, col.gamma_multiply(0.8))));
+            }
             if resp.hover_pos().is_some_and(|h| h.distance(c) <= rad) {
                 hovered_region = Some(r.id.clone());
             }
-            // name tag at the northern edge
-            let north = app.map.to_screen(rect, r.center[0], r.center[1] + r.radius_km / 110.57);
-            let g = painter.layout_no_wrap(r.name.get(l).to_string(), FontId::proportional(12.0), theme::TEXT);
-            let tag = Rect::from_center_size(north - Vec2::new(0.0, 12.0), g.size() + Vec2::new(16.0, 6.0));
-            painter.rect_filled(tag, 10, if sel { col } else { Color32::from_rgba_unmultiplied(13, 18, 27, 230) });
-            painter.rect_stroke(tag, 10, Stroke::new(1.0, col), egui::StrokeKind::Middle);
-            painter.galley(tag.center() - g.size() / 2.0, g, if sel { Color32::BLACK } else { theme::TEXT });
-            if resp.hover_pos().is_some_and(|h| tag.contains(h)) {
-                hovered_region = Some(r.id.clone());
+            // a small status dot + name at the centre, instead of the big tag
+            if app.st.show.area_labels || sel || hovered_region.as_deref() == Some(&r.id) {
+                painter.circle_filled(c, 4.0, col);
+                let g = painter.layout_no_wrap(r.name.get(l).to_string(), FontId::proportional(11.0), theme::TEXT);
+                let tag = Rect::from_min_size(c + Vec2::new(8.0, -g.size().y / 2.0 - 2.0), g.size() + Vec2::new(8.0, 4.0));
+                painter.rect_filled(tag, 4, Color32::from_rgba_unmultiplied(11, 14, 19, 200));
+                painter.galley(tag.min + Vec2::new(4.0, 2.0), g, if sel { theme::ACCENT } else { theme::TEXT });
+                if resp.hover_pos().is_some_and(|h| tag.contains(h)) {
+                    hovered_region = Some(r.id.clone());
+                }
             }
         }
         if let Some((rid, res)) = crate::status_ui::what_if(app, &ds, &status, wx.as_deref())
             && app.st.what_if.is_change()
+            && app.st.show.shoreline
             && let Some(outline) = ds.region(&rid).and_then(|r| r.reservoir.as_ref()).and_then(|x| x.outline.as_ref())
             && outline.len() > 3
         {
@@ -513,7 +534,7 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
 
     // ── points
     let mut hovered_point = None;
-    if app.st.mode != Mode::Status {
+    if app.st.mode != Mode::Status && app.st.show.points {
         let beat = app.sound.is_playing();
         for p in &ds.points {
             let c = app.map.to_screen(rect, p.lon, p.lat);
@@ -521,16 +542,21 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
                 continue;
             }
             let sel = app.st.point.as_deref() == Some(&p.id);
+            let hov = resp.hover_pos().is_some_and(|h| h.distance(c) <= 8.0);
             let col = theme::kind(&p.kind);
-            let rad = if sel { 8.0 } else { 6.0 } + if sel && beat { 3.0 * ((ui.input(|i| i.time) * 6.0).sin().abs() as f32) } else { 0.0 };
-            painter.circle_filled(c, rad + 3.0, col.gamma_multiply(0.25));
+            let rad = if sel { 5.5 } else { 4.0 } + if sel && beat { 2.0 * ((ui.input(|i| i.time) * 6.0).sin().abs() as f32) } else { 0.0 };
+            painter.circle_filled(c, rad + 1.5, Color32::from_rgba_unmultiplied(11, 14, 19, 200));
             painter.circle_filled(c, rad, col);
-            painter.circle_stroke(c, rad, Stroke::new(if sel { 2.0 } else { 1.0 }, Color32::WHITE));
-            let g = painter.layout_no_wrap(p.name.get(l).to_string(), FontId::proportional(12.5), theme::TEXT);
-            let lr = Rect::from_min_size(c + Vec2::new(rad + 4.0, -g.size().y / 2.0 - 2.0), g.size() + Vec2::new(10.0, 4.0));
-            painter.rect_filled(lr, 6, Color32::from_rgba_unmultiplied(7, 10, 16, if sel { 235 } else { 190 }));
-            painter.galley(lr.min + Vec2::new(5.0, 2.0), g, theme::TEXT);
-            if resp.hover_pos().is_some_and(|h| h.distance(c) <= rad + 4.0) {
+            if sel {
+                painter.circle_stroke(c, rad + 3.0, Stroke::new(1.2, theme::TEXT));
+            }
+            if app.st.show.point_labels || sel || hov {
+                let g = painter.layout_no_wrap(p.name.get(l).to_string(), FontId::proportional(11.5), theme::TEXT);
+                let lr = Rect::from_min_size(c + Vec2::new(rad + 4.0, -g.size().y / 2.0 - 2.0), g.size() + Vec2::new(8.0, 4.0));
+                painter.rect_filled(lr, 4, Color32::from_rgba_unmultiplied(11, 14, 19, 210));
+                painter.galley(lr.min + Vec2::new(4.0, 2.0), g, theme::TEXT);
+            }
+            if hov {
                 hovered_point = Some(p.id.clone());
             }
         }
@@ -613,9 +639,11 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
             let note = sensor_note(app, ds);
             let empty = app.st.sensor == Sensor::Radar && ds.layers.get(app.st.layer).and_then(|ly| ly.frames.get(app.st.frame)).is_some_and(|f| f.empty);
             if !note.is_empty() {
-                egui::Frame::new().fill(Color32::from_rgba_unmultiplied(7, 10, 16, 200)).corner_radius(8).inner_margin(egui::Margin::symmetric(8, 2)).show(ui, |ui| {
-                    ui.label(RichText::new(note).small().color(if empty { theme::WATCH } else { theme::TEXT }));
-                });
+                // a backing exactly as wide as the text
+                let g = ui.painter().layout_no_wrap(note, FontId::proportional(11.0), if empty { theme::WATCH } else { theme::TEXT });
+                let (r, _) = ui.allocate_exact_size(g.size() + Vec2::new(16.0, 4.0), Sense::hover());
+                ui.painter().rect_filled(r, 6, Color32::from_rgba_unmultiplied(11, 14, 19, 210));
+                ui.painter().galley(r.min + Vec2::new(8.0, 2.0), g, theme::TEXT);
             }
         });
     });
@@ -656,13 +684,36 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
         }
     }
 
+    // a compact legend, bottom left
+    if app.st.show.legend
+        && app.st.mode != Mode::Status
+        && let Some(ly) = ds.layers.get(app.st.layer)
+    {
+        let r = Rect::from_min_size(Pos2::new(rect.left() + 12.0, rect.bottom() - 92.0), Vec2::new(250.0, 80.0));
+        ui.scope_builder(UiBuilder::new().max_rect(r), |ui| {
+            egui::Frame::new().fill(Color32::from_rgba_unmultiplied(17, 21, 28, 235)).corner_radius(8).inner_margin(8).show(ui, |ui| {
+                ui.set_width(234.0);
+                ui.label(RichText::new(format!("{} · {}", ly.info.name.get(l), ly.info.unit)).small().strong());
+                gradient(ui, &ly.info, Vec2::new(234.0, 7.0));
+                let (lo, hi) = ly.info.legend.range();
+                ui.horizontal(|ui| {
+                    ui.label(RichText::new(format!("{} {}", fmt_num(lo, 0), ly.info.legend.low.get(l))).small().color(theme::MUTED));
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        ui.label(RichText::new(format!("{} {}", ly.info.legend.high.get(l), fmt_num(hi, 0))).small().color(theme::MUTED));
+                    });
+                });
+            })
+            .response
+            .on_hover_text(ly.info.description.get(l));
+        });
+    }
     // collapsed panels come back from small pills
-    if !app.st.left_open {
+    if !app.st.left_open && app.st.mode != Mode::Explore {
         let pill = Rect::from_min_size(rect.left_top() + Vec2::new(12.0, 12.0), Vec2::new(200.0, 30.0));
         let label = match app.st.mode {
             Mode::Story => ds.content.story.get(app.st.story).map_or(String::new(), |c| c.title.get(l).to_string()),
             Mode::Status => t("brief.kicker", l).to_string(),
-            Mode::Explore => t("layers.title", l).to_string(),
+            Mode::Explore => String::new(),
         };
         if ui.put(pill, egui::Button::new(format!("▸ {label}"))).on_hover_text(t("ui.show", l)).clicked() {
             app.toggle_left();
@@ -673,7 +724,7 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
         if ui.put(pill, egui::Button::new(format!("▴ {}", app.frame_date().map_or(String::new(), |d| short(d, l))))).clicked() {
             app.toggle_timeline();
         }
-    } else if app.st.mode == Mode::Explore && !ds.points.is_empty() && app.st.point.is_none() {
+    } else if app.st.mode == Mode::Explore && app.st.show.points && !ds.points.is_empty() && app.st.point.is_none() && !app.st.show.legend {
         let g = egui::RichText::new(format!("● {}", t("hint.click", l))).small();
         let r = Rect::from_center_size(Pos2::new(rect.center().x, rect.bottom() - 22.0), Vec2::new(340.0, 24.0));
         ui.put(r, egui::Label::new(g));

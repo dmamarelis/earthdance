@@ -69,6 +69,25 @@ impl WxState {
     }
 }
 
+/// What is drawn on the map (the "Show" menu).
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub struct ShowOpts {
+    pub areas: bool,
+    pub area_labels: bool,
+    pub points: bool,
+    pub point_labels: bool,
+    pub shoreline: bool,
+    pub legend: bool,
+    pub grid: bool,
+    pub estimates: bool,
+}
+
+impl Default for ShowOpts {
+    fn default() -> Self {
+        Self { areas: false, area_labels: true, points: true, point_labels: false, shoreline: true, legend: true, grid: true, estimates: true }
+    }
+}
+
 /// What the user is looking at (the legacy app's `state` object).
 pub struct UiState {
     pub lang: Lang,
@@ -92,6 +111,7 @@ pub struct UiState {
     pub show_about: bool,
     pub left_open: bool,
     pub timeline_open: bool,
+    pub show: ShowOpts,
 }
 
 /// Remembered between runs.
@@ -101,6 +121,8 @@ struct Prefs {
     source: Source,
     left_open: bool,
     timeline_open: bool,
+    #[serde(default)]
+    show: ShowOpts,
 }
 
 /// A data set ready to show.
@@ -171,6 +193,7 @@ impl App {
             show_about: false,
             left_open: prefs.as_ref().is_none_or(|p| p.left_open),
             timeline_open: prefs.as_ref().is_none_or(|p| p.timeline_open),
+            show: prefs.as_ref().map_or_else(ShowOpts::default, |p| p.show),
         };
         let mut app = Self {
             st,
@@ -192,8 +215,8 @@ impl App {
         app
     }
 
-    fn save_prefs(&self) {
-        ed_sources::cache::put("prefs", &Prefs { lang: self.st.lang, source: self.source, left_open: self.st.left_open, timeline_open: self.st.timeline_open });
+    pub fn save_prefs(&self) {
+        ed_sources::cache::put("prefs", &Prefs { lang: self.st.lang, source: self.source, left_open: self.st.left_open, timeline_open: self.st.timeline_open, show: self.st.show });
     }
 
     // ───────────────────────────────────────────────────────── loading
@@ -556,25 +579,32 @@ impl eframe::App for App {
         if self.st.timeline_open && self.st.mode != Mode::Status {
             crate::panels::timeline(self, ui);
         }
-        if self.st.left_open {
-            egui::Panel::left("left").resizable(false).exact_size(340.0).show(ui, |ui| {
+        // drawers: the briefing / story card on the left (not in Explore), the selection on the right
+        if self.st.mode != Mode::Explore {
+            let mut open = self.st.left_open;
+            egui::Panel::left("left").resizable(false).exact_size(330.0).show_collapsible(ui, &mut open, |ui| {
                 egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| match self.st.mode {
-                    Mode::Explore => crate::panels::explore_left(self, ui),
                     Mode::Story => crate::panels::story_left(self, ui),
-                    Mode::Status => crate::status_ui::brief(self, ui),
+                    _ => crate::status_ui::brief(self, ui),
                 });
             });
+            if open != self.st.left_open {
+                self.st.left_open = open;
+                self.save_prefs();
+            }
         }
-        if self.st.point.is_some() || self.st.region.is_some() {
-            egui::Panel::right("right").resizable(false).exact_size(400.0).show(ui, |ui| {
-                egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
-                    if self.st.region.is_some() {
-                        crate::status_ui::region(self, ui);
-                    } else {
-                        crate::panels::inspector(self, ui);
-                    }
-                });
+        let mut right = self.st.point.is_some() || self.st.region.is_some();
+        egui::Panel::right("right").resizable(false).exact_size(380.0).show_collapsible(ui, &mut right, |ui| {
+            egui::ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
+                if self.st.region.is_some() {
+                    crate::status_ui::region(self, ui);
+                } else {
+                    crate::panels::inspector(self, ui);
+                }
             });
+        });
+        if !right && (self.st.point.is_some() || self.st.region.is_some()) {
+            self.close_right();
         }
         egui::CentralPanel::no_frame().show(ui, |ui| crate::panels::map_view(self, ui));
         crate::sheets::show(self, &ctx);

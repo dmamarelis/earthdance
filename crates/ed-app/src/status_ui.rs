@@ -97,65 +97,64 @@ pub fn brief(app: &mut App, ui: &mut egui::Ui) {
         ui.end_row();
     });
 
-    section(ui, t("brief.todo", l));
-    let mut todo: Vec<(&ed_core::model::Region, &Finding)> = Vec::new();
-    for r in st.sorted(&ds.regions) {
-        for f in &st.get(&r.id).findings {
-            if f.level != Level::Ok {
-                todo.push((r, f));
+    egui::CollapsingHeader::new(RichText::new(t("brief.todo", l)).strong()).default_open(true).show(ui, |ui| {        let mut todo: Vec<(&ed_core::model::Region, &Finding)> = Vec::new();
+        for r in st.sorted(&ds.regions) {
+            for f in &st.get(&r.id).findings {
+                if f.level != Level::Ok {
+                    todo.push((r, f));
+                }
             }
         }
-    }
-    todo.sort_by_key(|(_, f)| std::cmp::Reverse(f.level));
-    if todo.is_empty() {
-        ui.label(RichText::new(t("brief.none", l)).color(theme::MUTED));
-    }
-    for (r, f) in todo {
-        let resp = card(ui, Some(theme::level(f.level)), |ui| {
-            ui.horizontal(|ui| {
-                ui.label(RichText::new("●").color(theme::level(f.level)));
-                ui.vertical(|ui| {
-                    ui.label(RichText::new(f.title.get(l)).strong());
-                    ui.label(RichText::new(r.name.get(l)).small().color(theme::MUTED));
-                });
-            });
-            ui.interact(ui.min_rect(), ui.scope_id().with(("todo", &r.id, f.key)), egui::Sense::click())
-        });
-        if resp.clicked() {
-            app.select_region(&r.id, true);
+        todo.sort_by_key(|(_, f)| std::cmp::Reverse(f.level));
+        if todo.is_empty() {
+            ui.label(RichText::new(t("brief.none", l)).color(theme::MUTED));
         }
-    }
-
+        for (r, f) in todo {
+            let resp = card(ui, Some(theme::level(f.level)), |ui| {
+                ui.horizontal(|ui| {
+                    ui.label(RichText::new("●").color(theme::level(f.level)));
+                    ui.vertical(|ui| {
+                        ui.label(RichText::new(f.title.get(l)).strong());
+                        ui.label(RichText::new(r.name.get(l)).small().color(theme::MUTED));
+                    });
+                });
+                ui.interact(ui.min_rect(), ui.scope_id().with(("todo", &r.id, f.key)), egui::Sense::click())
+            });
+            if resp.clicked() {
+                app.select_region(&r.id, true);
+            }
+        }
+    });
     if st.brief.is_some() {
         ask_box(app, ui, &st, l);
     }
 
-    section(ui, t("brief.areas", l));
-    for r in st.sorted(&ds.regions) {
-        let a = st.get(&r.id);
-        let sel = app.st.region.as_deref() == Some(&r.id);
-        let resp = ui
-            .horizontal(|ui| {
-                ui.label(RichText::new("●").color(theme::level(a.status)));
-                ui.label(RichText::new(r.name.get(l)).strong().color(if sel { theme::ACCENT } else { theme::TEXT }));
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if let Some(w) = &a.weather {
-                        ui.label(RichText::new(format!("{} mm", to_fixed(w.rain7, 0))).small().color(theme::MUTED)).on_hover_text(t("rg.rain7", l));
-                    }
-                    if let Some(rf) = &a.reference {
-                        ui.label(RichText::new(format!("{} {}", ds.reference_name(), if rf.agrees { "✓" } else { "✗" })).small().color(if rf.agrees { theme::OK } else { theme::WATCH }));
-                    }
-                    if let Some(rate) = a.ground.rate {
-                        ui.label(RichText::new(format!("{} {}", signed(rate, 0), t("unit.mmyr", l))).small()).on_hover_text(t("rg.tile.rate", l));
-                    }
-                });
-            })
-            .response
-            .interact(egui::Sense::click());
-        if resp.clicked() {
-            app.select_region(&r.id, true);
+    egui::CollapsingHeader::new(RichText::new(t("brief.areas", l)).strong()).default_open(false).show(ui, |ui| {        for r in st.sorted(&ds.regions) {
+            let a = st.get(&r.id);
+            let sel = app.st.region.as_deref() == Some(&r.id);
+            let resp = ui
+                .horizontal(|ui| {
+                    ui.label(RichText::new("●").color(theme::level(a.status)));
+                    ui.label(RichText::new(r.name.get(l)).strong().color(if sel { theme::ACCENT } else { theme::TEXT }));
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        if let Some(w) = &a.weather {
+                            ui.label(RichText::new(format!("{} mm", to_fixed(w.rain7, 0))).small().color(theme::MUTED)).on_hover_text(t("rg.rain7", l));
+                        }
+                        if let Some(rf) = &a.reference {
+                            ui.label(RichText::new(format!("{} {}", ds.reference_name(), if rf.agrees { "✓" } else { "✗" })).small().color(if rf.agrees { theme::OK } else { theme::WATCH }));
+                        }
+                        if let Some(rate) = a.ground.rate {
+                            ui.label(RichText::new(format!("{} {}", signed(rate, 0), t("unit.mmyr", l))).small()).on_hover_text(t("rg.tile.rate", l));
+                        }
+                    });
+                })
+                .response
+                .interact(egui::Sense::click());
+            if resp.clicked() {
+                app.select_region(&r.id, true);
+            }
         }
-    }
+    });
     ui.label(RichText::new(t("brief.foot", l)).small().color(theme::MUTED));
 
     scenario_box(app, ui, &ds, &st, wx.as_deref(), today, l);
@@ -165,8 +164,7 @@ pub fn brief(app: &mut App, ui: &mut egui::Ui) {
 
 fn ask_box(app: &mut App, ui: &mut egui::Ui, st: &Status, l: Lang) {
     let Some(b) = &st.brief else { return };
-    section(ui, t("ask.title", l));
-    card(ui, None, |ui| {
+    egui::CollapsingHeader::new(RichText::new(t("ask.title", l)).strong()).default_open(false).show(ui, |ui| {
         ui.horizontal_wrapped(|ui| {
             for q in Question::LISTED {
                 let on = app.st.asked.as_ref().is_some_and(|a| a.0 == q);
@@ -217,8 +215,7 @@ fn scenario_box(app: &mut App, ui: &mut egui::Ui, ds: &Dataset, st: &std::sync::
     let Some(r) = status::lake_region(&ds.regions) else { return };
     let res = r.reservoir.as_ref().expect("lake");
     let model = st.brief.is_some() && ds.forecast.as_ref().is_some_and(|f| f.region == r.id);
-    section(ui, t("scn.title", l));
-    card(ui, None, |ui| {
+    egui::CollapsingHeader::new(RichText::new(t("scn.title", l)).strong()).default_open(app.st.what_if.is_change()).show(ui, |ui| {
         ui.label(strip_tags(&tf(if model { "scn.q.model" } else { "scn.q" }, l, &[("lake", res.name.get(l))])));
         let pct = |v: f64| format!("{}{}%", if v > 0.0 { "+" } else { "" }, v).replacen('-', "−", 1);
         ui.horizontal(|ui| {

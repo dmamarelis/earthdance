@@ -3,18 +3,18 @@
 use eframe::egui::{self, Color32, CornerRadius, Stroke, Visuals};
 use ed_core::Level;
 
-pub const BG: Color32 = Color32::from_rgb(0x07, 0x0a, 0x10);
-pub const PANEL: Color32 = Color32::from_rgba_premultiplied(0x0d, 0x12, 0x1b, 0xf2);
-pub const CARD: Color32 = Color32::from_rgb(0x13, 0x1a, 0x26);
-pub const TEXT: Color32 = Color32::from_rgb(0xe9, 0xed, 0xf3);
-pub const MUTED: Color32 = Color32::from_rgb(0x8b, 0x96, 0xa8);
-pub const ACCENT: Color32 = Color32::from_rgb(0xf4, 0xb9, 0x4a);
-pub const ALERT: Color32 = Color32::from_rgb(0xff, 0x6b, 0x5e);
-pub const WATCH: Color32 = Color32::from_rgb(0xf4, 0xb9, 0x4a);
-pub const OK: Color32 = Color32::from_rgb(0x7b, 0xd8, 0x8f);
-pub const WATER: Color32 = Color32::from_rgb(0x5c, 0xc8, 0xf0);
-pub const VIOLET: Color32 = Color32::from_rgb(0xc9, 0xa7, 0xff);
-pub const GREY: Color32 = Color32::from_rgb(0x9a, 0xa6, 0xb8);
+pub const BG: Color32 = Color32::from_rgb(0x0b, 0x0e, 0x13);
+pub const PANEL: Color32 = Color32::from_rgb(0x11, 0x15, 0x1c);
+pub const CARD: Color32 = Color32::from_rgb(0x17, 0x1c, 0x25);
+pub const TEXT: Color32 = Color32::from_rgb(0xdd, 0xe2, 0xea);
+pub const MUTED: Color32 = Color32::from_rgb(0x87, 0x91, 0xa1);
+pub const ACCENT: Color32 = Color32::from_rgb(0xc9, 0xa8, 0x6e);
+pub const ALERT: Color32 = Color32::from_rgb(0xc8, 0x6f, 0x64);
+pub const WATCH: Color32 = Color32::from_rgb(0xc9, 0x9f, 0x5e);
+pub const OK: Color32 = Color32::from_rgb(0x7f, 0xa8, 0x88);
+pub const WATER: Color32 = Color32::from_rgb(0x72, 0xa5, 0xbd);
+pub const VIOLET: Color32 = Color32::from_rgb(0xa3, 0x98, 0xc4);
+pub const GREY: Color32 = Color32::from_rgb(0x8c, 0x96, 0xa6);
 
 pub fn level(l: Level) -> Color32 {
     match l {
@@ -23,6 +23,9 @@ pub fn level(l: Level) -> Color32 {
         Level::Ok => OK,
     }
 }
+
+/// Overlay imagery is drawn slightly faded so the map stays calm.
+pub const IMAGERY_ALPHA: u8 = 215;
 
 /// Marker colour per point kind.
 pub fn kind(k: &str) -> Color32 {
@@ -64,11 +67,11 @@ pub fn install(ctx: &egui::Context) {
     symbol_fonts(ctx);
     let mut v = Visuals::dark();
     v.panel_fill = PANEL;
-    v.window_fill = Color32::from_rgb(0x0d, 0x12, 0x1b);
+    v.window_fill = PANEL;
     v.extreme_bg_color = Color32::from_rgb(0x0a, 0x0e, 0x15);
     v.faint_bg_color = CARD;
     v.override_text_color = Some(TEXT);
-    v.selection.bg_fill = Color32::from_rgba_unmultiplied(0xf4, 0xb9, 0x4a, 0x55);
+    v.selection.bg_fill = Color32::from_rgba_unmultiplied(0xc9, 0xa8, 0x6e, 0x40);
     v.selection.stroke = Stroke::new(1.0, ACCENT);
     v.hyperlink_color = ACCENT;
     v.window_corner_radius = CornerRadius::same(14);
