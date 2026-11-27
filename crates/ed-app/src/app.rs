@@ -135,6 +135,7 @@ pub struct App {
     pending_mode: Option<Mode>,
     /// Kept so actions can start background work that repaints the UI.
     map_ctx: Option<egui::Context>,
+    pub shot: crate::shot::Shot,
 }
 
 impl App {
@@ -185,6 +186,7 @@ impl App {
             textures: HashMap::new(),
             pending_mode: None,
             map_ctx: Some(cc.egui_ctx.clone()),
+            shot: Default::default(),
         };
         app.load(source, &cc.egui_ctx);
         app
@@ -533,6 +535,7 @@ impl eframe::App for App {
         let ctx = ui.ctx().clone();
         self.map_ctx = Some(ctx.clone());
         self.poll(&ctx);
+        self.shot(&ctx);
         for i in self.sound.tick() {
             if let (Some(ds), Some(pid)) = (self.ds(), self.st.point.clone())
                 && let Some(p) = ds.point(&pid)
@@ -615,6 +618,10 @@ impl App {
         if left {
             self.set_frame(self.st.frame as isize - 1);
         }
+    }
+
+    pub fn weather_pending(&self) -> bool {
+        self.wx_rx.is_some() || self.rx.is_some()
     }
 
     pub fn toggle_lang(&mut self) {

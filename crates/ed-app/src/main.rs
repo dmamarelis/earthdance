@@ -9,6 +9,7 @@ mod map;
 mod panels;
 mod report;
 mod sheets;
+mod shot;
 mod sound;
 mod status_ui;
 mod theme;

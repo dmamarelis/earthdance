@@ -102,7 +102,8 @@ pub fn load(root: &Path) -> Result<(Dataset, Option<WeatherSet>)> {
     let site_bounds = m.site.bounds;
 
     // decode all frames in parallel: ~70 small images
-    let mut jobs: Vec<(usize, usize, &ManFrame, Bounds, Option<[usize; 2]>)> = Vec::new();
+    type Job<'a> = (usize, usize, &'a ManFrame, Bounds, Option<[usize; 2]>);
+    let mut jobs: Vec<Job> = Vec::new();
     for (li, l) in m.layers.iter().enumerate() {
         for (fi, f) in l.frames.iter().enumerate() {
             jobs.push((li, fi, f, l.bounds.unwrap_or(site_bounds), l.grid));

@@ -16,8 +16,11 @@ fn level_key(l: Level) -> String {
     format!("st.{}", l.key())
 }
 
+/// (status identity, sliders, result)
+type WhatIfCache = Option<(usize, ed_core::insights::WhatIf, Option<(String, WhatIfResult)>)>;
+
 thread_local! {
-    static WHAT_IF: std::cell::RefCell<Option<(usize, ed_core::insights::WhatIf, Option<(String, WhatIfResult)>)>> = const { std::cell::RefCell::new(None) };
+    static WHAT_IF: std::cell::RefCell<WhatIfCache> = const { std::cell::RefCell::new(None) };
 }
 
 /// The what-if for the current sliders, recomputed only when they (or the status) change.
@@ -231,12 +234,11 @@ fn scenario_box(app: &mut App, ui: &mut egui::Ui, ds: &Dataset, st: &std::sync::
         if let Some((_, s)) = what_if(app, ds, st, wx) {
             let bad = s.low() < s.limit();
             let kpi = |ui: &mut egui::Ui, label: &str, val: String, sub: String, badc: bool| {
-                ui.horizontal(|ui| {
-                    ui.label(RichText::new(label).small().color(theme::MUTED));
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        ui.label(RichText::new(sub).small().color(theme::MUTED));
-                        ui.label(RichText::new(val).strong().color(if badc { theme::ALERT } else { theme::OK }));
-                    });
+                ui.add_space(2.0);
+                ui.label(RichText::new(label).small().color(theme::MUTED));
+                ui.horizontal_wrapped(|ui| {
+                    ui.label(RichText::new(val).size(16.0).strong().color(if badc { theme::ALERT } else { theme::OK }));
+                    ui.label(RichText::new(sub).small().color(theme::MUTED));
                 });
             };
             let nd = |d: Option<Date>| d.map_or_else(|| "–".to_string(), |d| fmt_date(d, l, DateStyle::DayMonYear));
@@ -306,6 +308,7 @@ fn alert_card(ui: &mut egui::Ui, ds: &Dataset, st: &Status, r: &ed_core::model::
     });
 }
 
+#[allow(clippy::too_many_arguments)]
 fn charts(app: &mut App, ui: &mut egui::Ui, ds: &Dataset, st: &Status, r: &ed_core::model::Region, wx: Option<&WeatherSet>, today: Date, l: Lang) {
     ui.horizontal(|ui| {
         for (tab, key) in [(RegionTab::Wx, "rtab.wx"), (RegionTab::Fx, "rtab.fx"), (RegionTab::H2o, "rtab.h2o")] {
@@ -354,8 +357,7 @@ pub fn region(app: &mut App, ui: &mut egui::Ui) {
                 let n = (w.time.len() - i).min(7);
                 let mx = (0..n).map(|k| w.rain[i + k].unwrap_or(0.0)).fold(5.0, f64::max);
                 ui.columns(n.max(1), |cols| {
-                    for k in 0..n {
-                        let ui = &mut cols[k];
+                    for (k, ui) in cols.iter_mut().enumerate().take(n) {
                         let rain = w.rain[i + k].unwrap_or(0.0);
                         ui.vertical_centered(|ui| {
                             ui.label(RichText::new(if k == 0 { t("fc.today", l).to_string() } else { fmt_date(w.time[i + k], l, DateStyle::WeekdayShort) }).small().color(if k == 0 { theme::ACCENT } else { theme::MUTED }));
@@ -401,7 +403,7 @@ pub fn region(app: &mut App, ui: &mut egui::Ui) {
 
     section(ui, t("rg.findings", l));
     for f in a.findings.iter().filter(|f| !(lead && f.key == "reservoir")) {
-        card(ui, Some(theme::level(f.level)).filter(|_| f.level != Level::Ok), |ui| {
+        card(ui, (f.level != Level::Ok).then_some(theme::level(f.level)), |ui| {
             ui.label(RichText::new(f.title.get(l)).strong().color(if f.level == Level::Ok { theme::TEXT } else { theme::level(f.level) }));
             ui.label(f.text.get(l));
             if let Some(act) = &f.action {

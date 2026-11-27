@@ -3,7 +3,7 @@
 use std::ops::RangeInclusive;
 
 use eframe::egui::{self, Color32};
-use egui_plot::{Bar, BarChart, FilledArea, GridMark, HLine, Legend, Line, LineStyle, Plot, PlotPoints, Points, VLine};
+use egui_plot::{Bar, BarChart, FilledArea, GridInput, GridMark, HLine, Legend, Line, LineStyle, Plot, PlotPoints, Points, VLine};
 use ed_core::ask::Brief;
 use ed_core::insights::Assessment;
 use ed_core::model::{Point, Region, Validation, Weather};
@@ -24,11 +24,42 @@ fn date_axis(l: Lang, with_year: bool) -> impl Fn(GridMark, &RangeInclusive<f64>
     }
 }
 
+/// Grid marks on the first of the month (every 1, 2 or 3 months depending on the span), so the axis
+/// labels are calendar dates instead of round day numbers.
+fn month_marks(input: GridInput) -> Vec<GridMark> {
+    let (lo, hi) = input.bounds;
+    // egui_plot only labels marks at least ~60–80 px apart; base_step_size is 8 px in days
+    let days_per_px = input.base_step_size / 8.0;
+    let need = 90.0 * days_per_px;
+    let every = [1u32, 2, 3, 6, 12].into_iter().find(|m| f64::from(*m) * 30.0 >= need).unwrap_or(12);
+    let mut d = Date::from_days(lo.floor() as i32);
+    d = Date::ymd(d.year(), d.month(), 1);
+    let mut out = Vec::new();
+    while f64::from(d.days()) <= hi {
+        if f64::from(d.days()) >= lo && (d.month() - 1).is_multiple_of(every) {
+            out.push(GridMark { value: f64::from(d.days()), step_size: 30.0 * f64::from(every) });
+        }
+        d = if d.month() == 12 { Date::ymd(d.year() + 1, 1, 1) } else { Date::ymd(d.year(), d.month() + 1, 1) };
+    }
+    out
+}
+
+/// A row of coloured legend entries under a chart (egui_plot's legend sits on top of the data).
+pub fn legend_row(ui: &mut egui::Ui, items: &[(&str, Color32)]) {
+    ui.horizontal_wrapped(|ui| {
+        ui.spacing_mut().item_spacing.x = 10.0;
+        for (name, c) in items {
+            ui.label(egui::RichText::new(format!("● {name}")).small().color(*c));
+        }
+    });
+}
+
 fn base(id: &str, l: Lang, height: f32, with_year: bool) -> Plot<'static> {
     Plot::new(id.to_string())
         .height(height)
-        .legend(Legend::default().position(egui_plot::Corner::LeftBottom))
+        .x_grid_spacer(month_marks)
         .x_axis_formatter(date_axis(l, with_year))
+        .legend(Legend::default().position(egui_plot::Corner::LeftTop).background_alpha(0.6))
         .allow_scroll(false)
         .allow_zoom(false)
         .allow_drag(false)
@@ -96,6 +127,7 @@ pub fn point_chart(ui: &mut egui::Ui, p: &Point, tab: PointTab, cursor: Option<D
     None
 }
 
+#[allow(clippy::too_many_arguments)]
 /// The region panel's chart for one tab. Returns the note shown under it.
 pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&Weather>, brief: Option<&Brief>, tab: RegionTab, today: Date, demo: bool, l: Lang) -> String {
     let s = &r.series;
@@ -151,12 +183,13 @@ pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&We
                 let area = res.area_km2.as_ref().unwrap_or(&res.volume);
                 let start = res.dates.first().copied().unwrap_or(today);
                 base(&id, l, 240.0, true).include_y(0.0).include_y((f.amax / 5.0).ceil() * 5.0).include_x(x(start)).show(ui, |pu| {
-                    pu.add(FilledArea::new(t("rc.band", l), &xs, &f.p10[..k], &f.p90[..k]).fill_color(theme::WATER.gamma_multiply(0.2)));
-                    pu.line(Line::new(t("rc.forecast", l), PlotPoints::from(xs.iter().zip(&f.p50[..k]).map(|(a, b)| [*a, *b]).collect::<Vec<_>>())).color(theme::WATER).width(1.8).style(LineStyle::Dashed { length: 6.0 }));
-                    pu.points(Points::new(t("rc.measured", l), series(&res.dates, area)).color(Color32::WHITE).radius(3.5));
-                    pu.hline(HLine::new(format!("{} (km²)", t("rc.limit", l)), res.limit).color(theme::ALERT).style(LineStyle::Dashed { length: 8.0 }).width(1.5));
-                    pu.vline(VLine::new(t("rc.today", l), x(today)).color(Color32::from_white_alpha(180)).style(LineStyle::Dotted { spacing: 4.0 }));
+                    pu.add(FilledArea::new("", &xs, &f.p10[..k], &f.p90[..k]).fill_color(theme::WATER.gamma_multiply(0.2)));
+                    pu.line(Line::new("", PlotPoints::from(xs.iter().zip(&f.p50[..k]).map(|(a, b)| [*a, *b]).collect::<Vec<_>>())).color(theme::WATER).width(1.8).style(LineStyle::Dashed { length: 6.0 }));
+                    pu.points(Points::new("", series(&res.dates, area)).color(Color32::WHITE).radius(3.5));
+                    pu.hline(HLine::new("", res.limit).color(theme::ALERT).style(LineStyle::Dashed { length: 8.0 }).width(1.5));
+                    pu.vline(VLine::new("", x(today)).color(Color32::from_white_alpha(180)).style(LineStyle::Dotted { spacing: 4.0 }));
                 });
+                legend_row(ui, &[(t("rc.measured", l), Color32::WHITE), (t("rc.forecast", l), theme::WATER), (t("rc.band", l), theme::WATER.gamma_multiply(0.5)), (t("rc.limit", l), theme::ALERT), (t("rc.today", l), Color32::from_white_alpha(180))]);
                 t("rnote.h2o.fc", l).to_string()
             }
             (Some(res), None) => {

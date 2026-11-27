@@ -11,6 +11,7 @@ const BASE_HZ: f32 = 146.83; // D3
 const RATE: u32 = 44_100;
 pub const STEP: Duration = Duration::from_millis(340);
 
+#[derive(Default)]
 pub struct Player {
     sink: Option<rodio::MixerDeviceSink>,
     notes: Vec<(f32, f32)>,
@@ -18,11 +19,6 @@ pub struct Player {
     started: Option<Instant>,
 }
 
-impl Default for Player {
-    fn default() -> Self {
-        Self { sink: None, notes: Vec::new(), next: 0, started: None }
-    }
-}
 
 impl Player {
     pub fn is_playing(&self) -> bool {

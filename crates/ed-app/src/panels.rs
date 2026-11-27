@@ -68,7 +68,7 @@ pub fn top_bar(app: &mut App, ui: &mut egui::Ui) {
                 if ui.button(if l == ed_core::Lang::El { "EL · en" } else { "el · EN" }).clicked() {
                     app.toggle_lang();
                 }
-                if ui.button("ⓘ").on_hover_text("About").clicked() {
+                if ui.button("ℹ").on_hover_text("About").clicked() {
                     app.st.show_about = true;
                 }
                 if ds.validation.is_some() && ui.button(format!("✓ {}", t("nav.validation", l))).clicked() {
@@ -526,7 +526,10 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
             painter.circle_filled(c, rad + 3.0, col.gamma_multiply(0.25));
             painter.circle_filled(c, rad, col);
             painter.circle_stroke(c, rad, Stroke::new(if sel { 2.0 } else { 1.0 }, Color32::WHITE));
-            painter.text(c + Vec2::new(rad + 6.0, 0.0), Align2::LEFT_CENTER, p.name.get(l), FontId::proportional(12.5), theme::TEXT);
+            let g = painter.layout_no_wrap(p.name.get(l).to_string(), FontId::proportional(12.5), theme::TEXT);
+            let lr = Rect::from_min_size(c + Vec2::new(rad + 4.0, -g.size().y / 2.0 - 2.0), g.size() + Vec2::new(10.0, 4.0));
+            painter.rect_filled(lr, 6, Color32::from_rgba_unmultiplied(7, 10, 16, if sel { 235 } else { 190 }));
+            painter.galley(lr.min + Vec2::new(5.0, 2.0), g, theme::TEXT);
             if resp.hover_pos().is_some_and(|h| h.distance(c) <= rad + 4.0) {
                 hovered_point = Some(p.id.clone());
             }
@@ -571,7 +574,7 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         && let Some(f) = ly.frames.get(app.st.frame)
         && let Some(vals) = &f.values
     {
-        let (lon, lat) = app.map.from_screen(rect, h);
+        let (lon, lat) = app.map.to_geo(rect, h);
         if let Some(v) = vals.sample(lon, lat) {
             let v = f64::from(v);
             let info = &ly.info;
@@ -600,7 +603,7 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
         ui.vertical_centered(|ui| {
             egui::Frame::new().fill(Color32::from_rgba_unmultiplied(13, 18, 27, 235)).corner_radius(18).inner_margin(egui::Margin::symmetric(6, 4)).show(ui, |ui| {
                 ui.horizontal(|ui| {
-                    for (s, key, icon) in [(Sensor::Optical, "sensor.optical", "☁"), (Sensor::Radar, "sensor.radar", "📡")] {
+                    for (s, key, icon) in [(Sensor::Optical, "sensor.optical", "☁"), (Sensor::Radar, "sensor.radar", "◎")] {
                         if ui.selectable_label(app.st.sensor == s, format!("{icon} {}", t(key, l))).clicked() {
                             app.st.sensor = s;
                         }
@@ -609,14 +612,18 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
             });
             let note = sensor_note(app, ds);
             let empty = app.st.sensor == Sensor::Radar && ds.layers.get(app.st.layer).and_then(|ly| ly.frames.get(app.st.frame)).is_some_and(|f| f.empty);
-            ui.label(RichText::new(note).small().color(if empty { theme::WATCH } else { theme::MUTED }));
+            if !note.is_empty() {
+                egui::Frame::new().fill(Color32::from_rgba_unmultiplied(7, 10, 16, 200)).corner_radius(8).inner_margin(egui::Margin::symmetric(8, 2)).show(ui, |ui| {
+                    ui.label(RichText::new(note).small().color(if empty { theme::WATCH } else { theme::TEXT }));
+                });
+            }
         });
     });
 
     let tools = Rect::from_min_size(Pos2::new(rect.right() - 52.0, rect.top() + 90.0), Vec2::new(44.0, 220.0));
     ui.scope_builder(UiBuilder::new().max_rect(tools), |ui| {
         ui.vertical(|ui| {
-            let b = |ui: &mut egui::Ui, s: &str| ui.add_sized([40.0, 32.0], egui::Button::new(s));
+            let b = |ui: &mut egui::Ui, s: &str| ui.add_sized([40.0, 32.0], egui::Button::new(RichText::new(s).size(16.0)).fill(Color32::from_rgba_unmultiplied(13, 18, 27, 235)));
             if b(ui, "+").clicked() {
                 app.map.zoom_by(1.0);
             }

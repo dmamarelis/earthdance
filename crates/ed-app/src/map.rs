@@ -58,7 +58,7 @@ impl Map {
         rect.center() + Vec2::new(((x - cx) * w) as f32, ((y - cy) * w) as f32)
     }
 
-    pub fn from_screen(&self, rect: Rect, p: Pos2) -> (f64, f64) {
+    pub fn to_geo(&self, rect: Rect, p: Pos2) -> (f64, f64) {
         let (cx, cy) = merc(self.view.lon, self.view.lat);
         let w = self.world();
         let d = p - rect.center();
@@ -117,10 +117,10 @@ impl Map {
             if scroll != 0.0 {
                 self.flight = None;
                 let pointer = ui.input(|i| i.pointer.hover_pos()).unwrap_or(rect.center());
-                let before = self.from_screen(rect, pointer);
+                let before = self.to_geo(rect, pointer);
                 self.view.zoom = (self.view.zoom + f64::from(scroll) / 240.0).clamp(3.0, 18.0);
                 // keep the point under the cursor where it was
-                let after = self.from_screen(rect, pointer);
+                let after = self.to_geo(rect, pointer);
                 self.view.lon += before.0 - after.0;
                 self.view.lat += before.1 - after.1;
             }
@@ -129,8 +129,8 @@ impl Map {
 
     /// A light graticule, so the empty map still reads as a map until a basemap exists (D2).
     pub fn graticule(&self, painter: &egui::Painter, rect: Rect) {
-        let (w, n) = self.from_screen(rect, rect.left_top());
-        let (e, s) = self.from_screen(rect, rect.right_bottom());
+        let (w, n) = self.to_geo(rect, rect.left_top());
+        let (e, s) = self.to_geo(rect, rect.right_bottom());
         let span = (e - w).max(1e-6);
         let step = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0].into_iter().find(|s| span / s <= 12.0).unwrap_or(10.0);
         let stroke = Stroke::new(1.0, Color32::from_white_alpha(10));

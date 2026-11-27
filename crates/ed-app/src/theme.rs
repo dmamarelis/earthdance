@@ -39,7 +39,29 @@ pub fn rgb(c: [u8; 3]) -> Color32 {
     Color32::from_rgb(c[0], c[1], c[2])
 }
 
+/// Symbol fallback from the system (egui's bundled fonts lack ☁ ⚠ ✓ ⌂ ♫ …). Missing files are skipped.
+fn symbol_fonts(ctx: &egui::Context) {
+    const CANDIDATES: [&str; 4] = [
+        "/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/google-noto/NotoSansSymbols2-Regular.ttf",
+        "/usr/share/fonts/truetype/noto/NotoSansSymbols2-Regular.ttf",
+    ];
+    let mut fonts = egui::FontDefinitions::default();
+    for (i, p) in CANDIDATES.iter().enumerate() {
+        if let Ok(bytes) = std::fs::read(p) {
+            let name = format!("fallback{i}");
+            fonts.font_data.insert(name.clone(), std::sync::Arc::new(egui::FontData::from_owned(bytes)));
+            for fam in [egui::FontFamily::Proportional, egui::FontFamily::Monospace] {
+                fonts.families.entry(fam).or_default().push(name.clone());
+            }
+        }
+    }
+    ctx.set_fonts(fonts);
+}
+
 pub fn install(ctx: &egui::Context) {
+    symbol_fonts(ctx);
     let mut v = Visuals::dark();
     v.panel_fill = PANEL;
     v.window_fill = Color32::from_rgb(0x0d, 0x12, 0x1b);
