@@ -95,12 +95,28 @@ fn pieces(dates: &[Date], v: &[Option<f64>]) -> Vec<Vec<[f64; 2]>> {
 }
 
 /// A point's time series. Returns the date of the pass the user clicked, if any.
-pub fn point_chart(ui: &mut egui::Ui, p: &Point, tab: PointTab, cursor: Option<Date>, ref_name: &str, l: Lang) -> Option<Date> {
+/// A smooth daily estimate between passes (Floater–Hormann, small blending degree), drawn dotted.
+fn estimated(dates: &[Date], v: &[f64]) -> PlotPoints<'static> {
+    use ed_core::interp::{FloaterHormann, Interpolant, SMOOTH_D};
+    if dates.len() < 3 {
+        return PlotPoints::from(Vec::<[f64; 2]>::new());
+    }
+    let xs: Vec<f64> = dates.iter().map(|d| x(*d)).collect();
+    let fh = FloaterHormann::new(&xs, v, SMOOTH_D);
+    (dates[0].days()..=dates[dates.len() - 1].days()).map(|n| [f64::from(n), fh.eval(f64::from(n))]).collect()
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn point_chart(ui: &mut egui::Ui, p: &Point, tab: PointTab, cursor: Option<Date>, ref_name: &str, show_estimates: bool, l: Lang) -> Option<Date> {
     let s = &p.series;
     let resp = base(&format!("pt-{}", p.id), l, 220.0, false).show(ui, |pu| {
         match tab {
             PointTab::Ground => {
-                pu.line(Line::new(t("chart.disp", l), series(&s.dates, &s.disp_mm)).color(theme::ALERT).width(2.2).fill(0.0).fill_alpha(0.2));
+                if show_estimates {
+                    pu.line(Line::new("", estimated(&s.dates, &s.disp_mm)).color(theme::ALERT.gamma_multiply(0.7)).width(1.2).style(LineStyle::Dotted { spacing: 4.0 }));
+                }
+                pu.points(Points::new(t("chart.disp", l), series(&s.dates, &s.disp_mm)).color(theme::ALERT).radius(3.0));
+                pu.line(Line::new(t("chart.disp", l), series(&s.dates, &s.disp_mm)).color(theme::ALERT).width(if show_estimates { 0.0 } else { 2.2 }).fill(0.0).fill_alpha(0.15));
                 if let Some(r) = &s.ref_mm {
                     pu.line(Line::new(format!("{ref_name} (mm)"), series(&s.dates, r)).color(theme::GREY).width(1.5).style(LineStyle::Dashed { length: 6.0 }));
                 }
@@ -129,7 +145,7 @@ pub fn point_chart(ui: &mut egui::Ui, p: &Point, tab: PointTab, cursor: Option<D
 
 #[allow(clippy::too_many_arguments)]
 /// The region panel's chart for one tab. Returns the note shown under it.
-pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&Weather>, brief: Option<&Brief>, tab: RegionTab, today: Date, demo: bool, l: Lang) -> String {
+pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&Weather>, brief: Option<&Brief>, estimates: &[(Date, f64, ed_core::forecast::Fill)], tab: RegionTab, today: Date, demo: bool, l: Lang) -> String {
     let s = &r.series;
     let id = format!("rg-{}-{tab:?}", r.id);
     let mut note = match tab {
@@ -185,11 +201,20 @@ pub fn region_chart(ui: &mut egui::Ui, r: &Region, a: &Assessment, w: Option<&We
                 base(&id, l, 240.0, true).include_y(0.0).include_y((f.amax / 5.0).ceil() * 5.0).include_x(x(start)).show(ui, |pu| {
                     pu.add(FilledArea::new("", &xs, &f.p10[..k], &f.p90[..k]).fill_color(theme::WATER.gamma_multiply(0.2)));
                     pu.line(Line::new("", PlotPoints::from(xs.iter().zip(&f.p50[..k]).map(|(a, b)| [*a, *b]).collect::<Vec<_>>())).color(theme::WATER).width(1.8).style(LineStyle::Dashed { length: 6.0 }));
+                    if !estimates.is_empty() {
+                        pu.line(Line::new("", estimates.iter().map(|(d, v, _)| [x(*d), *v]).collect::<PlotPoints>()).color(Color32::from_white_alpha(140)).width(1.0).style(LineStyle::Dotted { spacing: 3.0 }));
+                    }
                     pu.points(Points::new("", series(&res.dates, area)).color(Color32::WHITE).radius(3.5));
                     pu.hline(HLine::new("", res.limit).color(theme::ALERT).style(LineStyle::Dashed { length: 8.0 }).width(1.5));
                     pu.vline(VLine::new("", x(today)).color(Color32::from_white_alpha(180)).style(LineStyle::Dotted { spacing: 4.0 }));
                 });
-                legend_row(ui, &[(t("rc.measured", l), Color32::WHITE), (t("rc.forecast", l), theme::WATER), (t("rc.band", l), theme::WATER.gamma_multiply(0.5)), (t("rc.limit", l), theme::ALERT), (t("rc.today", l), Color32::from_white_alpha(180))]);
+                let est_label = if l == Lang::El { "εκτίμηση ανάμεσα στις λήψεις" } else { "estimated between passes" };
+                let mut items = vec![(t("rc.measured", l), Color32::WHITE)];
+                if !estimates.is_empty() {
+                    items.push((est_label, Color32::from_white_alpha(140)));
+                }
+                legend_row(ui, &items);
+                legend_row(ui, &[(t("rc.forecast", l), theme::WATER), (t("rc.band", l), theme::WATER.gamma_multiply(0.5)), (t("rc.limit", l), theme::ALERT), (t("rc.today", l), Color32::from_white_alpha(180))]);
                 match b.generator {
                     Some((g0, g1)) => {
                         let (n, m) = (ed_core::forecast::SYNTHETIC_YEARS, f.members);

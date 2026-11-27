@@ -6,6 +6,7 @@ pub mod date;
 pub mod forecast;
 pub mod grid;
 pub mod insights;
+pub mod interp;
 pub mod model;
 pub mod stats;
 pub mod status;

@@ -403,7 +403,7 @@ pub fn inspector(app: &mut App, ui: &mut egui::Ui) {
         });
     });
     let cursor = app.frame_date();
-    if let Some(clicked) = crate::charts::point_chart(ui, &p, app.st.tab, cursor, ds.reference_name(), l) {
+    if let Some(clicked) = crate::charts::point_chart(ui, &p, app.st.tab, cursor, ds.reference_name(), app.st.show.estimates, l) {
         app.set_frame_to_date(clicked);
     }
     ui.label(RichText::new(t(if app.st.tab == PointTab::Ground { "chart.note.ground" } else { "chart.note.radar" }, l)).small().color(theme::MUTED));

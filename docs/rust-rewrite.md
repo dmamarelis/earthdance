@@ -84,6 +84,27 @@ held-out years, read these as modest, consistent gains rather than a large impro
 What the generator does not fix: the lake model's winter refill rate is still unidentified (no winter
 radar pass yet). Lake areas from the Sentinel-2 archive back to 2017 would constrain it; that needs D1.
 
+## Filling the gaps between passes
+
+Passes come every 5–45 days. What is drawn between them is an estimate and is always shown as such
+(dotted, labelled "estimated between passes", switchable in Show ▾). Leave-one-out on the real lake series
+(drop each interior pass, estimate it from the rest; `crates/ed-core/tests/gaps.rs`):
+
+| method | RMSE (km²) |
+|---|---|
+| **model bridge**: the water balance run on the real weather between two passes, nudged to land on the next one | **1.91** |
+| PCHIP (monotone cubic, never overshoots) | 2.23 |
+| Floater–Hormann barycentric rational, d ≤ 2 | 2.3–2.4 |
+| Floater–Hormann, d = 3 | 10.7 |
+| barycentric Lagrange (one polynomial through all passes) | 68 900 |
+
+The barycentric form makes Lagrange *stable to evaluate*; it does not stop the degree-13 polynomial through
+irregular dates from oscillating (it predicts 236 150 km² for a 27 km² lake). The same test on Runge's
+function with 21 equispaced nodes: max error Lagrange 59.8, Floater–Hormann 0.0028, PCHIP 0.013.
+
+So: the lake uses the model bridge (PCHIP where there is no weather), point series use Floater–Hormann
+with d = 2. Synthetic data is never mixed into the real set: the demo set stays separate and labelled.
+
 ## Still open
 
 | | Decision | Now |

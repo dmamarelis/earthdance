@@ -316,7 +316,11 @@ fn charts(app: &mut App, ui: &mut egui::Ui, ds: &Dataset, st: &Status, r: &ed_co
     });
     let brief = st.brief.as_ref().filter(|_| ds.forecast.as_ref().is_some_and(|f| f.region == r.id));
     let w = wx.and_then(|x| x.by_region.get(&r.id));
-    let note = crate::charts::region_chart(ui, r, st.get(&r.id), w, brief, app.st.rtab, today, ds.demo, l);
+    let est = match (app.st.show.estimates, ds.forecast.as_ref().filter(|f| f.region == r.id), r.reservoir.as_ref()) {
+        (true, Some(fc), Some(res)) => ed_core::forecast::bridge(fc, res, w),
+        _ => Vec::new(),
+    };
+    let note = crate::charts::region_chart(ui, r, st.get(&r.id), w, brief, &est, app.st.rtab, today, ds.demo, l);
     ui.label(RichText::new(note).small().color(theme::MUTED));
 }
 

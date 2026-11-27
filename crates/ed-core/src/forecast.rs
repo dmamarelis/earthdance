@@ -516,3 +516,60 @@ pub fn weather_from_climate(c: &Climate) -> DailyWeather {
 pub fn band_at(members: &[f64]) -> Band {
     Band { p50: percentile(members, 0.5), p10: percentile(members, 0.1), p90: percentile(members, 0.9) }
 }
+
+// ───────────────────────────────────────────────────────── between passes
+
+/// How a day between two passes was estimated.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Fill {
+    /// The water balance run on the real weather, nudged to land on the next pass.
+    Model,
+    /// Monotone cubic (PCHIP) through the passes: no weather for that stretch.
+    Pchip,
+}
+
+/// Daily lake area between the measured passes: the model bridge.
+///
+/// From each pass the water balance runs forward on the real weather of the days in between; the run's
+/// miss at the next pass is spread linearly over the interval (a two-point bridge), so the curve passes
+/// through every measurement and follows the weather in between. Where weather is missing the stretch falls
+/// back to PCHIP. Values stay within `[0, A_max]`. Every value returned is an estimate, never a measurement.
+pub fn bridge(fc: &ForecastModel, res: &Reservoir, wx: Option<&Weather>) -> Vec<(Date, f64, Fill)> {
+    let p = fc.params;
+    let area = res.area_km2.as_ref().unwrap_or(&res.volume);
+    let n = res.dates.len().min(area.len());
+    if n < 2 {
+        return Vec::new();
+    }
+    let mut daily: HashMap<Date, (f64, f64)> = HashMap::new();
+    if let Some(wx) = wx {
+        for (i, d) in wx.time.iter().enumerate() {
+            if let (Some(r), Some(e)) = (wx.rain[i], wx.et0[i]) {
+                daily.insert(*d, (r, e));
+            }
+        }
+    }
+    let xs: Vec<f64> = res.dates[..n].iter().map(|d| f64::from(d.days())).collect();
+    let pchip = crate::interp::Pchip::new(&xs, &area[..n]);
+    let mut out = Vec::new();
+    for i in 0..n - 1 {
+        let (d0, d1) = (res.dates[i], res.dates[i + 1]);
+        let span = d1.since(d0);
+        let have = (0..span).all(|k| daily.contains_key(&d0.add_days(k)));
+        if have {
+            let sim = simulate(&p, d0, area[i], span, |d| daily[&d]);
+            let miss = area[i + 1] - sim[span as usize];
+            for k in 1..span {
+                let v = sim[k as usize] + miss * f64::from(k) / f64::from(span);
+                out.push((d0.add_days(k), v.clamp(0.0, p.amax), Fill::Model));
+            }
+        } else {
+            for k in 1..span {
+                let d = d0.add_days(k);
+                out.push((d, crate::interp::Interpolant::eval(&pchip, f64::from(d.days())), Fill::Pchip));
+            }
+        }
+    }
+    out
+}
