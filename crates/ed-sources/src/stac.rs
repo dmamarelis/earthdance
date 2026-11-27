@@ -21,8 +21,17 @@ pub struct Item {
 
 /// Every item of `collection` intersecting `bbox` in `[from, to]`, following the catalogue's pages.
 /// Results are cached for a day (new scenes appear, old ones do not change).
+fn query_key(collection: &str, bbox: [f64; 4], max_cloud: Option<f64>) -> String {
+    format!("stac-{collection}-{:.4}-{:.4}-{:.4}-{:.4}-{}", bbox[0], bbox[1], bbox[2], bbox[3], max_cloud.unwrap_or(100.0))
+}
+
+/// The last search result for this area, however old: shown at once while a fresh search runs.
+pub fn last(collection: &str, bbox: [f64; 4], max_cloud: Option<f64>) -> Option<Vec<Item>> {
+    cache::get(&format!("{}-latest", query_key(collection, bbox, max_cloud)))
+}
+
 pub fn search(endpoint: &str, collection: &str, bbox: [f64; 4], from: Date, to: Date, max_cloud: Option<f64>) -> Result<Vec<Item>> {
-    let key = format!("stac-{collection}-{:.4}-{:.4}-{:.4}-{:.4}-{from}-{to}-{}-{}", bbox[0], bbox[1], bbox[2], bbox[3], max_cloud.unwrap_or(100.0), crate::today_local());
+    let key = format!("{}-{from}-{to}-{}", query_key(collection, bbox, max_cloud), crate::today_local());
     if let Some(v) = cache::get::<Vec<Item>>(&key) {
         return Ok(v);
     }
@@ -68,6 +77,7 @@ pub fn search(endpoint: &str, collection: &str, bbox: [f64; 4], from: Date, to: 
     out.sort_by(|a, b| a.date.cmp(&b.date).then(a.id.cmp(&b.id)));
     out.dedup_by(|a, b| a.id == b.id);
     cache::put(&key, &out);
+    cache::put(&format!("{}-latest", query_key(collection, bbox, max_cloud)), &out);
     Ok(out)
 }
 

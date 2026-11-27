@@ -173,11 +173,19 @@ impl App {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         theme::install(&cc.egui_ctx);
         let prefs: Option<Prefs> = ed_sources::cache::get("prefs");
-        let source = std::env::args()
-            .find_map(|a| match a.as_str() {
-                "--demo" => Some(Source::Demo),
-                "--real" => Some(Source::Real),
-                _ => None,
+        let args: Vec<String> = std::env::args().collect();
+        // --place "name,lon,lat,half_km": open a live place directly
+        let place = args.iter().position(|a| a == "--place").and_then(|i| args.get(i + 1)).and_then(|v| {
+            let p: Vec<&str> = v.split(',').collect();
+            Some(Source::Live(ed_sources::live::Place { name: p.first()?.to_string(), lon: p.get(1)?.parse().ok()?, lat: p.get(2)?.parse().ok()?, half_km: p.get(3).and_then(|x| x.parse().ok()).unwrap_or(8.0) }))
+        });
+        let source = place
+            .or_else(|| {
+                args.iter().find_map(|a| match a.as_str() {
+                    "--demo" => Some(Source::Demo),
+                    "--real" => Some(Source::Real),
+                    _ => None,
+                })
             })
             .or(prefs.as_ref().map(|p| p.source.clone()))
             .unwrap_or(Source::Real);

@@ -204,7 +204,13 @@ fn assemble(place: &Place, grid: &SiteGrid, a: &SiteAnalysis, model: Option<ed_c
                     *v = f32::NAN;
                 }
             }
-            let image = ed_raster::render::colorize(&vals, &stops, Some(&alpha));
+            let mut image = ed_raster::render::colorize(&vals, &stops, Some(&alpha));
+            // clouds are drawn as clouds (light, half transparent), not as a gap that reads like dark water
+            for (px, src) in image.px.iter_mut().zip(&s.image.px) {
+                if src[0] > 230 && src[1] > 230 && src[3] > 200 {
+                    *px = [205, 210, 218, 150];
+                }
+            }
             Frame { date: s.date, empty: false, source: s.source.clone(), url: String::new(), values: Some(Arc::new(vals)), image: Some(Arc::new(image)) }
         })
         .collect();
@@ -256,18 +262,11 @@ fn assemble(place: &Place, grid: &SiteGrid, a: &SiteAnalysis, model: Option<ed_c
 }
 
 /// Builds the data set for `place`. `partial` receives intermediate data sets (newest dates first, growing).
-pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&str), partial: &dyn Fn(Dataset)) -> Result<Dataset> {
-    let grid = SiteGrid::around(place.lon, place.lat, place.half_km, cfg.max_px);
-    let b = grid.bounds;
-    progress("Sentinel-2: searching the archive …");
-    let from = today.add_days(-30 * cfg.months);
-    let items = stac::search(stac::EARTH_SEARCH, "sentinel-2-l2a", [b.west(), b.south(), b.east(), b.north()], from, today, Some(cfg.max_tile_cloud))?;
-    if items.is_empty() {
-        return Err(Error::Data("no Sentinel-2 scene over this place".into()));
-    }
-    // one entry per date (tiles of the same date mosaicked, or the single tile that covers the whole area)
+/// The dates to read: one per date (the single MGRS tile covering the area, or all to mosaic), at most one
+/// per `every_days` window (the least cloudy), newest first.
+fn pick_dates(items: &[Item], b: Bounds, every_days: i32) -> Vec<(Date, Vec<&Item>)> {
     let mut by_date: std::collections::BTreeMap<Date, Vec<&Item>> = std::collections::BTreeMap::new();
-    for it in &items {
+    for it in items {
         by_date.entry(it.date).or_default().push(it);
     }
     let covers = |it: &Item| it.bbox.is_some_and(|x| x[0] <= b.west() && x[1] <= b.south() && x[2] >= b.east() && x[3] >= b.north());
@@ -279,12 +278,11 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
             (d, one.map_or(its, |i| vec![i]))
         })
         .collect();
-    // at most one date per window, the least cloudy; newest windows first
     all.sort_by_key(|(d, _)| std::cmp::Reverse(*d));
     let mut dates: Vec<(Date, Vec<&Item>)> = Vec::new();
     for (d, its) in all {
         match dates.last_mut() {
-            Some((d0, its0)) if d0.since(d) < cfg.every_days => {
+            Some((d0, its0)) if d0.since(d) < every_days => {
                 if cloud(&its) < cloud(its0) {
                     *d0 = d;
                     *its0 = its;
@@ -293,45 +291,84 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
             _ => dates.push((d, its)),
         }
     }
+    dates
+}
+
+/// Builds the data set for `place`. `partial` receives intermediate data sets (newest dates first, growing).
+///
+/// Stale-while-revalidate: if this area was searched before, the old scene list is processed first (its
+/// tiles are all on disk, so that takes a second), then the archive is searched again and only the new
+/// dates are fetched.
+pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&str), partial: &dyn Fn(Dataset)) -> Result<Dataset> {
+    let grid = SiteGrid::around(place.lon, place.lat, place.half_km, cfg.max_px);
+    let b = grid.bounds;
+    let bbox = [b.west(), b.south(), b.east(), b.north()];
+    let from = today.add_days(-30 * cfg.months);
+    let content = bundled_content();
     // one resolution for the whole build (mixing them would bias the area series)
     let speed = http::fetcher().throughput();
     let slack = cfg.slack.unwrap_or(if speed.is_none_or(|s| s < SLOW_LINK) { 3.5 } else { 1.5 });
-    progress(&format!(
-        "Sentinel-2: {} dates to read · link {} → {}",
-        dates.len(),
-        speed.map_or("not measured yet".into(), |s| format!("~{:.0} KB/s", s / 1000.0)),
-        if slack > 2.0 { "coarse overview (fast)" } else { "fine overview (detailed)" }
-    ));
-    let content = bundled_content();
+    SLACK.with(|s| s.set(slack));
     let mut scenes: Vec<OpticalScene> = Vec::new();
-    let total = dates.len();
-    for (k, chunk) in dates.chunks(cfg.batch.max(1)).enumerate() {
-        let (t0, b0) = (std::time::Instant::now(), http::fetcher().fetched.load(std::sync::atomic::Ordering::Relaxed));
-        let got: Vec<Result<Option<OpticalScene>>> = http::parallel(chunk, 3, |(d, its)| {
-            SLACK.with(|s| s.set(slack));
-            scene(*d, its, &grid, cfg.min_clear)
-        });
-        for r in got {
-            match r {
-                Ok(Some(s)) => scenes.push(s),
-                Ok(None) => {}
-                Err(e) => eprintln!("scene skipped: {e}"),
+    let mut done: std::collections::BTreeSet<Date> = std::collections::BTreeSet::new();
+
+    let run = |items: &[Item], label: &str, scenes: &mut Vec<OpticalScene>, done: &mut std::collections::BTreeSet<Date>| {
+        let todo: Vec<(Date, Vec<&Item>)> = pick_dates(items, b, cfg.every_days).into_iter().filter(|(d, _)| *d >= from && !done.contains(d)).collect();
+        if todo.is_empty() {
+            return;
+        }
+        progress(&format!(
+            "Sentinel-2 {label}: {} dates to read · link {} → {}",
+            todo.len(),
+            speed.map_or("not measured yet".into(), |s| format!("~{:.0} KB/s", s / 1000.0)),
+            if slack > 2.0 { "coarse overview (fast)" } else { "fine overview (detailed)" }
+        ));
+        let total = todo.len();
+        for (k, chunk) in todo.chunks(cfg.batch.max(1)).enumerate() {
+            let (t0, b0) = (std::time::Instant::now(), http::fetcher().fetched.load(std::sync::atomic::Ordering::Relaxed));
+            let got: Vec<Result<Option<OpticalScene>>> = http::parallel(chunk, 3, |(d, its)| {
+                SLACK.with(|s| s.set(slack));
+                scene(*d, its, &grid, cfg.min_clear)
+            });
+            for ((d, _), r) in chunk.iter().zip(got) {
+                match r {
+                    Ok(Some(s)) => {
+                        done.insert(*d);
+                        scenes.push(s);
+                    }
+                    Ok(None) => {
+                        done.insert(*d);
+                    }
+                    Err(e) => eprintln!("{d}: scene skipped: {e}"),
+                }
+            }
+            // the link speed actually achieved (all connections together), remembered for the next build
+            let got_bytes = http::fetcher().fetched.load(std::sync::atomic::Ordering::Relaxed) - b0;
+            if got_bytes > 500_000 {
+                http::fetcher().remember_throughput(got_bytes as f64 / t0.elapsed().as_secs_f64());
+            }
+            let n = ((k + 1) * cfg.batch).min(total);
+            let mb = http::fetcher().fetched.load(std::sync::atomic::Ordering::Relaxed) as f64 / 1e6;
+            progress(&format!("Sentinel-2 {label}: {n}/{total} dates · {} clear in all · {mb:.0} MB downloaded", scenes.len()));
+            if scenes.len() >= 2
+                && let Some(a) = analyse(&grid, scenes)
+            {
+                partial(assemble(place, &grid, &a, None, &content));
             }
         }
-        // the link speed actually achieved (all connections together), remembered for the next build
-        let got_bytes = http::fetcher().fetched.load(std::sync::atomic::Ordering::Relaxed) - b0;
-        if got_bytes > 500_000 {
-            http::fetcher().remember_throughput(got_bytes as f64 / t0.elapsed().as_secs_f64());
-        }
-        let done = ((k + 1) * cfg.batch).min(total);
-        let mb = http::fetcher().fetched.load(std::sync::atomic::Ordering::Relaxed) as f64 / 1e6;
-        progress(&format!("Sentinel-2: {done}/{total} dates · {} clear · {mb:.0} MB downloaded", scenes.len()));
-        if scenes.len() >= 2
-            && done < total
-            && let Some(a) = analyse(&grid, &scenes)
-        {
-            partial(assemble(place, &grid, &a, None, &content));
-        }
+    };
+
+    if let Some(old) = stac::last("sentinel-2-l2a", bbox, Some(cfg.max_tile_cloud)) {
+        run(&old, "(saved list)", &mut scenes, &mut done);
+    }
+    progress("Sentinel-2: searching the archive …");
+    match stac::search(stac::EARTH_SEARCH, "sentinel-2-l2a", bbox, from, today, Some(cfg.max_tile_cloud)) {
+        Ok(items) => run(&items, "(new)", &mut scenes, &mut done),
+        Err(e) if !scenes.is_empty() => progress(&format!("archive search failed ({e}); showing the saved scenes")),
+        Err(e) => return Err(e),
+    }
+    if scenes.is_empty() {
+        return Err(Error::Data("no clear Sentinel-2 scene over this place".into()));
     }
     let a = analyse(&grid, &scenes).ok_or_else(|| Error::Data("no water body found in the clear scenes".into()))?;
 
@@ -345,7 +382,16 @@ pub fn build(place: &Place, cfg: &LiveConfig, today: Date, progress: &dyn Fn(&st
         match crate::weather::daily_rain_et0(a.center[0], a.center[1], from, end) {
             Ok(wx) => {
                 let ds = assemble(place, &grid, &a, None, &content);
-                ds.regions.regions[0].reservoir.as_ref().map(|res| forecast::fit("lake", res, &wx, end, &fit_cfg))
+                ds.regions.regions[0].reservoir.as_ref().map(|res| forecast::fit("lake", res, &wx, end, &fit_cfg)).and_then(|m| match forecast::fit_quality(&m) {
+                    Ok(r2) => {
+                        progress(&format!("lake model fitted (R² {r2:.2})"));
+                        Some(m)
+                    }
+                    Err(why) => {
+                        progress(&format!("no lake forecast: {why}"));
+                        None
+                    }
+                })
             }
             Err(e) => {
                 eprintln!("ERA5 unavailable: {e}");

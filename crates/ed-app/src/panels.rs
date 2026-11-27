@@ -639,8 +639,11 @@ fn overlays(app: &mut App, ui: &mut egui::Ui, rect: Rect, ds: &ed_core::model::D
         ui.vertical_centered(|ui| {
             egui::Frame::new().fill(Color32::from_rgba_unmultiplied(13, 18, 27, 235)).corner_radius(18).inner_margin(egui::Margin::symmetric(6, 4)).show(ui, |ui| {
                 ui.horizontal(|ui| {
-                    for (s, key, icon) in [(Sensor::Optical, "sensor.optical", "☁"), (Sensor::Radar, "sensor.radar", "◎")] {
-                        if ui.selectable_label(app.st.sensor == s, format!("{icon} {}", t(key, l))).clicked() {
+                    // the second switch is the radar on NISAR data, the water index on optical-only (live) data
+                    let radar = ds.layers.get(app.st.layer).is_none_or(|ly| ly.info.band == "L" || ly.info.band == "C");
+                    let second = if radar { t("sensor.radar", l).to_string() } else { ds.layers.get(app.st.layer).map_or(String::new(), |ly| ly.info.name.get(l).to_string()) };
+                    for (s, label, icon) in [(Sensor::Optical, t("sensor.optical", l).to_string(), "☁"), (Sensor::Radar, second, if radar { "◎" } else { "≈" })] {
+                        if ui.selectable_label(app.st.sensor == s, format!("{icon} {label}")).clicked() {
                             app.st.sensor = s;
                         }
                     }
@@ -758,6 +761,7 @@ fn sensor_note(app: &App, ds: &ed_core::model::Dataset) -> String {
             }
         }
         Sensor::Radar if f.empty => format!("{} · {}", t("sensor.nodata", l), short(f.date, l)),
-        Sensor::Radar => format!("NISAR L-band · {} · {}", ly.info.name.get(l), t("sensor.through", l)),
+        Sensor::Radar if ly.info.band == "L" || ly.info.band == "C" => format!("NISAR L-band · {} · {}", ly.info.name.get(l), t("sensor.through", l)),
+        Sensor::Radar => format!("{} {} · {}", ly.info.sensor, ly.info.product, if l == ed_core::Lang::El { "τα σύννεφα αφαιρέθηκαν (γκρι)" } else { "clouds removed (grey)" }),
     }
 }

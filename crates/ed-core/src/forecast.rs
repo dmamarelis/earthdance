@@ -525,6 +525,24 @@ pub fn fit_generator(wx: &DailyWeather, end: Date, years: Option<i32>) -> Option
     crate::weathergen::WeatherGen::fit(&window, WET_DAY_MM, true)
 }
 
+/// Is the fitted model worth showing? `Err(reason)` when the fit explains little of the measured
+/// variation (R² < 0.5) or a parameter sits on its bound (the data did not determine it).
+pub fn fit_quality(m: &ForecastModel) -> Result<f64, &'static str> {
+    let y = &m.fit.measured;
+    let my = mean(y);
+    let ss_tot: f64 = y.iter().map(|v| (v - my).powi(2)).sum();
+    let ss_res: f64 = y.iter().zip(&m.fit.model).map(|(a, b)| (a - b).powi(2)).sum();
+    let r2 = if ss_tot > 0.0 { 1.0 - ss_res / ss_tot } else { 0.0 };
+    let p = m.params;
+    if p.q >= 1.99 || p.q <= 0.051 || p.k <= 1.01e-5 || p.a_dry >= 0.0499 || p.a_wet >= 0.0499 {
+        return Err("a parameter sits on its bound: the record does not determine the model");
+    }
+    if r2 < 0.5 {
+        return Err("the model explains less than half of the measured variation");
+    }
+    Ok(r2)
+}
+
 /// The daily weather a fitted model's climate block holds (rounded to 0.1 mm / 0.01 mm): enough to refit
 /// offline when the original series is not at hand.
 pub fn weather_from_climate(c: &Climate) -> DailyWeather {

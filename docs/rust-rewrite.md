@@ -105,11 +105,48 @@ function with 21 equispaced nodes: max error Lagrange 59.8, Floater–Hormann 0.
 So: the lake uses the model bridge (PCHIP where there is no weather), point series use Floater–Hormann
 with d = 2. Synthetic data is never mixed into the real set: the demo set stays separate and labelled.
 
+## Anywhere on Earth (live Sentinel-2)
+
+`cargo run --release -p ed-app -- --place "Lake Koronia,23.145,40.682,8"`, or **Source ▾ → Anywhere…**
+(search a place by name, or take the map centre).
+
+* **Data**: Sentinel-2 L2A from the public AWS archive (Earth Search STAC, Cloud-Optimized GeoTIFFs, no
+  account). Radar anywhere (Sentinel-1 RTC on Planetary Computer, NISAR with an Earthdata token) is next.
+* **Fetching**: one 16 KB header per band, then only the tiles covering the area at a suitable overview;
+  the cloud band first (cloudy dates cost one band); one MGRS tile when it covers the area; one date per
+  8 days; 16 pooled connections with jittered retries; every byte range cached on disk forever; the scene
+  list shown from the last search while a fresh search runs.
+* **Water**: SCL cloud mask, NDWI threshold from the data (Otsu), the lake = largest connected water body.
+  No per-site constants. The lake model is fitted only if it passes a quality gate (R² ≥ 0.5, no
+  parameter on a bound).
+* **Measured on this machine's link (~70 KB/s)**: Lake Koronia, 18 months, 43 dates: first map after
+  57 s, complete after 12 min, 39 MB. Reopened: 7.6 s including the app's start. On a 50 Mbit/s line the
+  first build is a matter of seconds.
+
+**For the team to look at**: for Koronia, Sentinel-2 sees ~26–31 km² of water all through 2025–26, while
+the NISAR radar (legacy method, HH ≤ −18 dB) saw the lake fall to ~9 km² in September 2026. Radar counts
+only calm open water as dark; wind, floating or emergent vegetation and very shallow water read as land.
+Optical NDWI counts any water-looking surface. The headline alert rests on the radar series, so which one
+the Region should trust needs a field check or a comparison of both on the same day.
+
+## Speed: Rust vs the legacy JS
+
+The Status computation (every rule on every area, the lake forecast brief with its 3 ensemble runs, all
+Ask answers in both languages), same inputs, identical outputs (golden tests), 200 runs after warm-up,
+AMD Ryzen 7 5825U:
+
+| | median | p10–p90 |
+|---|---|---|
+| legacy JS (Node 22) | 32.4 ms | 29.7–33.7 ms |
+| **Rust (release)** | **1.96 ms** | 1.93–2.00 ms |
+
+**≈ 16.5× faster** (`node oracle/bench.mjs` vs `cargo run --release -p ed-core --example bench_status`).
+
 ## Still open
 
 | | Decision | Now |
 |---|---|---|
-| D1 | Where acquisitions come from (ASF / Earthdata for NISAR GCOV, LP DAAC for HLS, auth) | `LocalDirs` reads `Koroneia_NISAR/` and `Koroneia_Sentinel/` |
+| D1 | Where acquisitions come from | Sentinel-2 live from AWS for any place; NISAR / HLS (Earthdata token) and Sentinel-1 RTC still to plug in |
 | D2 | Map renderer and basemap tiles | Web-Mercator canvas with graticule, no basemap |
 | D3 | Where live processing runs | in-process, background thread at start-up (0.6 s) |
 | D4 | Report format | self-contained HTML opened in the browser to print |

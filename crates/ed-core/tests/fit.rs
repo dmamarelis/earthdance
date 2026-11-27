@@ -46,3 +46,10 @@ fn refit_matches_python() {
         assert_eq!(got.climate.year(*y).unwrap().rain, fc.climate.year(*y).unwrap().rain, "rain {y}");
     }
 }
+
+#[test]
+fn koronia_model_passes_the_quality_gate() {
+    let fc: ForecastModel = serde_json::from_str(&fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../data/real/forecast.json")).unwrap()).unwrap();
+    let r2 = ed_core::forecast::fit_quality(&fc).expect("the radar-based Koronia model is well determined");
+    assert!(r2 > 0.8, "{r2}");
+}
