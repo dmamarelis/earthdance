@@ -6,6 +6,7 @@
 mod app;
 mod basemap;
 mod charts;
+mod clouds;
 mod map;
 mod panels;
 mod places;

@@ -492,12 +492,14 @@ pub fn map_view(app: &mut App, ui: &mut egui::Ui) {
         let p = painter.with_clip_rect(clip);
         let full = Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0));
         match app.st.sensor {
-            // demo clouds: tiled over the whole view
+            // demo clouds: generated over the whole view, a new sky for each date, as cloudy as the date says
             Sensor::Optical if ds.demo => {
                 let Some(i) = optical_for(app, &ds, frame) else { return };
-                let img = ds.optical[i].image.clone();
-                let tex = app.texture(&ctx, &img, crate::app::Edge::Hard);
-                tile_mirrored(&p, tex, app.map.bounds_rect(rect, img.bounds), rect, Color32::WHITE);
+                let o = &ds.optical[i];
+                let seed = { use std::hash::{Hash, Hasher}; let mut h = std::hash::DefaultHasher::new(); o.date.hash(&mut h); h.finish() };
+                let b = ds.site.bounds;
+                let ((x0, y0), (x1, y1)) = (crate::map::merc(b.west(), b.north()), crate::map::merc(b.east(), b.south()));
+                app.clouds.draw(&ctx, &p, &app.map, rect, crate::clouds::Sky { seed, cover: o.cover.unwrap_or(50.0), site: [x0, y0, x1, y1] });
             }
             Sensor::Optical => {
                 let Some(i) = optical_for(app, &ds, frame) else { return };
@@ -827,33 +829,6 @@ fn sensor_note(app: &App, ds: &ed_core::model::Dataset) -> String {
     }
 }
 
-/// Covers `view` with copies of a texture whose one copy sits at `r0`, every other copy mirror-flipped so
-/// the edges always meet their own mirror image (seamless), anchored to the ground so it pans with the map.
-fn tile_mirrored(p: &egui::Painter, tex: egui::TextureId, r0: Rect, view: Rect, tint: Color32) {
-    let (tw, th) = (r0.width().max(1.0), r0.height().max(1.0));
-    let i0 = ((view.left() - r0.left()) / tw).floor() as i32;
-    let i1 = ((view.right() - r0.left()) / tw).ceil() as i32;
-    let j0 = ((view.top() - r0.top()) / th).floor() as i32;
-    let j1 = ((view.bottom() - r0.top()) / th).ceil() as i32;
-    if (i1 - i0) * (j1 - j0) > 400 {
-        return; // zoomed far out: the field would be noise
-    }
-    let mut mesh = egui::Mesh::with_texture(tex);
-    for j in j0..j1 {
-        for i in i0..i1 {
-            let r = Rect::from_min_size(r0.min + Vec2::new(i as f32 * tw, j as f32 * th), r0.size());
-            let (u0, u1) = if i.rem_euclid(2) == 1 { (1.0, 0.0) } else { (0.0, 1.0) };
-            let (v0, v1) = if j.rem_euclid(2) == 1 { (1.0, 0.0) } else { (0.0, 1.0) };
-            mesh.add_rect_with_uv(r, Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0)), tint);
-            let n = mesh.vertices.len();
-            // corners in order: left-top, right-top, left-bottom, right-bottom
-            for (k, (u, v)) in [(u0, v0), (u1, v0), (u0, v1), (u1, v1)].into_iter().enumerate() {
-                mesh.vertices[n - 4 + k].uv = Pos2::new(u, v);
-            }
-        }
-    }
-    p.add(egui::Shape::mesh(mesh));
-}
 
 /// Average colour of the opaque pixels of an RGBA image (sampled; for tinting).
 fn mean_colour(px: &[[u8; 4]]) -> [u8; 3] {

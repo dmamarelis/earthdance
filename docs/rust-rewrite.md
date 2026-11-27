@@ -171,8 +171,10 @@ Satellite basemap tiles (`crates/ed-sources/src/tiles.rs`, `crates/ed-app/src/ba
 * **Overlays** sit on the imagery at a chosen opacity (Show ▾ → Layer opacity, default 70 %). Data layers
   that cover a whole rectangle fade out in a soft, irregular oval, so no straight edge or corner reads as a
   pasted square; live places show the dated Sentinel-2 picture only around the lake, tone-mapped to the
-  basemap. In the demo set (all made up) the clouds are tiled mirror-wise over the whole view, anchored to
-  the ground, and the radar layer fades into a wash of its own average colour that tints the whole map.
+  basemap. In the demo set (all made up) the clouds are generated over the whole view from fractal Perlin
+  noise at map coordinates (`crates/ed-app/src/clouds.rs`): anchored to the ground, never repeating, finer
+  detail fading in as you zoom, a new sky for each date, with the threshold set so the lake's area is as
+  cloudy as the date's cloud cover says; thin cloud is translucent and clouds cast a soft shadow. And the radar layer fades into a wash of its own average colour that tints the whole map.
 
 ## Threads
 

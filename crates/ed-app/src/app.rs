@@ -75,8 +75,6 @@ impl WxState {
 /// How an overlay meets the basemap.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Edge {
-    /// As is (tiled clouds: any fade would show the seams).
-    Hard = 1,
     /// The outer 10 % fades out (pictures already masked to the lake).
     Feather = 2,
     /// Fades out in an irregular oval (data layers covering a whole rectangle).
@@ -185,6 +183,7 @@ pub struct App {
     /// The "Anywhere…" window.
     pub places: crate::places::Places,
     pub basemaps: crate::basemap::Basemaps,
+    pub clouds: crate::clouds::Clouds,
 }
 
 impl App {
@@ -248,6 +247,7 @@ impl App {
             streaming: false,
             places: Default::default(),
             basemaps: crate::basemap::Basemaps::new(&cc.egui_ctx),
+            clouds: Default::default(),
         };
         app.load(source, &cc.egui_ctx);
         app
@@ -434,7 +434,6 @@ impl App {
                     .flat_map(|(i, p)| {
                         let (x, y) = ((i % img.w) as f32, (i / img.w) as f32);
                         let f = match edge {
-                            Edge::Hard => 1.0,
                             // fade over the outer 10 % of each side
                             Edge::Feather => {
                                 let t = (x.min(y).min(w - 1.0 - x).min(h - 1.0 - y) / bw).clamp(0.0, 1.0);
