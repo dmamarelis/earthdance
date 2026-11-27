@@ -10,10 +10,12 @@
 //!
 //! Bytes in, structs out: the only file-system code is [`koroneia::read_inputs_from_dirs`].
 
+pub mod cog;
 pub mod filters;
 pub mod geotiff;
 pub mod koroneia;
 pub mod render;
+pub mod site;
 pub mod utm;
 pub mod warp;
 

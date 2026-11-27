@@ -18,10 +18,13 @@ use crate::map::{Map, View};
 use crate::sound::Player;
 use crate::theme;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Source {
+    /// Lake Koronia from the repository's NISAR + Sentinel-2 files.
     Real,
     Demo,
+    /// Any place, built live from the Sentinel-2 archive.
+    Live(ed_sources::live::Place),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -138,6 +141,8 @@ pub struct Loaded {
 
 enum Msg {
     Progress(String),
+    /// A data set still being built (live places): shown at once, replaced when the next one arrives.
+    Partial(Box<Dataset>),
     Data(Box<Dataset>, Option<WeatherSet>),
     Failed(String),
 }
@@ -158,6 +163,10 @@ pub struct App {
     /// Kept so actions can start background work that repaints the UI.
     map_ctx: Option<egui::Context>,
     pub shot: crate::shot::Shot,
+    /// A live place is still streaming in.
+    pub streaming: bool,
+    /// The "Anywhere…" window.
+    pub places: crate::places::Places,
 }
 
 impl App {
@@ -170,7 +179,7 @@ impl App {
                 "--real" => Some(Source::Real),
                 _ => None,
             })
-            .or(prefs.as_ref().map(|p| p.source))
+            .or(prefs.as_ref().map(|p| p.source.clone()))
             .unwrap_or(Source::Real);
         let st = UiState {
             lang: prefs.as_ref().map_or(Lang::El, |p| p.lang),
@@ -197,7 +206,7 @@ impl App {
         };
         let mut app = Self {
             st,
-            source,
+            source: source.clone(),
             data: None,
             map: Map::new(View { lon: 23.15, lat: 40.68, zoom: 10.6 }),
             sound: Player::default(),
@@ -210,20 +219,22 @@ impl App {
             pending_mode: None,
             map_ctx: Some(cc.egui_ctx.clone()),
             shot: Default::default(),
+            streaming: false,
+            places: Default::default(),
         };
         app.load(source, &cc.egui_ctx);
         app
     }
 
     pub fn save_prefs(&self) {
-        ed_sources::cache::put("prefs", &Prefs { lang: self.st.lang, source: self.source, left_open: self.st.left_open, timeline_open: self.st.timeline_open, show: self.st.show });
+        ed_sources::cache::put("prefs", &Prefs { lang: self.st.lang, source: self.source.clone(), left_open: self.st.left_open, timeline_open: self.st.timeline_open, show: self.st.show });
     }
 
     // ───────────────────────────────────────────────────────── loading
 
     /// Starts building a data set in the background.
     pub fn load(&mut self, source: Source, ctx: &egui::Context) {
-        self.source = source;
+        self.source = source.clone();
         self.data = None;
         self.error = None;
         self.textures.clear();
@@ -231,6 +242,7 @@ impl App {
         self.st.point = None;
         self.st.region = None;
         self.st.compare = false;
+        self.streaming = false;
         self.loading_msg = t("loader.data", self.st.lang).to_string();
         let (tx, rx) = channel();
         let ctx = ctx.clone();
@@ -243,6 +255,14 @@ impl App {
             let res = match source {
                 Source::Demo => ed_sources::demo::load(&root),
                 Source::Real => ed_sources::real::load(&root, &progress),
+                Source::Live(place) => {
+                    let partial = |d: Dataset| {
+                        let _ = tx.send(Msg::Partial(Box::new(d)));
+                        ctx.request_repaint();
+                    };
+                    let cfg = ed_sources::live::LiveConfig { slack: crate::places::slack(), ..Default::default() };
+                    ed_sources::live::build(&place, &cfg, ed_sources::today_local(), &progress, &partial).map(|d| (d, None))
+                }
             };
             let _ = tx.send(match res {
                 Ok((ds, wx)) => Msg::Data(Box::new(ds), wx),
@@ -255,12 +275,19 @@ impl App {
     }
 
     fn poll(&mut self, ctx: &egui::Context) {
-        if let Some(rx) = &self.rx {
-            while let Ok(m) = rx.try_recv() {
+        let msgs: Vec<Msg> = self.rx.as_ref().map(|rx| rx.try_iter().collect()).unwrap_or_default();
+        if !msgs.is_empty() {
+            for m in msgs {
                 match m {
                     Msg::Progress(s) => self.loading_msg = s,
+                    Msg::Partial(ds) => self.on_partial(*ds, ctx),
                     Msg::Failed(e) => {
+                        // with partial data on screen, keep it and say what stopped
+                        if self.data.is_some() {
+                            self.loading_msg = e.clone();
+                        }
                         self.error = Some(e);
+                        self.streaming = false;
                         self.rx = None;
                         return;
                     }
@@ -289,15 +316,37 @@ impl App {
         }
     }
 
+    /// An intermediate data set: the first one opens the view, later ones replace the data in place.
+    fn on_partial(&mut self, ds: Dataset, ctx: &egui::Context) {
+        let today = ed_sources::today_local();
+        let first = self.data.is_none();
+        let ds = Arc::new(ds);
+        let status = Arc::new(status::compute(&ds.regions, None, false, ds.reference_name(), ds.forecast.as_ref(), today));
+        if first {
+            self.map.fly_to(View { lon: ds.site.center[0], lat: ds.site.center[1], zoom: ds.site.zoom }, 0.0);
+            self.st.layer = 0;
+            self.st.frame = 0;
+        }
+        let n = ds.layers.get(self.st.layer).map_or(0, |l| l.frames.len());
+        self.st.frame = self.st.frame.min(n.saturating_sub(1));
+        self.data = Some(Loaded { ds, status, wx: None, wx_state: WxState::Loading, today, story_from_real: false });
+        self.streaming = true;
+        let _ = ctx;
+    }
+
     fn on_data(&mut self, ds: Dataset, wx_fallback: Option<WeatherSet>, ctx: &egui::Context) {
         let today = ed_sources::today_local();
+        let keep_view = self.streaming && self.data.is_some();
+        self.streaming = false;
         let story_from_real = self.pending_mode == Some(Mode::Story) && ds.demo;
         let ds = Arc::new(ds);
         let status = Arc::new(status::compute(&ds.regions, None, false, ds.reference_name(), ds.forecast.as_ref(), today));
-        self.map.fly_to(View { lon: ds.site.center[0], lat: ds.site.center[1], zoom: ds.site.zoom }, 0.0);
-        self.st.layer = 0;
-        self.st.frame = 0;
-        self.st.compare_frame = 0;
+        if !keep_view {
+            self.map.fly_to(View { lon: ds.site.center[0], lat: ds.site.center[1], zoom: ds.site.zoom }, 0.0);
+            self.st.layer = 0;
+            self.st.frame = 0;
+            self.st.compare_frame = 0;
+        }
         if ds.forecast.is_some() {
             self.st.rtab = RegionTab::H2o;
         }
@@ -318,7 +367,12 @@ impl App {
         if let Some(m) = self.pending_mode.take() {
             self.set_mode(m);
         }
-        self.set_layer(0);
+        if !keep_view {
+            self.set_layer(0);
+        } else {
+            let layer = self.st.layer;
+            self.set_layer(layer);
+        }
     }
 
     /// Re-runs every rule (after the weather arrives).
@@ -608,6 +662,7 @@ impl eframe::App for App {
         }
         egui::CentralPanel::no_frame().show(ui, |ui| crate::panels::map_view(self, ui));
         crate::sheets::show(self, &ctx);
+        crate::places::window(self, &ctx);
         if self.st.asked.as_ref().is_some_and(|a| a.2.elapsed().as_secs_f32() < 6.0) {
             ctx.request_repaint_after(std::time::Duration::from_millis(30));
         }

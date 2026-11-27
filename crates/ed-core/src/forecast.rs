@@ -370,6 +370,35 @@ pub fn fit_params(dates: &[Date], area: &[f64], amax: f64, refill_from: Date, wx
     let d0 = dates[0];
     let idx: Vec<usize> = dates.iter().map(|d| d.since(d0) as usize).collect();
     let span = idx[idx.len() - 1] as i32;
+    let n = area.len();
+
+    // with winter measurements in the record, the winter coefficient is fitted, not assumed
+    if dates.iter().filter(|d| is_wet(**d)).count() >= MIN_WINTER_PASSES {
+        let resid = |x: &[f64]| -> Vec<f64> {
+            let p = Params { a_wet: x[0], a_dry: x[1], k: x[2], q: x[3], amax };
+            let sim = simulate(&p, d0, area[0], span, |d| wx_at(wx, d));
+            idx.iter().zip(area).map(|(&i, a)| sim[i] - a).collect()
+        };
+        let f = least_squares(resid, &[0.002, 0.001, 0.001, 0.3], &[0.0, 0.0, 1e-5, 0.05], &[0.05, 0.05, 0.05, 2.0], 800);
+        let params = Params { a_wet: f.x[0], a_dry: f.x[1], k: f.x[2], q: f.x[3], amax };
+        let ss: f64 = f.fun.iter().map(|v| v * v).sum();
+        let mut jtj = [0.0; 16];
+        for row in 0..n {
+            for a in 0..4 {
+                for b in 0..4 {
+                    jtj[a * 4 + b] += f.jac[row * 4 + a] * f.jac[row * 4 + b];
+                }
+            }
+        }
+        let cov = pinv_sym(&jtj, 4);
+        let scale = ss / (n.saturating_sub(4).max(1)) as f64;
+        let sd = [5, 10, 15].map(|i: usize| (cov[i] * scale).max(0.0).sqrt());
+        let sim = simulate(&params, d0, area[0], span, |d| wx_at(wx, d));
+        let fitted: Vec<f64> = idx.iter().map(|&i| sim[i]).collect();
+        let rmse = (ss / n as f64).sqrt();
+        return FitResult { params, sd, rmse, rmse_step1: rmse, fitted, refill_low: crate::stats::min(area) };
+    }
+
     let resid = |x: &[f64]| -> Vec<f64> {
         let p = Params { a_wet: x[0], a_dry: x[0], k: x[1], q: x[2], amax };
         let sim = simulate(&p, d0, area[0], span, |d| wx_at(wx, d));
@@ -377,7 +406,6 @@ pub fn fit_params(dates: &[Date], area: &[f64], amax: f64, refill_from: Date, wx
     };
     let f = least_squares(resid, &[0.001, 0.001, 0.3], &[0.0, 1e-5, 0.05], &[0.05, 0.05, 2.0], 500);
     let (a_dry, k, q) = (f.x[0], f.x[1], f.x[2]);
-    let n = area.len();
     let ss: f64 = f.fun.iter().map(|v| v * v).sum();
     let rmse_step1 = (ss / n as f64).sqrt();
     let mut jtj = [0.0; 9];
@@ -405,6 +433,9 @@ pub fn fit_params(dates: &[Date], area: &[f64], amax: f64, refill_from: Date, wx
     let rmse = mean(&fitted.iter().zip(area).map(|(s, a)| (s - a).powi(2)).collect::<Vec<_>>()).sqrt();
     FitResult { params, sd, rmse, rmse_step1, fitted, refill_low: low }
 }
+
+/// Winter (Nov–Mar) passes needed to fit the winter rain coefficient instead of assuming the refill.
+pub const MIN_WINTER_PASSES: usize = 3;
 
 fn round_to(v: f64, d: usize) -> f64 {
     // Python's round(): correctly rounded, ties to even, which is what format! does too

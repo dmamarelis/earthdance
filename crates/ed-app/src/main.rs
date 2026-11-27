@@ -7,6 +7,7 @@ mod app;
 mod charts;
 mod map;
 mod panels;
+mod places;
 mod report;
 mod sheets;
 mod shot;

@@ -8,6 +8,9 @@
 //!   reads GeoTIFFs from a folder (decision D1 picks the live archive).
 
 pub mod cache;
+pub mod http;
+pub mod live;
+pub mod stac;
 pub mod demo;
 pub mod real;
 pub mod weather;

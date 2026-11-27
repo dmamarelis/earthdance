@@ -8,6 +8,7 @@ description = "Raster processing for EarthDance: GeoTIFF decoding, UTM reproject
 [dependencies]
 ed-core.workspace = true
 rayon = "1.10"
+miniz_oxide = "0.8"
 
 [dev-dependencies]
 serde_json.workspace = true

@@ -28,7 +28,7 @@ pub fn loader(app: &mut App, ui: &mut egui::Ui) {
         ui.painter().text(c + Vec2::new(0.0, 72.0), Align2::CENTER_CENTER, msg, FontId::proportional(14.0), theme::MUTED);
         if app.error.is_some() {
             let b = Rect::from_center_size(c + Vec2::new(0.0, 110.0), Vec2::new(200.0, 28.0));
-            let other = if app.source == Source::Real { Source::Demo } else { Source::Real };
+            let other = if app.source == Source::Demo { Source::Real } else { Source::Demo };
             if ui.put(b, egui::Button::new(t(if other == Source::Demo { "src.demo" } else { "src.real" }, app.st.lang))).clicked() {
                 let ctx = ui.ctx().clone();
                 app.load(other, &ctx);
@@ -90,18 +90,28 @@ pub fn top_bar(app: &mut App, ui: &mut egui::Ui) {
                 if ds.demo {
                     ui.label(RichText::new(t("demo.badge", l)).small().color(theme::WATCH));
                 }
-                egui::ComboBox::from_id_salt("source")
-                    .width(110.0)
-                    .selected_text(t(if app.source == Source::Real { "src.real" } else { "src.demo" }, l))
-                    .show_ui(ui, |ui| {
-                        for (s, key) in [(Source::Real, "src.real"), (Source::Demo, "src.demo")] {
-                            if ui.selectable_label(app.source == s, t(key, l)).clicked() && app.source != s {
-                                let ctx = ui.ctx().clone();
-                                app.st.mode = Mode::Explore;
-                                app.load(s, &ctx);
-                            }
+                let anywhere = if l == ed_core::Lang::El { "🌍 Οπουδήποτε…" } else { "🌍 Anywhere…" };
+                let current = match &app.source {
+                    Source::Real => t("src.real", l).to_string(),
+                    Source::Demo => t("src.demo", l).to_string(),
+                    Source::Live(p) => format!("🌍 {}", p.name),
+                };
+                egui::ComboBox::from_id_salt("source").width(150.0).selected_text(current).show_ui(ui, |ui| {
+                    for (s, key) in [(Source::Real, "src.real"), (Source::Demo, "src.demo")] {
+                        if ui.selectable_label(app.source == s, t(key, l)).clicked() && app.source != s {
+                            let ctx = ui.ctx().clone();
+                            app.st.mode = Mode::Explore;
+                            app.load(s, &ctx);
                         }
-                    });
+                    }
+                    if ui.selectable_label(matches!(app.source, Source::Live(_)), anywhere).clicked() {
+                        app.places.open = true;
+                    }
+                });
+                if app.streaming {
+                    ui.label(RichText::new(format!("⟳ {}", app.loading_msg)).small().color(theme::MUTED));
+                    ui.ctx().request_repaint_after(std::time::Duration::from_millis(250));
+                }
             });
         });
     });
